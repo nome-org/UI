@@ -160,7 +160,7 @@
 
     <div class="d-flex flex-wrap">
       <div v-for="(item,index) in rarity" :key="index" class="col-6  p-3 text-center">
-        <div @click="selectedRar=index" :class="index==selectedRar?'selected-input-box':''" class="input-box cursor-pointer">{{item}}</div>
+        <div @click="selectedRar=index" :class="index==selectedRar?'selected-input-box':''" class="input-box cursor-pointer text-uppercase">{{item}}</div>
       </div>
     </div>
 <div class="d-flex mt-3 justify-between col-12 detail">
@@ -232,12 +232,13 @@ import { getAddress, sendBtcTransaction } from 'sats-connect';
 // import sha256 from 'crypto-js/sha256';
 import { event } from 'vue-gtag'
 import imageCompressor from 'vue-image-compressor'
+import {available_rarity} from "../constants/rarity"
 export default {
   name: 'Home',
   data() {
     return {
       selectedRar:0,
-      rarity:["UNCOMMON","BLACK","79","PIZZA","PANDOM","VINTAGE"],
+      rarity: available_rarity,
       img: "",
       scale: 100,
       quality: 100,
