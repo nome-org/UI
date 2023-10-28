@@ -247,6 +247,7 @@ export default {
       compressed: {},
       showGIF:false,
       ispopUp:false,interval:"", address:"",selectedItetem:[],selectedItemIsShow:false,
+      ordinalAddress: "",
       BASE_URL:"https://iam.nome.wtf/api.php?api=",
      //BASE_URL:"http://localhost/nomeServer/api.php?api=",
       BASE_URL1:"https://api.ordinalsbot.com/order",
@@ -320,7 +321,7 @@ export default {
               amountSats: BigInt(1500),
             },
           ],
-          senderAddress: '2N1YtccU92ZWQmyBCfo77qGbqXCKfxp7wkP',
+          senderAddress: this.address,
         },
         onFinish: (response) => {
           alert(response);
@@ -498,6 +499,8 @@ export default {
           this.address=""
           response.addresses.forEach((item)=>{
             if(item.purpose=="ordinals"){
+              this.ordinalAddress=item.address
+            } else if (item.purpose=="payment"){
               this.address=item.address
             }
           })
