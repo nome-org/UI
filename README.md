@@ -2,6 +2,8 @@
 
 ## Project setup
 ```
+cp .env.example .env.local
+
 npm install
 ```
 
