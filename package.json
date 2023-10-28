@@ -11,7 +11,7 @@
     "core-js": "^3.8.3",
     "crypto-js": "^4.1.1",
     "image-conversion": "^2.1.1",
-    "sats-connect": "^0.2.0",
+    "sats-connect": "^1.1.1",
     "vue": "^3.2.13",
     "vue-analytics": "^5.22.1",
     "vue-gtag": "^2.0.1",

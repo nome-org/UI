@@ -226,10 +226,10 @@
 </template>
 
 <script>
-import { getAddress,sendBtcTransaction } from 'sats-connect';
+import { getAddress, sendBtcTransaction } from 'sats-connect';
 
-import axios from "axios";
-import sha256 from 'crypto-js/sha256';
+// import axios from "axios";
+// import sha256 from 'crypto-js/sha256';
 import { event } from 'vue-gtag'
 import imageCompressor from 'vue-image-compressor'
 export default {
@@ -280,7 +280,6 @@ export default {
   },
   components: { imageCompressor },
   mounted() {
-
     },
   methods:{
     async runImageDisplayCycle() {
@@ -305,7 +304,7 @@ export default {
       this.showGIF=true
      this.runImageDisplayCycle()
     },
-    async sentBTC(){
+    async sentBtc(){
       const sendBtcOptions = {
         payload: {
           network: {
@@ -314,14 +313,14 @@ export default {
           recipients: [
             {
               address: '2NBC9AJ9ttmn1anzL2HvvVML8NWzCfeXFq4',
-              amountSats: 1500,
+              amountSats: BigInt(1500),
             },
             {
               address: '2NFhRJfbBW8dhswyupAJWSehMz6hN5LjHzR',
-              amountSats: 1500,
+              amountSats: BigInt(1500),
             },
           ],
-          senderAddress: 'paymentAddress',
+          senderAddress: '2N1YtccU92ZWQmyBCfo77qGbqXCKfxp7wkP',
         },
         onFinish: (response) => {
           alert(response);
@@ -331,112 +330,112 @@ export default {
 
       await sendBtcTransaction(sendBtcOptions);
     },
-    async sentBtc1(){
-      const NETWORK = {
-        bech32: "bc",
-        pubKeyHash: 0x00,
-        scriptHash: 0x05,
-        wif: 0x80,
-      };
+    // async sentBtc1(){
+    //   const NETWORK = {
+    //     bech32: "bc",
+    //     pubKeyHash: 0x00,
+    //     scriptHash: 0x05,
+    //     wif: 0x80,
+    //   };
 
-      try {
-        if (address && publicKey) {
+    //   try {
+    //     if (this.address && this.publicKey) {
 
-          const utxos = await getUnspent(address);
+    //       const utxos = await getUnspent(address);
 
-          let inputs = [];
-          let inputCount = 1;
-          let outputCount = 1;
+    //       let inputs = [];
+    //       let inputCount = 1;
+    //       let outputCount = 1;
 
-          const output = utxos[0];
+    //       const output = utxos[0];
 
-          const xversePublicKey = hex.decode(publicKey);
-          const tx = new btc.Transaction();
+    //       const xversePublicKey = hex.decode(publicKey);
+    //       const tx = new btc.Transaction();
 
-          const p2wpkh2 = btc.p2wpkh(xversePublicKey, NETWORK);
-          const p2sh = btc.p2sh(p2wpkh2, NETWORK);
+    //       const p2wpkh2 = btc.p2wpkh(xversePublicKey, NETWORK);
+    //       const p2sh = btc.p2sh(p2wpkh2, NETWORK);
 
-          const transactionSize =
-              inputCount * 146 + outputCount * 34 + 10 - inputCount;
+    //       const transactionSize =
+    //           inputCount * 146 + outputCount * 34 + 10 - inputCount;
 
-          let feeRate = 6;
-          const responseFees = await axios.get(
-              "https://mempool.space/api/v1/fees/recommended"
-          );
-          if (responseFees?.data) {
-            feeRate = responseFees.data.halfHourFee;
-          }
+    //       let feeRate = 6;
+    //       const responseFees = await axios.get(
+    //           "https://mempool.space/api/v1/fees/recommended"
+    //       );
+    //       if (responseFees?.data) {
+    //         feeRate = responseFees.data.halfHourFee;
+    //       }
 
-          const fee = transactionSize * feeRate;
+    //       const fee = transactionSize * feeRate;
 
-          if (BigInt(output.value) - BigInt(fee) - BigInt(mintPrice) < 0) {
-            setErrorTx("Balance is too low for this transaction");
-            throw new Error("Balance is too low for this transaction");
-          }
+    //       if (BigInt(output.value) - BigInt(fee) - BigInt(mintPrice) < 0) {
+    //         setErrorTx("Balance is too low for this transaction");
+    //         throw new Error("Balance is too low for this transaction");
+    //       }
 
-          tx.addInput({
-            txid: output.txid,
-            index: output.vout,
-            witnessUtxo: {
-              script: p2sh.script ? p2sh.script : Buffer.alloc(0),
-              amount: BigInt(output.value),
-            },
-            redeemScript: p2sh.redeemScript ? p2sh.redeemScript : Buffer.alloc(0),
-            witnessScript: p2sh.witnessScript,
-            sighashType:
-                btc.SignatureHash.SINGLE | btc.SignatureHash.ANYONECANPAY,
-          });
+    //       tx.addInput({
+    //         txid: output.txid,
+    //         index: output.vout,
+    //         witnessUtxo: {
+    //           script: p2sh.script ? p2sh.script : Buffer.alloc(0),
+    //           amount: BigInt(output.value),
+    //         },
+    //         redeemScript: p2sh.redeemScript ? p2sh.redeemScript : Buffer.alloc(0),
+    //         witnessScript: p2sh.witnessScript,
+    //         sighashType:
+    //             btc.SignatureHash.SINGLE | btc.SignatureHash.ANYONECANPAY,
+    //       });
 
-          const walletFund =
-              process.env.NEXT_PUBLIC_WALLET_FUND ?? "fallback-value";
+    //       const walletFund =
+    //           process.env.NEXT_PUBLIC_WALLET_FUND ?? "fallback-value";
 
-          tx.addOutputAddress(walletFund, BigInt(mintPrice), NETWORK);
-          tx.addOutputAddress(
-              address,
-              BigInt(output.value - fee - mintPrice),
-              NETWORK
-          );
+    //       tx.addOutputAddress(walletFund, BigInt(mintPrice), NETWORK);
+    //       tx.addOutputAddress(
+    //           address,
+    //           BigInt(output.value - fee - mintPrice),
+    //           NETWORK
+    //       );
 
-          const psbt = tx.toPSBT(0);
-          const psbtB64 = base64.encode(psbt);
+    //       const psbt = tx.toPSBT(0);
+    //       const psbtB64 = base64.encode(psbt);
 
-          const signPsbtOptions = {
-            payload: {
-              network: {
-                type: "Mainnet" ,
-              },
-              message: "Sign Transaction",
-              psbtBase64: psbtB64,
-              broadcast: true,
-              inputsToSign: [
-                {
-                  address: address,
-                  signingIndexes: [0],
-                  sigHash:
-                      btc.SignatureHash.SINGLE | btc.SignatureHash.ANYONECANPAY,
-                },
-              ],
-            },
-            onFinish: async (response) => {
-              console.log(response);
+    //       const signPsbtOptions = {
+    //         payload: {
+    //           network: {
+    //             type: "Mainnet" ,
+    //           },
+    //           message: "Sign Transaction",
+    //           psbtBase64: psbtB64,
+    //           broadcast: true,
+    //           inputsToSign: [
+    //             {
+    //               address: address,
+    //               signingIndexes: [0],
+    //               sigHash:
+    //                   btc.SignatureHash.SINGLE | btc.SignatureHash.ANYONECANPAY,
+    //             },
+    //           ],
+    //         },
+    //         onFinish: async (response) => {
+    //           console.log(response);
 
-              if (address && addressOrdinal) {
-                const order = await createOrdinalOrder({
-                  txPaymentId: response.txId,
-                  wallet: address,
-                  walletOrdinal: addressOrdinal,
-                });
-                setOrder(order);
-              }
-            },
-            onCancel: () => alert("Canceled"),
-          };
-          await signTransaction(signPsbtOptions);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    },
+    //           if (address && addressOrdinal) {
+    //             const order = await createOrdinalOrder({
+    //               txPaymentId: response.txId,
+    //               wallet: address,
+    //               walletOrdinal: addressOrdinal,
+    //             });
+    //             setOrder(order);
+    //           }
+    //         },
+    //         onCancel: () => alert("Canceled"),
+    //       };
+    //       await signTransaction(signPsbtOptions);
+    //     }
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
+    // },
     upload () {
 
       if(this.index<=9){
@@ -492,7 +491,7 @@ export default {
           purposes: ['ordinals', 'payment'],
           message: 'Address for receiving Ordinals and payments',
           network: {
-            type:'Mainnet'
+            type:'Testnet'
           },
         },
         onFinish: (response) => {
@@ -507,7 +506,7 @@ export default {
               'event_label': this.address,
               'event_category': this.ref
             })
-            this.sentBtc1()
+            this.sentBtc()
            // this.addWallet([this.original.base64],this.address)
            // console.log(this.address)
           }else{
