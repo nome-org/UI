@@ -10,19 +10,19 @@
         <ul class="flex flex-col">
 <!--          <p class="px-3 mt-2 mb-0.5 text-gray-700 font-bold text-sm">Browser Extensions</p>-->
           <li @click="waitXV" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">
-            <div class="flex items-center gap-3"><img src="../assets/images/xverse.png" class="h-7 w-7 rounded-full object-cover" alt="">
+            <div class="flex items-center gap-3"><img src="../../../../UI-feat-api-integration/src/assets/images/xverse.png" class="h-7 w-7 rounded-full object-cover" alt="">
               <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Xverse</p></div>
-            </div><span class="err" v-if="!isXV">Install Hiro wallet</span></li>
+            </div><span class="err" v-if="!isXV">Install Xverse wallet</span></li>
 
-          <li @click="waitHero" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">
-            <div class="flex items-center gap-3"><img src="../assets/images/hiro.png" class="h-7 w-7 rounded-full object-cover" alt="">
-              <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Hiro Wallet </p></div>
-            </div><span class="err" v-if="!isHero"> soon</span></li>
+<!--          <li @click="waitHero" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">-->
+<!--            <div class="flex items-center gap-3"><img src="../assets/images/hiro.png" class="h-7 w-7 rounded-full object-cover" alt="">-->
+<!--              <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Hiro Wallet </p></div>-->
+<!--            </div><span class="err" v-if="!isHero"> soon</span></li>-->
 
-          <li @click="waitUN" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">
-            <div class="flex items-center gap-3"><img src="../assets/images/unisat.png" class="h-7 w-7 rounded-full object-cover" alt="">
-              <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Unisat</p></div></div>
-            <span class="err" v-if="!isUnis"> soon</span></li>
+<!--          <li @click="waitUN" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">-->
+<!--            <div class="flex items-center gap-3"><img src="../assets/images/unisat.png" class="h-7 w-7 rounded-full object-cover" alt="">-->
+<!--              <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Unisat</p></div></div>-->
+<!--            <span class="err" v-if="!isUnis"> soon</span></li>-->
 
 
 
@@ -38,7 +38,7 @@
     <div class="header d-flex justify-content-between">
      <div  > <a  href="/">
 <!--       <div style="" class="nome-logo headerLogo animate-big">NōME</div>-->
-    <img class=" headerLogo animate-big" src="../assets/images/logo_white.png">
+    <img class=" headerLogo animate-big" src="../../../../UI-feat-api-integration/src/assets/images/logo_white.png">
        </a></div>
 
      <div class="menu-link "> <a class="" target="_blank" href="https://nome.wtf/"><div class="menu-link-txt animate-big">nome.wft</div></a></div>
@@ -47,25 +47,25 @@
     </div>
     <main>
       <div class="intro">
-        <h1 class="intro-title">. Open-Source tool .</h1>
+        <h1 class="intro-title">• Open-Source tool •</h1>
         <div class="intro-box mt-md-0 mt-5 w-100 position-relative">
-          <div class="intro-line-title ">
+          <div class="intro-line-title text-center">
             Resize <br>
             and Inscribe <br>
             Animations
           </div>
         </div>
       </div>
-      <div class="pt-5"></div>
+<!--      <div class="pt-5"></div>-->
 
-      <div class="vw-50 mt-5">
-       This tool is created for you to enjoy the possibilities of Bitcoin Ordinals. To created animation , follow the steps:
+      <div class="col-sm-6 p-0 mx-width col-12 mt-5">
+       This tool is created for you to enjoy the possibilities of Bitcoin Ordinals. To created animation, follow the steps:
+        <br><br>
+        1. Upload PNG or JPEG frames (10 Max)
         <br>
-        1.Upload PNG or JPEG frames (10 Max)
+        2. Set order, timing , and .webp files size
         <br>
-        2.Set order, timing , and .webp files size
-        <br>
-        3.Generate GIF, set quantity and rarity
+        3. Generate GIF, set quantity and rarity
         <br>
         4. Inscribe frames + recursive GIFs
       </div>
@@ -76,7 +76,7 @@
       <div class="pt-4"></div>
 
 
-      <div class="vw-50 d-flex justify-center mt-3">
+      <div class="col-12 p-0 col-sm-6 d-flex justify-content-start mt-3">
 
 
         <a @click="upload"   class="btn-txt text-center animate-big btn-connect">
@@ -118,6 +118,11 @@
     </div>
     <a :href="item.img" class="button" target="_blank">Download</a>
   </div>
+  <div style="min-height: 200px" v-if="files.length==0" class="col-12 frame-box col-sm-6 col-md-4 col-lg-3">
+
+
+
+  </div>
 </div>
 
 
@@ -127,26 +132,31 @@
         </div>
 
       </div>
-      <div v-if="level==1" class="w-100 d-flex flex-wrap">
-        <div class="col-12 col-sm-6 p-0 d-flex justify-center mt-3">
+      <div  class="w-100 d-flex flex-wrap">
+        <div class="col-12 col-sm-6 p-0 d-flex justify-content-start mt-3">
           <a @click="generateGIF"   class="btn-txt text-center animate-big btn-connect">
             GENERATE GIF
           </a>
         </div>
-        <div class="input-group d-flex flex-column justify-content-start col-12 col-sm-6 p-0">
-          <label>Image Quality</label>
-          <input type="range" v-model="quality" min="1" max="100">
+        <div class="col-12 col-sm-6">
+          <div class="input-group d-flex flex-column justify-content-start col-12 ">
+            <label>Image Quality</label>
+            <input type="range" v-model="quality" min="1" max="100">
+          </div>
         </div>
+
+
       </div>
 
 
-<div v-show="showGIF" >
+<div  >
   <div class="d-flex w-100 flex-wrap">
-  <div style="background: gray" class="col-12 col-sm-6 flex-fill">
-    <div style="margin: 0px; isolation: isolate;">
-      <div class="grid-container">
-        <img class="grid-item" v-for="(item,index) in files" v-show="currentInDisplay==index" :src="item.img">
+  <div  class="col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center">
+    <div class="h-100 w-100" style="margin: 0px; isolation: isolate;">
+      <div class="grid-container p-3 h-100 w-100">
+        <div :style="{backgroundImage:`url(${item.img})`}" class="grid-item" v-for="(item,index) in files" v-show="currentInDisplay==index" >
 
+        </div>
       </div>
     </div>
 
@@ -154,23 +164,23 @@
   <div class="col-12 col-sm-6">
     <div class="col-12">
       <div class="input-title  mt-3">GIF Quantity</div>
-      <input type="number" style="color:white" class="input-box text-left">
+      <input type="number" v-model="quantity" style="color:white" class="input-box text-left">
       <div class="input-title mt-4">Rarity</div>
     </div>
 
     <div class="d-flex flex-wrap">
       <div v-for="(item,index) in rarity" :key="index" class="col-6  p-3 text-center">
-        <div @click="selectedRar=index" :class="index==selectedRar?'selected-input-box':''" class="input-box cursor-pointer">{{item}}</div>
+        <div @click="selectedRar=index" :class="index==selectedRar?'selected-input-box':''" class="input-box cursor-pointer text-uppercase">{{item}}</div>
       </div>
     </div>
-<div class="d-flex mt-3 justify-between col-12 detail">
-  <div>Frames</div> <div>{{files.length}}</div>
+<div v-if="files.length!=0" class="d-flex mt-3 justify-between col-12 detail">
+  <div>Frames</div> <div>{{files.length * quantity}}</div>
 </div>
-    <div class="d-flex justify-between col-12 detail">
-      <div>Total items</div> <div>{{files.length+1}}</div>
+    <div v-if="files.length!=0"  class="d-flex justify-between col-12 detail">
+      <div>Total items</div> <div>{{(files.length+1) * quantity}}</div>
     </div>
-    <div class="d-flex justify-between col-12 detail">
-      <div>Final BTC price</div> <div>{{(files.length+1)* 0.01}}</div>
+    <div v-if="files.length!=0"  class="d-flex justify-between col-12 detail">
+      <div>Final BTC price</div> <div>{{(files.length+1)* 0.01 * quantity}}</div>
     </div>
 
   </div>
@@ -178,8 +188,8 @@
 
   <div class="w-100 d-flex flex-wrap">
     <div class="col-12 col-sm-6">
-      <div class="col-12 text-left input-title mt-3">Thank you</div>
-      <div class="col-12 text-left input-title">Link to transaction</div>
+<!--      <div class="col-12 text-left input-title mt-3">Thank you</div>-->
+<!--      <div class="col-12 text-left input-title">Link to transaction</div>-->
     </div>
 
     <div class="col-12 col-sm-6">
@@ -218,7 +228,7 @@
     </div>
   </div>
   <div class="w-100 d-flex  justify-between mt-5 pt-5 pb-4">
-    <div class="pr-5">Let's make Bitcoin great again</div>
+    <div class="pr-5">• it is not about me •</div>
     <div class="menu-link pl-5"> <a class="" target="_blank" href="https://nome.wtf/"><div class="menu-link-txt animate-big">nome.wft</div></a></div>
   </div>
 </div>
@@ -232,12 +242,14 @@ import { getAddress, sendBtcTransaction } from 'sats-connect';
 // import sha256 from 'crypto-js/sha256';
 import { event } from 'vue-gtag'
 import imageCompressor from 'vue-image-compressor'
+import {available_rarity} from "../../../../UI-feat-api-integration/src/constants/rarity"
 export default {
   name: 'Home',
   data() {
     return {
+      quantity:1,
       selectedRar:0,
-      rarity:["UNCOMMON","BLACK","79","PIZZA","PANDOM","VINTAGE"],
+      rarity: available_rarity,
       img: "",
       scale: 100,
       quality: 100,
@@ -302,6 +314,9 @@ export default {
       return new Promise(res => setTimeout(res, ms));
     },
     generateGIF(){
+      if(this.files.length==0 ){
+        return
+      }
       this.showGIF=true
      this.runImageDisplayCycle()
     },
@@ -467,6 +482,9 @@ export default {
 
 
     changePopup(status){
+      if(this.files.length==0 ){
+        return
+      }
       if(status){
         event('enter'+status,{'event_category': this.ref})
         this.climingMSG=""
@@ -540,7 +558,12 @@ export default {
 
   @return $result;
 }
-
+.mx-width{
+  max-width: 470px;
+}
+.frame-box{
+  border: solid rgba(255, 255, 255, 0.2) 1px;
+}
 .input-title{
   min-height: changeScreen(45)*1rem;
 }
@@ -558,6 +581,7 @@ export default {
 
 .footer{
   padding: changeScreen(0)*1rem changeScreen(25)*1rem changeScreen(0)*1rem changeScreen(25)*1rem;    font-size: 1.177rem;
+  padding-top: 8rem;
 }
 
 .page-wrapper{
@@ -749,130 +773,7 @@ margin-top:changeScreen(340)*1rem !important; ;
 
 
 
-/*.page-wrapper {*/
-/*  background-size: contain;*/
-/*  margin: 25px;*/
-/*  margin-bottom: 0px;*/
-/*}*/
-/*.header {*/
-/*  position: relative;*/
-/*  height: 200px;*/
-/*}*/
-/*.menu-item.projects-menu-item {*/
-/*  left: 50%;*/
-/*}*/
-/*.header .menu-item {*/
-/*  top: -5px;*/
-/*}*/
-/*.menu-item {*/
-/*  position: absolute;*/
-/*}*/
-/*.menu-item .menu-link a {*/
-/*  display: inline-block;*/
-/*}*/
-/*.menu-item.contact-menu-item {*/
-/*  right: 0;*/
-/*}*/
-/*.menu-item.servises-menu-item {*/
-/*  left: 75%;*/
-/*}*/
-/*img {*/
-/*  display: block;*/
-/*  width: 100%;*/
-/*}*/
-/*.header>a .logo:after {*/
-/*  content: '';*/
-/*  position: absolute;*/
-/*  width: 99%;*/
-/*  height: 8%;*/
-/*  background-color: #141414;*/
-/*  bottom: -19%;*/
-/*}*/
-/*img {*/
-/*  border-style: none;*/
-/*}*/
-/*.content {*/
-/*  position: relative;*/
-/*  padding-bottom: 10px;*/
-/*  !*border-bottom: 1px solid rgba(0,0,0,0.2);*!*/
-/*}*/
-/*.content .intro h1 {*/
-/*  border-bottom: 1px solid rgba(0,0,0,0.2);*/
-/*  margin-bottom: 50px;*/
-/*  padding-bottom: 17px;*/
-/*}*/
-/*h1 {*/
-/*  margin-top: 0;*/
-/*  font-size: 24px;*/
-/*  line-height: 32px;*/
-/*}*/
-/*.content .intro .side-column-box {*/
-/*  margin-top: -120px;*/
-/*}*/
 
-/*.content .side-column-box {*/
-/*  position: absolute;*/
-/*  margin-top: -30px;*/
-/*  left: 75%;*/
-/*  z-index: 1000;*/
-/*}*/
-/*h2 {*/
-/*  font-size: 24px;*/
-/*  line-height: 32px;*/
-/*  font-style: italic;*/
-/*}*/
-/*.content .intro .side-column-box {*/
-/*  margin-top: -120px;*/
-/*}*/
-/*.content .side-column-box {*/
-/*  position: absolute;*/
-/*  margin-top: -30px;*/
-/*  left: 75%;*/
-/*  z-index: 1000;*/
-/*}*/
-/*.content .intro .text {*/
-/*  position: relative;*/
-/*}*/
-/*.content .side-column-box .side-column {*/
-/*  display: inline-block;*/
-/*  margin-left: -50%;*/
-/*  text-align: center;*/
-/*  max-width: 240px;*/
-/*}*/
-/*.content .text {*/
-/*  margin-top: 30px;*/
-/*  width: 57%;*/
-/*  font-size: 15px;*/
-/*  line-height: 22px;*/
-/*}*/
-/*.menu-link a:hover {*/
-/*  font-style: italic;*/
-/*}*/
-/*a {*/
-/*  color: #141414;*/
-/*  text-decoration: none;*/
-/*  border-bottom: 2px solid #141414;*/
-/*}*/
-
-/*a {*/
-/*  background-color: transparent;*/
-/*}*/
-/*.header .logo:hover{*/
-/*  width: 23%;*/
-/*  background-position-y: bottom;*/
-/*}*/
-/*.header>a .logo {*/
-/*  border-bottom: none;*/
-/*}*/
-/*.header .logo {*/
-/*  position: relative;*/
-/*  display: inline-block;*/
-/*  width: 23%;*/
-/*  background-image: url(https://nome.wtf/images/logo1.svg);*/
-/*  background-position-y: top;*/
-/*  background-repeat: no-repeat;*/
-/*  background-size: cover;*/
-/*}*/
 .selected-box{
   opacity: 1 ;
   background-color: #ff82a9;
@@ -1022,10 +923,12 @@ input {
   max-width: 250px;
   border: 2px solid #DDD;
 }
-
-input:focus {
-  border: 2px solid blue;
+*:focus {
+  outline: none;
 }
+/*input:focus {*/
+/*  border: 2px solid blue;*/
+/*}*/
 
 .compressor {
   display: none;
@@ -1094,13 +997,13 @@ a {
 }
 
 .grid-item {
-  /*display: none;*/
-  max-width: 200px;
-   height: 400px;
-  /*height: auto;*/
-  object-fit: cover;
-  /* min-width: 300px; */
-  /* min-height: 300px; */
+  background-position: 50% 50%!important;
+  background-repeat: no-repeat!important;
+  background-size: contain!important;
+
+width: 100%;
+  height: 100%;
+
 }
 .styles-module_blinkingCursor__yugAC {
   color: inherit;
