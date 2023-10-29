@@ -121,7 +121,7 @@
     <div class="col-12 col-sm-6">
 
       <div>
-      <div class="d-flex justify-content-center">
+      <div class="d-flex justify-content-center pt-5">
         <a @click="changePopup(true)"   class="btn-txt text-center animate-big btn-connect">
           INSCRIBE
         </a>
@@ -505,7 +505,7 @@ export default {
 
 .footer{
   padding: changeScreen(0)*1rem changeScreen(25)*1rem changeScreen(0)*1rem changeScreen(25)*1rem;    font-size: 1.177rem;
-  padding-top: 8rem;
+  //padding-top: 8rem;
 }
 
 .page-wrapper{
