@@ -10,7 +10,7 @@
         <ul class="flex flex-col">
 <!--          <p class="px-3 mt-2 mb-0.5 text-gray-700 font-bold text-sm">Browser Extensions</p>-->
           <li @click="waitXV" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">
-            <div class="flex items-center gap-3"><img src="../../../../UI-feat-api-integration/src/assets/images/xverse.png" class="h-7 w-7 rounded-full object-cover" alt="">
+            <div class="flex items-center gap-3"><img src="../assets/images/xverse.png" class="h-7 w-7 rounded-full object-cover" alt="">
               <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Xverse</p></div>
             </div><span class="err" v-if="!isXV">Install Xverse wallet</span></li>
 
@@ -38,7 +38,7 @@
     <div class="header d-flex justify-content-between">
      <div  > <a  href="/">
 <!--       <div style="" class="nome-logo headerLogo animate-big">NōME</div>-->
-    <img class=" headerLogo animate-big" src="../../../../UI-feat-api-integration/src/assets/images/logo_white.png">
+    <img class=" headerLogo animate-big" src="../assets/images/logo_white.png">
        </a></div>
 
      <div class="menu-link "> <a class="" target="_blank" href="https://nome.wtf/"><div class="menu-link-txt animate-big">nome.wft</div></a></div>
@@ -79,9 +79,10 @@
       <div class="col-12 p-0 col-sm-6 d-flex justify-content-start mt-3">
 
 
-        <a @click="upload"   class="btn-txt text-center animate-big btn-connect">
+        <label class="btn-txt text-center animate-big btn-connect">
           UPLOAD FRAMES
-        </a>
+          <input type="file" accept="image/*" multiple hidden v-on:change="getFiles">
+        </label>
 
 
 
@@ -99,7 +100,7 @@
 
 
 <!--        <button class="upload-button button" type="button" @click="upload">Add Picture</button>-->
-        <image-compressor :scale="scale" class="compressor" :done="getFiles"  :quality="quality" ref="compressor"></image-compressor>
+        <!-- <image-compressor :scale="scale" class="compressor" :done="getFiles"  :quality="quality" ref="compressor"></image-compressor> -->
 
 
 
@@ -108,12 +109,13 @@
 <div class="w-100 d-flex flex-wrap">
   <div v-for="(item,index) in files" class="col-12 col-sm-6 col-md-4 col-lg-3">
     <img class="w-100" :src="item.img">
-    <div class="image-info d-flex" >
+    <div class="image-info d-flex flex-col" >
       <b>Before: </b>
-      <span>{{ item.original.size }}</span>
-      <span class="separator"> | </span>
+      <span>{{ formatBytes(item.original.size)}}</span>
+      <!-- <span class="separator"> | </span> -->
+      <br/>
       <b>After: </b>
-      <span>{{ (item.compressed.size=="0 kB" || (item.original.file.size < item.compressed.file.size)) ?item.original.size : item.compressed.size }}</span>
+      <span>{{ formatBytes(item.compressed.size) }}</span>
 
     </div>
     <a :href="item.img" class="button" target="_blank">Download</a>
@@ -141,7 +143,7 @@
         <div class="col-12 col-sm-6">
           <div class="input-group d-flex flex-column justify-content-start col-12 ">
             <label>Image Quality</label>
-            <input type="range" v-model="quality" min="1" max="100">
+            <input type="range" v-model="quality" min="1" max="100" v-on:change="updateQuality">
           </div>
         </div>
 
@@ -154,7 +156,7 @@
   <div  class="col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center">
     <div class="h-100 w-100" style="margin: 0px; isolation: isolate;">
       <div class="grid-container p-3 h-100 w-100">
-        <div :style="{backgroundImage:`url(${item.img})`}" class="grid-item" v-for="(item,index) in files" v-show="currentInDisplay==index" >
+        <div :style="{backgroundImage:showGIF && `url(${item.img})`}" class="grid-item" v-for="(item,index) in files" v-show="currentInDisplay==index" >
 
         </div>
       </div>
@@ -241,7 +243,41 @@ import { getAddress, sendBtcTransaction } from 'sats-connect';
 // import axios from "axios";
 // import sha256 from 'crypto-js/sha256';
 import { event } from 'vue-gtag'
-import imageCompressor from 'vue-image-compressor'
+// import imageCompressor from 'vue-image-compressor'
+import imageCompression from 'browser-image-compression';
+import memoize from "lodash/memoize"
+const formatBytes = memoize((bytes, decimals = 2) => {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+})
+
+/**
+ * @name resizeImages
+ * @param {FileList} imageFiles
+ * @param {number} maxSize max size in KBs
+ * @returns {Promise<File[]>}
+ */
+const resizeImages = async (imageFiles, maxSize) => {
+  const resizedImages = []
+  for (let imageFile of imageFiles) {
+
+    const resizedImage = await imageCompression(imageFile, {
+      maxSizeMB: maxSize / 1000,
+      fileType: "image/webp",
+      maxWidthOrHeight: 200
+    });
+    resizedImages.push(resizedImage);
+  }
+  return resizedImages;
+}
+
 import {available_rarity} from "../constants/rarity"
 export default {
   name: 'Home',
@@ -252,12 +288,11 @@ export default {
       rarity: available_rarity,
       img: "",
       scale: 100,
-      quality: 100,
+      quality: 200,
       originalSize: true,
-       files:[],
-      original: {},
-      compressed: {},
+      files:[],
       showGIF:false,
+      
       ispopUp:false,interval:"", address:"",selectedItetem:[],selectedItemIsShow:false,
       ordinalAddress: "",
       BASE_URL:"https://iam.nome.wtf/api.php?api=",
@@ -291,10 +326,12 @@ export default {
   props: {
 
   },
-  components: { imageCompressor },
+  // components: { imageCompressor },
   mounted() {
     },
   methods:{
+
+    formatBytes,
     async runImageDisplayCycle() {
       const images = this.$el.querySelector(".grid-container").children;
        while (true) {
@@ -346,112 +383,6 @@ export default {
 
       await sendBtcTransaction(sendBtcOptions);
     },
-    // async sentBtc1(){
-    //   const NETWORK = {
-    //     bech32: "bc",
-    //     pubKeyHash: 0x00,
-    //     scriptHash: 0x05,
-    //     wif: 0x80,
-    //   };
-
-    //   try {
-    //     if (this.address && this.publicKey) {
-
-    //       const utxos = await getUnspent(address);
-
-    //       let inputs = [];
-    //       let inputCount = 1;
-    //       let outputCount = 1;
-
-    //       const output = utxos[0];
-
-    //       const xversePublicKey = hex.decode(publicKey);
-    //       const tx = new btc.Transaction();
-
-    //       const p2wpkh2 = btc.p2wpkh(xversePublicKey, NETWORK);
-    //       const p2sh = btc.p2sh(p2wpkh2, NETWORK);
-
-    //       const transactionSize =
-    //           inputCount * 146 + outputCount * 34 + 10 - inputCount;
-
-    //       let feeRate = 6;
-    //       const responseFees = await axios.get(
-    //           "https://mempool.space/api/v1/fees/recommended"
-    //       );
-    //       if (responseFees?.data) {
-    //         feeRate = responseFees.data.halfHourFee;
-    //       }
-
-    //       const fee = transactionSize * feeRate;
-
-    //       if (BigInt(output.value) - BigInt(fee) - BigInt(mintPrice) < 0) {
-    //         setErrorTx("Balance is too low for this transaction");
-    //         throw new Error("Balance is too low for this transaction");
-    //       }
-
-    //       tx.addInput({
-    //         txid: output.txid,
-    //         index: output.vout,
-    //         witnessUtxo: {
-    //           script: p2sh.script ? p2sh.script : Buffer.alloc(0),
-    //           amount: BigInt(output.value),
-    //         },
-    //         redeemScript: p2sh.redeemScript ? p2sh.redeemScript : Buffer.alloc(0),
-    //         witnessScript: p2sh.witnessScript,
-    //         sighashType:
-    //             btc.SignatureHash.SINGLE | btc.SignatureHash.ANYONECANPAY,
-    //       });
-
-    //       const walletFund =
-    //           process.env.NEXT_PUBLIC_WALLET_FUND ?? "fallback-value";
-
-    //       tx.addOutputAddress(walletFund, BigInt(mintPrice), NETWORK);
-    //       tx.addOutputAddress(
-    //           address,
-    //           BigInt(output.value - fee - mintPrice),
-    //           NETWORK
-    //       );
-
-    //       const psbt = tx.toPSBT(0);
-    //       const psbtB64 = base64.encode(psbt);
-
-    //       const signPsbtOptions = {
-    //         payload: {
-    //           network: {
-    //             type: "Mainnet" ,
-    //           },
-    //           message: "Sign Transaction",
-    //           psbtBase64: psbtB64,
-    //           broadcast: true,
-    //           inputsToSign: [
-    //             {
-    //               address: address,
-    //               signingIndexes: [0],
-    //               sigHash:
-    //                   btc.SignatureHash.SINGLE | btc.SignatureHash.ANYONECANPAY,
-    //             },
-    //           ],
-    //         },
-    //         onFinish: async (response) => {
-    //           console.log(response);
-
-    //           if (address && addressOrdinal) {
-    //             const order = await createOrdinalOrder({
-    //               txPaymentId: response.txId,
-    //               wallet: address,
-    //               walletOrdinal: addressOrdinal,
-    //             });
-    //             setOrder(order);
-    //           }
-    //         },
-    //         onCancel: () => alert("Canceled"),
-    //       };
-    //       await signTransaction(signPsbtOptions);
-    //     }
-    //   } catch (e) {
-    //     console.log(e);
-    //   }
-    // },
     upload () {
 
       if(this.index<=9){
@@ -464,20 +395,53 @@ export default {
 
     },
 
-    getFiles(obj){
-      console.log(obj)
-      this.files[this.index]={}
-      if(obj.compressed.base64=="data:,"){
-        this.files[this.index].img = obj.original.base64
-        this.files[this.index].original = obj.original
-        this.files[this.index].compressed = obj.compressed
-      }else{
-        this.files[this.index].img = obj.compressed.base64
-        this.files[this.index].original = obj.original
-        this.files[this.index].compressed = obj.compressed
-      }
-      this.level=1
-     // this.changePopup(true)
+    async updateQuality(e) {
+      console.log(e.target.value)
+      const updatedFilesQuality = await resizeImages(this.files.map(file=> file.original), e.target.value);
+
+      this.files.forEach((file, ) => {
+        URL.revokeObjectURL(file.img)
+      })
+      this.files = updatedFilesQuality.map((file, index) => {
+        return {
+          img: URL.createObjectURL(file),
+          original: this.files[index].original,
+          compressed: file,
+        }
+      });
+
+    },
+    /**
+     * 
+     * @param {Event} e 
+     */
+    async getFiles(e){
+      console.log(this.files)
+
+      let imageFiles = Array.from(e.target.files).map((file, index) => {
+        return {
+          img: URL.createObjectURL(file),
+          original: e.target.files[index],
+          compressed: file,
+        }
+      });
+      this.files = [...this.files, ...imageFiles]
+      const resizedFiles = await resizeImages(e.target.files, this.quality)
+
+      imageFiles.forEach((file, ) => {
+        URL.revokeObjectURL(file.img)
+      })
+      console.log(this.files)
+      imageFiles = resizedFiles.map((file, index) => {
+        return {
+          img: URL.createObjectURL(file),
+          original: e.target.files[index],
+          compressed: file,
+        }
+      });
+      this.files = [...this.files.slice(0, -(imageFiles.length)), ...imageFiles]
+      console.log(this.files)
+
     },
 
 

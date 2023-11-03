@@ -10,7 +10,7 @@
         <ul class="flex flex-col">
 <!--          <p class="px-3 mt-2 mb-0.5 text-gray-700 font-bold text-sm">Browser Extensions</p>-->
           <li @click="waitXV" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">
-            <div class="flex items-center gap-3"><img src="../../../../UI-feat-api-integration/src/assets/images/xverse.png" class="h-7 w-7 rounded-full object-cover" alt="">
+            <div class="flex items-center gap-3"><img src="../assets/images/xverse.png" class="h-7 w-7 rounded-full object-cover" alt="">
               <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Xverse</p></div>
             </div><span class="err" v-if="!isXV">Install Xverse wallet</span></li>
 
@@ -38,7 +38,7 @@
     <div class="header d-flex justify-content-between">
      <div  > <a  href="/">
 <!--       <div style="" class="nome-logo headerLogo animate-big">NōME</div>-->
-    <img class=" headerLogo animate-big" src="../../../../UI-feat-api-integration/src/assets/images/logo_white.png">
+    <img class=" headerLogo animate-big" src="../assets/images/logo_white.png">
        </a></div>
 
      <div class="menu-link "> <a class="" target="_blank" href="https://nome.wtf/"><div class="menu-link-txt animate-big">nome.wft</div></a></div>
@@ -79,7 +79,7 @@
   <div  class="col-12 col-sm-6 flex-fill  d-flex align-items-center justify-content-center">
     <div class="h-100 w-100" style="margin: 0px; isolation: isolate;">
       <div class="grid-container frame-box p-3 h-100 w-100">
-     <img class="w-100" src="../../../../UI-feat-api-integration/src/assets/images/NOME-memb.png">
+     <img class="w-100" src="../assets/images/NOME-memb.png">
       </div>
     </div>
 
@@ -168,7 +168,7 @@ import { getAddress, sendBtcTransaction } from 'sats-connect';
 // import sha256 from 'crypto-js/sha256';
 import { event } from 'vue-gtag'
 import imageCompressor from 'vue-image-compressor'
-import {available_rarity} from "../../../../UI-feat-api-integration/src/constants/rarity"
+import { available_rarity } from '@/constants/rarity';
 export default {
   name: 'Home',
   data() {
