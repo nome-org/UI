@@ -165,7 +165,7 @@
                 type="range"
                 v-model="quality"
                 min="1"
-                max="100"
+                max="200"
                 v-on:change="updateQuality"
               />
             </div>
@@ -382,9 +382,6 @@ export default {
   },
   props: {},
   // components: { imageCompressor },
-  mounted() {
-    console.log(this.files);
-  },
   setup() {
     // const price = useQuery(["price", this.files])
     const files = ref([]);
@@ -410,6 +407,10 @@ export default {
       });
     }
     async function getFiles(e) {
+      if (!e.target.files.length) {
+        e.preventDefault();
+        return;
+      }
       let imageFiles = Array.from(e.target.files).map((file, index) => {
         return {
           img: URL.createObjectURL(file),
@@ -417,9 +418,14 @@ export default {
           compressed: file,
         };
       });
+
+      // show original images initially
       files.value = [...files.value, ...imageFiles];
+
+      // compress images in the meanwhile
       const resizedFiles = await resizeImages(e.target.files, this.quality);
 
+      // after compression is done, replace original images with compressed ones
       imageFiles.forEach((file) => {
         URL.revokeObjectURL(file.img);
       });
