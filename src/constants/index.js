@@ -1,4 +1,4 @@
-export const available_rarity = [
+export const AVAILABLE_RARITY = [
     "2009",
     "2010",
     "2011",
@@ -9,3 +9,6 @@ export const available_rarity = [
     "vintage",
     "random",
 ];
+
+
+export const BASE_URL = "https://iam.nome.wtf/api";

@@ -1,0 +1,119 @@
+@font-face {
+  font-family: "Menoe Grotesque";
+  font-weight: normal;
+  font-style: normal;
+  src: url("assets/fonts/Menoe Grotesque-Regular-Web.woff2") format("woff2")
+}
+@font-face {
+  font-family: "Menoe Grotesque Pro";
+  font-weight: normal;
+  font-style: normal;
+  src: url("assets/fonts/Menoe_Grotesque_Pro-Regular_TypeToday.woff2") format("woff2"),
+  url("assets/fonts/Menoe_Grotesque_Pro-Regular_TypeToday.woff") format("woff"),
+  url("assets/fonts/Menoe_Grotesque_Pro-Regular_TypeToday.eot") format("embedded-opentype")
+}
+/*url("assets/fonts/Menoe Grotesque-Regular-Web.woff2#iefix") format("embedded-opentype"),*/
+@font-face {
+  font-family: "Menoe Grotesque";
+  font-weight: normal;
+  font-style: italic;
+  src: url("assets/fonts/Menoe Grotesque-Regular Italic-Web.eot") format("embedded-opentype"),
+  url("assets/fonts/Menoe Grotesque-Regular Italic-Web.woff2") format("woff2"),
+  url("assets/fonts/Menoe Grotesque-Regular Italic-Web.woff") format("woff")
+}
+
+
+
+*, *::before, *::after {
+  scroll-behavior: smooth;
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+
+html, body{
+  background-color: black;
+  margin: 0;
+  font-family: "Menoe Grotesque",Helvetica,Arial,sans-serif;
+  color: white;
+}
+
+a:hover{
+  text-decoration: none;
+}
+
+.opacity{
+  opacity: 0.5 !important;
+}
+.gallery-item {
+  display: flex;
+  justify-content: center;
+  width: 10%;
+  height: 10%;
+  /* To keep it square*/
+  background-color: white;
+
+  transition: all 0.2s ease-out;
+}
+
+.animate-big:hover {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
+.animate-big{
+  -webkit-transition: -webkit-transform 0.2s;
+  transition: -webkit-transform 0.2s;
+  transition: transform 0.2s;
+  transition: transform 0.2s, -webkit-transform 0.2s; /* Animation */
+}
+
+
+.activeBig {
+  vertical-align: middle;
+
+  -webkit-animation-name: hvr-bob-float, activeBig;
+  animation-name: hvr-bob-float, activeBig;
+  -webkit-animation-duration: .3s, 1.5s;
+  animation-duration: .3s, 1.5s;
+
+  -webkit-animation-timing-function: ease-out, ease-in-out;
+  animation-timing-function: ease-out, ease-in-out;
+  -webkit-animation-iteration-count: 1, infinite;
+  /*animation-iteration-count: 1, infinite;*/
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+  -webkit-animation-direction: normal, alternate;
+  animation-direction: normal, alternate;
+}
+  
+  
+@keyframes activeBig {
+  0% {
+    -webkit-transform: scale(1);
+    transform:  scale(1);
+  }
+  50% {
+    -webkit-transform:  scale(1.1);
+    transform:   scale(1.1);
+  }
+  100% {
+    -webkit-transform: scale(1.1) ;
+    transform:  scale(1.1);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  html{font-size: 13px !important;}
+}
+@media (min-width: 480px) and (max-width: 800px) {
+  html{font-size: 15px !important;}
+}
+
+@media (min-width: 800px) and (max-width: 1920px) {
+  html{font-size: 17px !important;}
+}
+
+@media screen and (min-width: 1920px) {
+  html{font-size: 20px !important;}
+}
