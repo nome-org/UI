@@ -2,7 +2,7 @@
   <div class="">
     <div class="page-wrapper">
       <div
-        v-if="ispopUp"
+        v-if="showWalletSelection"
         style="overflow-y: scroll; z-index: 99"
         class="position-fixed top-0 left-0 bg-black bg-opacity-80 w-screen h-screen flex items-center justify-center z-50"
       >
@@ -10,7 +10,7 @@
           class="bg-white col-11 col-sm-9 col-lg-4 col-xl-3 md:rounded-md py-2 relative shadow-md"
         >
           <span
-            @click="changePopup(!ispopUp)"
+            @click="changePopup(!showWalletSelection)"
             class="absolute right-4 top-3 font-bold cursor-pointer text-gray-800"
             >X</span
           >
@@ -309,6 +309,14 @@ import { event } from "vue-gtag";
 // import imageCompressor from 'vue-image-compressor'
 import imageCompression from "browser-image-compression";
 import memoize from "lodash/memoize";
+
+import { available_rarity } from "../constants/rarity";
+import { useMutation, useQuery } from "@tanstack/vue-query";
+import { ref } from "vue";
+import { getPriceApi } from "@/api/get-price";
+import { inscribeApi } from "@/api/inscribe";
+import { fileToBase64 } from "@/util/fileToBase64";
+
 const formatBytes = memoize((bytes, decimals = 2) => {
   if (bytes === 0) return "0 Bytes";
 
@@ -340,36 +348,21 @@ const resizeImages = async (imageFiles, maxSize) => {
   return resizedImages;
 };
 
-import { available_rarity } from "../constants/rarity";
-import { useQuery } from "@tanstack/vue-query";
-import { ref } from "vue";
-import { getPriceApi } from "@/api/get-price";
+function delay(ms) {
+  return new Promise((res) => setTimeout(res, ms));
+}
 export default {
   name: "Home",
   data() {
     return {
       rarity: available_rarity,
       img: "",
-      scale: 100,
-      quality: 200,
-      originalSize: true,
 
-      ispopUp: false,
-      interval: "",
-      address: "",
-      selectedItetem: [],
-      selectedItemIsShow: false,
-      ordinalAddress: "",
-      BASE_URL: "https://iam.nome.wtf/api.php?api=",
-      //BASE_URL:"http://localhost/nomeServer/api.php?api=",
-      BASE_URL1: "https://api.ordinalsbot.com/order",
+      originalSize: true,
       result: "",
-      search: [],
       isHero: false,
       isUnis: false,
-      isXV: true,
-      indexes: [],
-      climingMSG: "",
+
       level: 0,
       ref: 0,
       index: -1,
@@ -383,14 +376,20 @@ export default {
   props: {},
   // components: { imageCompressor },
   setup() {
-    // const price = useQuery(["price", this.files])
+    /**
+     * @type {import("vue").Ref<{original: File, compressed: File, img: string}[]>}
+     */
     const files = ref([]);
     const selectedRarity = ref("random");
     const quantity = ref(1);
     const showGIF = ref(false);
-
+    const paymentAddress = ref("");
+    const ordinalAddress = ref("");
+    const isXV = ref(true);
+    const showWalletSelection = ref(false);
+    const quality = ref(200);
     async function updateQuality(e) {
-      const updatedFilesQuality = await resizeImages(
+      const newlyCompressedFiles = await resizeImages(
         files.value.map((file) => file.original),
         e.target.value
       );
@@ -398,11 +397,11 @@ export default {
       files.value.forEach((file) => {
         URL.revokeObjectURL(file.img);
       });
-      files.value = updatedFilesQuality.map((file, index) => {
+      files.value = newlyCompressedFiles.map((compressedFile, index) => {
         return {
-          img: URL.createObjectURL(file),
-          original: this.files[index].original,
-          compressed: file,
+          img: URL.createObjectURL(compressedFile),
+          original: files.value[index].original,
+          compressed: compressedFile,
         };
       });
     }
@@ -423,7 +422,7 @@ export default {
       files.value = [...files.value, ...imageFiles];
 
       // compress images in the meanwhile
-      const resizedFiles = await resizeImages(e.target.files, this.quality);
+      const resizedFiles = await resizeImages(e.target.files, quality.value);
 
       // after compression is done, replace original images with compressed ones
       imageFiles.forEach((file) => {
@@ -447,13 +446,119 @@ export default {
       queryFn: async () => {
         return getPriceApi({
           count: quantity.value,
-          fee: 4,
+          fee: 6,
           imageSizes: files.value.map((file) => file.compressed.size),
           rareSats: selectedRarity.value,
         });
       },
       enabled: () => showGIF.value && files.value.length > 0,
     });
+
+    const createInscriptionOrderMut = useMutation({
+      mutationKey: ["inscribe", files, selectedRarity, quantity],
+      mutationFn: async () => {
+        /**
+         * @type {import("../api/inscribe").FileData[]}
+         */
+        const fileData = [];
+        for (const file of files.value) {
+          fileData.push({
+            dataURL: await fileToBase64(file.compressed),
+            duration: 1000,
+            name: file.original.name,
+            size: file.compressed.size,
+            type: file.compressed.type,
+          });
+        }
+        const {
+          data: {
+            payment_details: { address, amount },
+          },
+        } = await inscribeApi({
+          files: fileData,
+          feeRate: 6,
+          payAddress: paymentAddress.value,
+          rarity: selectedRarity.value,
+          receiverAddress: ordinalAddress.value,
+        });
+        await sendBTC(address, amount);
+      },
+    });
+
+    async function waitXV() {
+      // event("start of xv", {
+      //   event_category: this.ref,
+      // });
+      // console.log("start xverse");
+      try {
+        isXV.value = true;
+        await getAddress({
+          payload: {
+            purposes: ["ordinals", "payment"],
+            message:
+              "We need the address you'll use to pay for the service, and the address where you want to receive the Ordinals.",
+            network: {
+              type: "Testnet",
+            },
+          },
+          onFinish: (response) => {
+            response.addresses.forEach((item) => {
+              if (item.purpose == "ordinals") {
+                ordinalAddress.value = item.address;
+              } else if (item.purpose == "payment") {
+                paymentAddress.value = item.address;
+              }
+            });
+            if (paymentAddress.value) {
+              createInscriptionOrderMut.mutate();
+              // event("success of xv", {
+              //   event_label: paymentAddress.value,
+              //   event_category: this.ref,
+              // });
+              // this.addWallet([this.original.base64],paymentAddress.value)
+              // console.log(paymentAddress.value)
+            } else {
+              isXV.value = false;
+            }
+          },
+          onCancel: () => console.log("Request canceled"),
+        });
+        changePopup(false);
+      } catch (err) {
+        console.log("xverse err", err);
+        isXV.value = false;
+      }
+    }
+
+    function changePopup(status) {
+      if (files.value.length == 0) {
+        return;
+      }
+      showWalletSelection.value = status;
+    }
+
+    async function sendBTC(address, amount) {
+      const sendBtcOptions = {
+        payload: {
+          network: {
+            type: "Testnet",
+          },
+          recipients: [
+            {
+              address: address,
+              amountSats: BigInt(amount),
+            },
+          ],
+          senderAddress: paymentAddress.value,
+        },
+        onFinish: (response) => {
+          console.log(response);
+        },
+        onCancel: () => console.log("Canceled"),
+      };
+
+      await sendBtcTransaction(sendBtcOptions);
+    }
 
     return {
       formatBytes,
@@ -464,6 +569,14 @@ export default {
       selectedRarity,
       quantity,
       showGIF,
+      ordinalAddress,
+      paymentAddress,
+      waitXV,
+      isXV,
+      changePopup,
+      showWalletSelection,
+      quality,
+      createInscriptionOrderMut,
     };
   },
   methods: {
@@ -474,7 +587,7 @@ export default {
         const previousImage = images.item(
           (this.currentInDisplay || images.length) - 1
         );
-        await this.delay(this.times[this.currentInDisplay] || 1000);
+        await delay(this.times[this.currentInDisplay] || 1000);
         previousImage.style.setProperty("display", "none");
         currentImage.style.setProperty("display", "block");
         if (this.currentInDisplay === images.length - 1) {
@@ -484,102 +597,13 @@ export default {
         }
       }
     },
-    delay(ms) {
-      return new Promise((res) => setTimeout(res, ms));
-    },
+
     generateGIF() {
       if (this.files.length == 0) {
         return;
       }
       this.showGIF = true;
       this.runImageDisplayCycle();
-    },
-    async sentBtc() {
-      const sendBtcOptions = {
-        payload: {
-          network: {
-            type: "Testnet",
-          },
-          recipients: [
-            {
-              address: "2NBC9AJ9ttmn1anzL2HvvVML8NWzCfeXFq4",
-              amountSats: BigInt(1500),
-            },
-            {
-              address: "2NFhRJfbBW8dhswyupAJWSehMz6hN5LjHzR",
-              amountSats: BigInt(1500),
-            },
-          ],
-          senderAddress: this.address,
-        },
-        onFinish: (response) => {
-          alert(response);
-        },
-        onCancel: () => alert("Canceled"),
-      };
-
-      await sendBtcTransaction(sendBtcOptions);
-    },
-
-    changePopup(status) {
-      if (this.files.length == 0) {
-        return;
-      }
-      if (status) {
-        event("enter" + status, { event_category: this.ref });
-        this.climingMSG = "";
-      }
-      this.ispopUp = status;
-    },
-    connect() {
-      this.wait();
-    },
-
-    async waitXV() {
-      event("start of xv", {
-        event_category: this.ref,
-      });
-      this.address = "";
-      // console.log("start xverse")
-      const getAddressOptions = {
-        payload: {
-          purposes: ["ordinals", "payment"],
-          message: "Address for receiving Ordinals and payments",
-          network: {
-            type: "Testnet",
-          },
-        },
-        onFinish: (response) => {
-          this.address = "";
-          response.addresses.forEach((item) => {
-            if (item.purpose == "ordinals") {
-              this.ordinalAddress = item.address;
-            } else if (item.purpose == "payment") {
-              this.address = item.address;
-            }
-          });
-          if (this.address) {
-            event("success of xv", {
-              event_label: this.address,
-              event_category: this.ref,
-            });
-            this.sentBtc();
-            // this.addWallet([this.original.base64],this.address)
-            // console.log(this.address)
-          } else {
-            this.isXV = false;
-          }
-        },
-        onCancel: () => console.log("Request canceled"),
-      };
-      try {
-        this.isXV = true;
-        await getAddress(getAddressOptions);
-        this.changePopup(false);
-      } catch (err) {
-        console.log("xverse err", err);
-        this.isXV = false;
-      }
     },
   },
 };
