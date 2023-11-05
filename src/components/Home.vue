@@ -147,7 +147,7 @@
             <a :href="img" class="button" target="_blank">Download</a>
           </div>
         </div>
-        <div class="w-100 d-flex flex-wrap">
+        <div class="w-100 d-flex flex-wrap-reverse flex-sm-wrap">
           <div class="col-12 col-sm-6 p-0 d-flex justify-content-start mt-3">
             <a
               @click="generateGIF"
@@ -156,9 +156,9 @@
               GENERATE GIF
             </a>
           </div>
-          <div class="col-12 col-sm-6">
+          <div class="col-12 px-0 col-sm-6">
             <div
-              class="input-group d-flex flex-column justify-content-start col-12"
+              class="input-group d-flex px-0 pl-sm-3 flex-column justify-content-start col-12"
             >
               <label>Image Quality</label>
               <input
