@@ -48,7 +48,7 @@ export const inscribeApi = async ({
   feeRate,
   payAddress,
 }) => {
-  const response = await api.post("/inscribe", {
+  const response = await api.post("/orders", {
     files,
     rarity,
     receiverAddress,
