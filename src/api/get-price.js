@@ -1,23 +1,29 @@
-import { api } from "./api-instance"
-
+import { api } from "./api-instance";
+/**
+ * @typedef {Object} priceResponse
+ * @property {number} totalFee
+ */
 /**
  * @param {Object} params
- * @param {number} params.size
+ * @param {number[]} params.imageSizes
  * @param {number} params.fee
  * @param {number} params.count
  * @param {number} params.rareSats
- * @returns {Promise<{message: string, data: {fee: number}, success: boolean}>}
+ * @returns {Promise<{message: string, data: priceResponse, success: boolean}>}
  */
-export const getPriceApi = async (
-    {size, fee, count, rareSats}
-) => {
-    const response = await api.get('/price', {
-        params: {
-            size,
-            fee,
-            count,
-            rareSats
-        }
-    })
-    return response.data
-}
+export const getPriceApi = async ({
+  imageSizes,
+  fee,
+  count = 1,
+  rareSats = "random",
+}) => {
+  const response = await api.get("/price", {
+    params: {
+      imageSizes,
+      fee_rate: fee,
+      count,
+      rareSats,
+    },
+  });
+  return response.data;
+};
