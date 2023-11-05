@@ -167,7 +167,7 @@ import { getAddress, sendBtcTransaction } from 'sats-connect';
 // import axios from "axios";
 // import sha256 from 'crypto-js/sha256';
 import { event } from 'vue-gtag'
-import imageCompressor from 'vue-image-compressor'
+// import imageCompressor from 'vue-image-compressor'
 import { available_rarity } from '@/constants/rarity';
 export default {
   name: 'Home',
@@ -217,7 +217,7 @@ export default {
   props: {
 
   },
-  components: { imageCompressor },
+  // components: { imageCompressor },
   mounted() {
     },
   methods:{
