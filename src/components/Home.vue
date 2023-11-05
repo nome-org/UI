@@ -376,6 +376,7 @@ export default {
         1000, 0, 1000, 0, 1000,
       ],
       currentInDisplay: 0,
+      isRunningGif: false,
     };
   },
   props: {},
@@ -606,6 +607,10 @@ export default {
   },
   methods: {
     async runImageDisplayCycle() {
+      if (this.isRunningGif) {
+        return;
+      }
+      this.isRunningGif = true;
       const images = this.$el.querySelector(".grid-container").children;
       while (true) {
         const currentImage = images.item(this.currentInDisplay);
