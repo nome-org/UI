@@ -125,6 +125,7 @@ const useOrders = defineStore('orders', {
                 }
             });
             if(res.data?.success) this.price = res.data?.data?.totalFee;
+            console.log({p: this.price});
             return res.data;
         },
         /**

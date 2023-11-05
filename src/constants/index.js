@@ -11,4 +11,7 @@ export const AVAILABLE_RARITY = [
 ];
 
 
-export const BASE_URL = "https://iam.nome.wtf/api";
+export const BASE_URL = "http://localhost:3000";
+
+
+export const NETWORK = "Testnet";

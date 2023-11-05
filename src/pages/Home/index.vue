@@ -25,7 +25,7 @@
               >
                 <div class="flex items-center gap-3">
                   <img
-                    src="../assets/images/xverse.png"
+                    src="../../assets/images/xverse.png"
                     class="h-7 w-7 rounded-full object-cover"
                     alt=""
                   />
@@ -39,35 +39,20 @@
               </li>
   
               <!--          <li @click="waitHero" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">-->
-              <!--            <div class="flex items-center gap-3"><img src="../assets/images/hiro.png" class="h-7 w-7 rounded-full object-cover" alt="">-->
+              <!--            <div class="flex items-center gap-3"><img src="../../assets/images/hiro.png" class="h-7 w-7 rounded-full object-cover" alt="">-->
               <!--              <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Hiro Wallet </p></div>-->
               <!--            </div><span class="err" v-if="!isHero"> soon</span></li>-->
   
               <!--          <li @click="waitUN" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">-->
-              <!--            <div class="flex items-center gap-3"><img src="../assets/images/unisat.png" class="h-7 w-7 rounded-full object-cover" alt="">-->
+              <!--            <div class="flex items-center gap-3"><img src="../../assets/images/unisat.png" class="h-7 w-7 rounded-full object-cover" alt="">-->
               <!--              <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Unisat</p></div></div>-->
               <!--            <span class="err" v-if="!isUnis"> soon</span></li>-->
             </ul>
           </div>
         </div>
   
-        <div class="header d-flex justify-content-between">
-          <div>
-            <a href="/">
-              <!--       <div style="" class="nome-logo headerLogo animate-big">NōME</div>-->
-              <img
-                class="headerLogo animate-big"
-                src="../assets/images/logo_white.png"
-              />
-            </a>
-          </div>
-  
-          <div class="menu-link">
-            <a class="" target="_blank" href="https://nome.wtf/"
-              ><div class="menu-link-txt animate-big">nome.wft</div></a
-            >
-          </div>
-        </div>
+        <Header />
+
         <main>
           <div class="intro">
             <h1 class="intro-title">• Open-Source tool •</h1>
@@ -110,9 +95,6 @@
           </div>
   
           <div align="center">
-            <!--        <button class="upload-button button" type="button" @click="upload">Add Picture</button>-->
-            <!-- <image-compressor :scale="scale" class="compressor" :done="getFiles"  :quality="quality" ref="compressor"></image-compressor> -->
-  
             <div class="w-100 d-flex flex-wrap">
               <div
                 v-for="(item, index) in files"
@@ -208,7 +190,7 @@
                   >
                     <div
                       @click="selectedRarity = item"
-                      :class="item == selectedRarity ? 'selected-input-box' : ''"
+                      :class="item === selectedRarity ? 'selected-input-box' : ''"
                       class="input-box cursor-pointer text-uppercase"
                     >
                       {{ item }}
@@ -230,11 +212,12 @@
                   <div>{{ files.length + quantity }}</div>
                 </div>
                 <div
-                  v-if="priceData && files.length != 0"
+                  v-if="fee && files.length != 0"
                   class="d-flex justify-between col-12 detail"
                 >
+                {{ fee }}
                   <div>Final BTC price</div>
-                  <div>{{ (priceData.data.totalFee / 1e8).toFixed(8) }}</div>
+                  <div>{{ (fee / 1e8).toFixed(8) }}</div>
                 </div>
               </div>
             </div>
@@ -262,41 +245,8 @@
         </main>
       </div>
   
-      <div class="footer">
-        <div class="intro mt-5 pt-5">
-          <!--    <h1 class="intro-title">I AM NOME</h1>-->
-          <div class="intro-box pt-2 mt-md-0 mt-5 w-100 position-relative">
-            <div class="intro-line-title intro-line-title-f text-center">
-              <div class="animate-big">
-                <a
-                  class="menu-link-txt-footer"
-                  target="_blank"
-                  href="https://twitter.com/nome_nft"
-                >
-                  Twitter</a
-                >
-              </div>
-  
-              <div class="animate-big mt-2">
-                <a
-                  class="menu-link-txt-footer"
-                  target="_blank"
-                  href="https://discord.gg/ffZKc2TfN4"
-                  >Discord</a
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="w-100 d-flex justify-between mt-5 pt-5 pb-4">
-          <div class="pr-5">• it is not about me •</div>
-          <div class="menu-link pl-5">
-            <a class="" target="_blank" href="https://nome.wtf/"
-              ><div class="menu-link-txt animate-big">nome.wft</div></a
-            >
-          </div>
-        </div>
-      </div>
+      <Footer />
+
     </div>
   </template>
   
@@ -306,83 +256,73 @@
   import { useMutation, useQuery } from "@tanstack/vue-query";
   
   
-  import { getPriceApi } from "@/api/get-price";
-  import { inscribeApi } from "@/api/inscribe";
-  import { fileToBase64 } from "@/util/fileToBase64";
-  import { AVAILABLE_RARITY } from "../constants";
+  import useOrders from "@/stores/orders";
+  import { fileToBase64 } from "@/utils/fileToBase64";
+  import { AVAILABLE_RARITY, NETWORK } from "@/constants";
+  import resizeImages from "@/utils/resizeImages";
+  import {Footer, Header} from "@/components";
+  import formatBytes from "@/utils/formatBytes";
+  import delay from "@/utils/delay";
   
   
   
   
   const Home = defineComponent({
     name: "Home",
-    components: {},
-    props: {},
-    setup(props){
-      return {
-        AVAILABLE_RARITY
-      }
-    }
-  })
-  
-  export default {
-    name: "Home",
-    data() {
-      return {
-        img: "",
-  
-        originalSize: true,
-        result: "",
-        isHero: false,
-        isUnis: false,
-  
-        level: 0,
-        ref: 0,
-        index: -1,
-        times: [
-          1000, 0, 1000, 1000, 0, 1000, 1000, 0, 1000, 1000, 0, 0, 1000, 1000, 0,
-          1000, 0, 1000, 0, 1000,
-        ],
-        currentInDisplay: 0,
-      };
+    components: {
+      Footer,
+      Header
     },
     props: {},
-    // components: { imageCompressor },
-    setup() {
-      /**
-       * @type {import("vue").Ref<{original: File, compressed: File, img: string}[]>}
-       */
+    setup(props){
+      const store = useOrders();
+      const img = ref("");
+      const showGIF = ref(false);
       const files = ref([]);
       const selectedRarity = ref("random");
       const quantity = ref(1);
-      const showGIF = ref(false);
+      const currentInDisplay = ref(0);
       const paymentAddress = ref("");
       const ordinalAddress = ref("");
+      const fee = ref(store.price);
       const isXV = ref(true);
-      const showWalletSelection = ref(false);
       const quality = ref(200);
+      const times = ref([
+        1000, 0, 1000, 1000, 0, 1000, 1000, 0, 1000, 1000, 0, 0, 1000, 1000, 0,
+        1000, 0, 1000, 0, 1000,
+      ])
+      const showWalletSelection = ref(false);
+
+
       async function updateQuality(e) {
+        //compress all the files uploaded by the user
         const newlyCompressedFiles = await resizeImages(
           files.value.map((file) => file.original),
           e.target.value
         );
   
+        //then we revoke all the uncompressed files held by the files object
         files.value.forEach((file) => {
           URL.revokeObjectURL(file.img);
         });
+
+        //then we update the value with the compressed files
         files.value = newlyCompressedFiles.map((compressedFile, index) => {
           return {
             img: URL.createObjectURL(compressedFile),
             original: files.value[index].original,
             compressed: compressedFile,
-          };
+          }
         });
       }
+
+
       async function getFiles(e) {
         if (!e.target.files.length) {
           e.preventDefault();
           return;
         }
+        
         let imageFiles = Array.from(e.target.files).map((file, index) => {
           return {
             img: URL.createObjectURL(file),
@@ -413,56 +353,9 @@
           ...imageFiles,
         ];
       }
-  
-      const { data, isLoading } = useQuery({
-        queryKey: ["price", files, selectedRarity, quantity],
-        queryFn: async () => {
-          return getPriceApi({
-            count: quantity.value,
-            fee: 6,
-            imageSizes: files.value.map((file) => file.compressed.size),
-            rareSats: selectedRarity.value,
-          });
-        },
-        enabled: () => showGIF.value && files.value.length > 0,
-      });
-  
-      const createInscriptionOrderMut = useMutation({
-        mutationKey: ["inscribe", files, selectedRarity, quantity],
-        mutationFn: async () => {
-          /**
-           * @type {import("../api/inscribe").FileData[]}
-           */
-          const fileData = [];
-          for (const file of files.value) {
-            fileData.push({
-              dataURL: await fileToBase64(file.compressed),
-              duration: 1000,
-              name: file.original.name,
-              size: file.compressed.size,
-              type: file.compressed.type,
-            });
-          }
-          const {
-            data: {
-              payment_details: { address, amount },
-            },
-          } = await inscribeApi({
-            files: fileData,
-            feeRate: 6,
-            payAddress: paymentAddress.value,
-            rarity: selectedRarity.value,
-            receiverAddress: ordinalAddress.value,
-          });
-          await sendBTC(address, amount);
-        },
-      });
-  
+
+
       async function waitXV() {
-        // event("start of xv", {
-        //   event_category: this.ref,
-        // });
-        // console.log("start xverse");
         try {
           isXV.value = true;
           await getAddress({
@@ -471,11 +364,11 @@
               message:
                 "We need the address you'll use to pay for the service, and the address where you want to receive the Ordinals.",
               network: {
-                type: "Testnet",
+                type: NETWORK,
               },
             },
-            onFinish: (response) => {
-              response.addresses.forEach((item) => {
+            onFinish: (res) => {
+              res.addresses.forEach((item) => {
                 if (item.purpose == "ordinals") {
                   ordinalAddress.value = item.address;
                 } else if (item.purpose == "payment") {
@@ -502,19 +395,67 @@
           isXV.value = false;
         }
       }
+
+
+      const { data, isLoading } = useQuery({
+        queryKey: ["price", files, selectedRarity, quantity],
+        queryFn: async () => {
+          return await store.fetchPrice({
+            count: quantity.value,
+            fee: 6,
+            imageSizes: files.value.map((file) => file.compressed.size),
+            rareSats: selectedRarity.value,
+          });
+        },
+        enabled: () => showGIF.value && files.value.length > 0,
+      });
+      console.log({data, isLoading});
+
+  
+      const createInscriptionOrderMut = useMutation({
+        mutationKey: ["inscribe", files, selectedRarity, quantity],
+        mutationFn: async () => {
+          /**
+           * @type {import("../api/inscribe").FileData[]}
+           */
+          const fileData = [];
+          for (const file of files.value) {
+            fileData.push({
+              dataURL: await fileToBase64(file.compressed),
+              duration: 1000,
+              name: file.original.name,
+              size: file.compressed.size,
+              type: file.compressed.type,
+            });
+          }
+          const {
+            data: {
+              payment_details: { address, amount },
+            },
+          } = await store.createOrder({
+            files: fileData,
+            feeRate: 6,
+            payAddress: paymentAddress.value,
+            rarity: selectedRarity.value,
+            receiverAddress: ordinalAddress.value,
+          });
+          await sendBTC(address, amount);
+        },
+      });
+  
   
       function changePopup(status) {
-        if (files.value.length == 0) {
+        if (files.value.length === 0) {
           return;
         }
         showWalletSelection.value = status;
       }
-  
+
       async function sendBTC(address, amount) {
         const sendBtcOptions = {
           payload: {
             network: {
-              type: "Testnet",
+              type: NETWORK,
             },
             recipients: [
               {
@@ -533,24 +474,31 @@
         await sendBtcTransaction(sendBtcOptions);
       }
   
+
+
       return {
-        formatBytes,
-        files,
-        updateQuality,
-        getFiles,
-        priceData: data,
-        selectedRarity,
-        quantity,
-        showGIF,
-        ordinalAddress,
-        paymentAddress,
+        times,
+        sendBTC,
         waitXV,
-        isXV,
-        changePopup,
         showWalletSelection,
+        isXV,
+        files,
+        currentInDisplay,
+        formatBytes,
+        fee,
+        selectedRarity,
+        paymentAddress,
+        ordinalAddress,
+        quantity,
+        updateQuality,
+        img,
         quality,
-        createInscriptionOrderMut,
-      };
+        showGIF,
+        changePopup,
+        AVAILABLE_RARITY,
+        getFiles,
+        
+      }
     },
     methods: {
       async runImageDisplayCycle() {
@@ -578,651 +526,9 @@
         this.showGIF = true;
         this.runImageDisplayCycle();
       },
-    },
-  };
-  </script>
-  <style lang="scss" scoped>
-  @function changeScreen($size) {
-    $result: 1;
-  
-    $result: ($size * 1400)/ (1920 * 15);
-  
-    @return $result;
-  }
-  .mx-width {
-    max-width: 470px;
-  }
-  .frame-box {
-    border: solid rgba(255, 255, 255, 0.2) 1px;
-  }
-  .input-title {
-    min-height: changeScreen(45) * 1rem;
-  }
-  .detail {
-    color: gray;
-  }
-  .input-box {
-    border: solid white 1px;
-    border-radius: 10px;
-    background: transparent;
-  }
-  .selected-input-box {
-    background: gray !important;
-  }
-  
-  .footer {
-    padding: changeScreen(0) * 1rem changeScreen(25) * 1rem changeScreen(0) * 1rem
-      changeScreen(25) * 1rem;
-    font-size: 1.177rem;
-    //padding-top: 8rem;
-  }
-  
-  .page-wrapper {
-    padding: changeScreen(25) * 1rem changeScreen(80) * 1rem changeScreen(25) *
-      1rem changeScreen(25) * 1rem;
-  }
-  .headerLogo {
-    width: 21vw;
-    min-width: changeScreen(150) * 1rem;
-    //; font-size: 6.5rem;margin-top: -1.75rem
-    margin-top: changeScreen(5) * 1rem;
-  }
-  .header {
-    min-height: changeScreen(240) * 1rem;
-  }
-  .menu-link {
-    //margin-right: changeScreen()*1rem;
-  }
-  .menu-link-txt-footer {
-    color: white;
-    text-decoration: underline;
-    font-style: normal;
-    text-underline-offset: 0.4rem;
-    //line-height: 1.882rem;
-    //line-height:1.883rem ;
-    font-size: 1.412rem;
-  }
-  .menu-link-txt {
-    color: white;
-    text-decoration: underline;
-    font-size: 1.177rem;
-    text-underline-offset: 0.4rem;
-    //line-height: 1.882rem;
-  }
-  .intro {
-    margin-top: changeScreen(6) * 1rem;
-  }
-  .intro-title {
-    line-height: 1.883rem;
-    font-size: 1.412rem;
-    //font-size: changeScreen(24)*1rem;
-    //line-height: changeScreen(32)*1rem;
-    padding-bottom: changeScreen(10) * 1rem;
-  }
-  .intro-box {
-    border-bottom: solid rgb(255 255 255 / 20%) 1px;
-  }
-  .intro-line-title {
-    position: absolute;
-    top: -1 * changeScreen(58.5) * 1rem;
-    right: changeScreen(275) * 1rem;
-    font-style: italic;
-    line-height: 1.883rem;
-    font-size: 1.412rem;
-  }
-  .intro-line-title-f {
-    position: absolute;
-    top: -1 * changeScreen(58.5) * 1rem;
-    right: changeScreen(275+55) * 1rem;
-    font-style: italic;
-    line-height: 1.883rem;
-    font-size: 1.412rem;
-  }
-  .square-gallery {
-    width: 50vw;
-    height: 50vw;
-    margin-top: changeScreen(90) * 1rem;
-    /*box-shadow: 0 2px 1px rgba(0, 0, 0, 0.09), 0 4px 2px rgba(0, 0, 0, 0.09), 0 8px 4px rgba(0, 0, 0, 0.09), 0 16px 8px rgba(0, 0, 0, 0.09), 0 32px 16px rgba(0, 0, 0, 0.09);*/
-    /*margin-bottom: 75px;*/
-  }
-  .third-explain {
-    margin-top: changeScreen(110) * 1rem;
-    width: 50vw;
-  }
-  .forth-explain {
-    margin-top: changeScreen(55) * 1rem;
-    width: 50vw;
-  }
-  .vw-50 {
-    width: 50vw;
-  }
-  .square {
-    width: changeScreen(30) * 1rem;
-  }
-  .square-line {
-    line-height: changeScreen(30) * 1rem;
-  }
-  .first-explain {
-    margin-top: changeScreen(85) * 1rem;
-    width: 50vw;
-  }
-  .second-explain {
-    margin-top: changeScreen(55) * 1rem;
-    width: 50vw;
-  }
-  .calim-title {
-    margin-top: changeScreen(115) * 1rem;
-    font-size: changeScreen(25) * 1rem;
-    font-weight: bold;
-  }
-  .btn-txt {
-    min-width: changeScreen(273) * 1rem;
-    padding: changeScreen(10) * 1rem changeScreen(0) * 1rem !important;
-    font-size: changeScreen(25) * 1rem;
-  }
-  .wallet-connection {
-    margin-top: changeScreen(30) * 1rem;
-    padding: changeScreen(10) * 1rem changeScreen(0) * 1rem !important;
-    font-size: changeScreen(25) * 1rem;
-  }
-  @media screen and (max-width: 960px) {
-    //.headerLogo{
-    //
-    //; font-size: 5.5rem;margin-top: -1.25rem
-    //  //margin-top:changeScreen(5)*1rem ;
-    //}
-    .intro-line-title {
-      right: changeScreen(20) * 1rem;
     }
-    .intro-line-title-f {
-      right: changeScreen(20) * 1rem;
-    }
-  }
+  })
   
-  @media screen and (max-width: 550px) {
-    //.headerLogo{
-    //
-    //font-size: 4rem;margin-top: -1rem
-    //  //margin-top:changeScreen(5)*1rem ;
-    //}
-    .mt-small {
-      margin-top: changeScreen(340) * 1rem !important;
-    }
-    .vw-50 {
-      width: 80vw;
-    }
-    .square-gallery {
-      width: 80vw;
-      height: 80vw;
-      /*box-shadow: 0 2px 1px rgba(0, 0, 0, 0.09), 0 4px 2px rgba(0, 0, 0, 0.09), 0 8px 4px rgba(0, 0, 0, 0.09), 0 16px 8px rgba(0, 0, 0, 0.09), 0 32px 16px rgba(0, 0, 0, 0.09);*/
-      /*margin-bottom: 75px;*/
-    }
-    .third-explain {
-      width: 80vw;
-    }
-    .forth-explain {
-      width: 80vw;
-    }
-    .first-explain {
-      width: 80vw;
-    }
-    .second-explain {
-      width: 80vw;
-    }
-  }
-  .main-err {
-    top: changeScreen(40) * 1rem;
-  }
-  .footer .intro {
-    padding-bottom: 2.6rem;
-  }
-  </style>
-  <style>
-  .video-container {
-    position: relative;
-    width: 80%;
-    padding-bottom: 41.8%; /* 16:9 */
-    height: 0;
-  }
-  .video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-  
-  .nome:hover {
-    color: white;
-  }
-  </style>
-  <!-- Add "scoped" attribute to limit CSS to this component only -->
-  <style scoped>
-  .selected-box {
-    opacity: 1;
-    background-color: #ff82a9;
-    background-position: center center;
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
-  .btn-connect {
-    background-color: white;
-    color: black;
-    padding: 5px;
-    cursor: pointer !important;
-    z-index: 9;
-    border-radius: 10px;
-  }
-  .err {
-    height: 30px;
-    color: red;
-  }
-  .br-c {
-    border-right: solid dodgerblue 0.5px;
-  }
-  .bb-c {
-    border-bottom: solid dodgerblue 0.5px;
-  }
-  .text-numb {
-    color: white;
-  }
-  
-  *,
-  :after,
-  :before {
-    box-sizing: border-box;
-    border: 0 solid #eee;
-  }
-  :after,
-  :before {
-    --tw-content: "";
-  }
-  h2 {
-    font-size: inherit;
-    font-weight: inherit;
-  }
-  a {
-    color: inherit;
-    text-decoration: inherit;
-  }
-  h2,
-  p {
-    margin: 0;
-  }
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  :disabled {
-    cursor: default;
-  }
-  img {
-    display: block;
-    vertical-align: middle;
-  }
-  /*img{max-width:100%;height:auto;}*/
-  *,
-  :after,
-  :before {
-    --tw-border-spacing-x: 0;
-    --tw-border-spacing-y: 0;
-    --tw-translate-x: 0;
-    --tw-translate-y: 0;
-    --tw-rotate: 0;
-    --tw-skew-x: 0;
-    --tw-skew-y: 0;
-    --tw-scale-x: 1;
-    --tw-scale-y: 1;
-    --tw-scroll-snap-strictness: proximity;
-    --tw-ring-offset-width: 0px;
-    --tw-ring-offset-color: #fff;
-    --tw-ring-color: rgba(33, 150, 243, 0.5);
-    --tw-ring-offset-shadow: 0 0 #0000;
-    --tw-ring-shadow: 0 0 #0000;
-    --tw-shadow: 0 0 #0000;
-    --tw-shadow-colored: 0 0 #0000;
-  }
-  .absolute {
-    position: absolute;
-  }
-  .relative {
-    position: relative;
-  }
-  .left-0 {
-    left: 0;
-  }
-  .right-4 {
-    right: 1rem;
-  }
-  .top-0 {
-    top: 0;
-  }
-  .top-3 {
-    top: 0.75rem;
-  }
-  .z-50 {
-    z-index: 50;
-  }
-  .mb-0\.5 {
-    margin-bottom: 0.125rem;
-  }
-  .ml-0\.5 {
-    margin-left: 0.125rem;
-  }
-  .mt-1 {
-    margin-top: 0.25rem;
-  }
-  .mt-2 {
-    margin-top: 0.5rem;
-  }
-  .inline-block {
-    display: inline-block;
-  }
-  .flex {
-    display: flex;
-  }
-  .h-14 {
-    height: 3.5rem;
-  }
-  .h-3\.5 {
-    height: 0.875rem;
-  }
-  .h-7 {
-    height: 1.75rem;
-  }
-  .h-full {
-    height: 100%;
-  }
-  .h-screen {
-    height: 100vh;
-  }
-  .w-3\.5 {
-    width: 0.875rem;
-  }
-  .w-7 {
-    width: 1.75rem;
-  }
-  .w-full {
-    width: 100%;
-  }
-  .w-screen {
-    width: 100vw;
-  }
-  .cursor-pointer {
-    cursor: pointer;
-  }
-  .flex-col {
-    flex-direction: column;
-  }
-  .items-center {
-    align-items: center;
-  }
-  .justify-center {
-    justify-content: center;
-  }
-  .justify-between {
-    justify-content: space-between;
-  }
-  .gap-0\.5 {
-    gap: 0.125rem;
-  }
-  .gap-3 {
-    gap: 0.75rem;
-  }
-  .rounded-full {
-    border-radius: 9999px;
-  }
-  .rounded-md {
-    border-radius: 0.375rem;
-  }
-  .border-b {
-    border-bottom-width: 1px;
-  }
-  .bg-black {
-    --tw-bg-opacity: 1;
-    background-color: rgb(0 0 0 / var(--tw-bg-opacity));
-  }
-  .bg-white {
-    --tw-bg-opacity: 1;
-    background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-  }
-  .bg-yellow-500 {
-    --tw-bg-opacity: 1;
-    background-color: rgb(247 147 26 / var(--tw-bg-opacity));
-  }
-  .bg-opacity-80 {
-    --tw-bg-opacity: 0.8;
-  }
-  .object-cover {
-    -o-object-fit: cover;
-    object-fit: cover;
-  }
-  .px-2 {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-  .px-3 {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-  .px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  .py-1 {
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-  }
-  .py-2 {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-  .pb-4 {
-    padding-bottom: 1rem;
-  }
-  .text-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
-  .text-xl {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-  }
-  .text-xs {
-    font-size: 0.75rem;
-    line-height: 1rem;
-  }
-  .font-bold {
-    font-weight: 700;
-  }
-  .font-medium {
-    font-weight: 500;
-  }
-  .leading-5 {
-    line-height: 1.25rem;
-  }
-  .leading-none {
-    line-height: 1;
-  }
-  .text-gray-600 {
-    --tw-text-opacity: 1;
-    color: rgb(117 117 117 / var(--tw-text-opacity));
-  }
-  .text-gray-700 {
-    --tw-text-opacity: 1;
-    color: rgb(97 97 97 / var(--tw-text-opacity));
-  }
-  .text-gray-800 {
-    --tw-text-opacity: 1;
-    color: rgb(66 66 66 / var(--tw-text-opacity));
-  }
-  .text-gray-900 {
-    --tw-text-opacity: 1;
-    color: rgb(49 49 49 / var(--tw-text-opacity));
-  }
-  .text-white {
-    --tw-text-opacity: 1;
-    color: rgb(255 255 255 / var(--tw-text-opacity));
-  }
-  .shadow-md {
-    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-      var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-  }
-  .shadow-md {
-    --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color),
-      0 2px 4px -2px var(--tw-shadow-color);
-  }
-  * {
-    box-sizing: border-box;
-  }
-  .hover\:bg-gray-100:hover {
-    --tw-bg-opacity: 1;
-    background-color: rgb(245 245 245 / var(--tw-bg-opacity));
-  }
-  .hover\:text-gray-900:hover {
-    --tw-text-opacity: 1;
-    color: rgb(49 49 49 / var(--tw-text-opacity));
-  }
-  @media (min-width: 768px) {
-    .md\:h-fit {
-      height: -moz-fit-content;
-      height: fit-content;
-    }
-    .md\:w-96 {
-      width: 24rem;
-    }
-    .md\:w-fit {
-      width: -moz-fit-content;
-      width: fit-content;
-    }
-    .md\:rounded-md {
-      border-radius: 0.375rem;
-    }
-  }
-  
-  /*p {*/
-  /*  margin-bottom: 25px;*/
-  /*}*/
-  
-  .image-info {
-    margin: 15px 0;
-  }
-  
-  .separator {
-    margin: 0 5px;
-  }
-  
-  input {
-    width: 75%;
-    display: block;
-    padding: 5px;
-    text-align: center;
-    margin-bottom: 10px;
-    max-width: 250px;
-    border: 2px solid #ddd;
-  }
-  *:focus {
-    outline: none;
-  }
-  /*input:focus {*/
-  /*  border: 2px solid blue;*/
-  /*}*/
-  
-  .compressor {
-    display: none;
-  }
-  
-  .button {
-    display: inline-block;
-    border-radius: 3px;
-    background: #1a237e;
-    color: white;
-    padding: 7px 15px;
-    border: 0;
-    box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.4);
-    margin-bottom: 10px;
-    cursor: pointer;
-    outline: none;
-    text-decoration: none;
-  }
-  
-  label {
-    margin-bottom: 10px;
-    display: block;
-  }
-  
-  .input-group {
-    margin: 25px 0;
-  }
-  
-  .checkbox {
-    margin: 15px 0 20px;
-    background: #eee;
-    padding: 10px 0;
-  }
-  
-  .checkbox input {
-    width: auto;
-    display: inline-block;
-  }
-  
-  img {
-    margin: 0 auto;
-    display: block;
-  }
-  
-  a {
-    margin: 25px 0 75px;
-  }
-  
-  .grid-container {
-    /* display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 0px 0px;
-    grid-template-areas:
-      ". . . . ."
-      ". . . . ."
-      ". . . . ."
-      ". . . . .";
-    width: 100%; */
-  }
-  
-  .grid-item {
-    background-position: 50% 50% !important;
-    background-repeat: no-repeat !important;
-    background-size: contain !important;
-  
-    width: 100%;
-    height: 100%;
-  }
-  .styles-module_blinkingCursor__yugAC {
-    color: inherit;
-    font: inherit;
-    left: 3px;
-    line-height: inherit;
-    opacity: 1;
-    position: relative;
-    top: 0;
-  }
-  
-  .styles-module_blinking__9VXRT {
-    animation-duration: 0.8s;
-    animation-iteration-count: infinite;
-    animation-name: styles-module_blink__rqfaf;
-  }
-  
-  @keyframes styles-module_blink__rqfaf {
-    0% {
-      opacity: 1;
-    }
-  
-    to {
-      opacity: 0;
-    }
-  }
-  </style>
+  export default Home;
+</script>
   
