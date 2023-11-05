@@ -15,24 +15,22 @@
  * @property {string | null} ordinals_bot_order_id
  * @property {string} receiver_address
  * @property {number | null} html_transaction_id
- * @property {HTMLTransaction | null} html_transaction
  * @property {number | null} html_inscription_index
- * @property {"PENDING" | "CONFIRMED"} status
+ * @property {"UNPAID" | "READY"} status use ready to check if inscribed or pending for now
  */
 
-import { api } from './api-instance.js'
+import { api } from "./api-instance.js";
 
 /**
- * 
- * @param {string} address 
+ *
+ * @param {string} address
  * @returns {Promise<{message: string, data: OrderWithStatus[], success: boolean}>}
  */
 export const getOrdersApi = async (address) => {
-    const response = await api.get('/orders', {
-        params: {
-            address
-        }
-    })
-    return response.data
-}
-
+  const response = await api.get("/orders", {
+    params: {
+      address,
+    },
+  });
+  return response.data;
+};
