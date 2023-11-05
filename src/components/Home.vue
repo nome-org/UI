@@ -215,33 +215,25 @@
                   </div>
                 </div>
               </div>
-              <div
-                v-if="files.length != 0"
-                class="d-flex mt-3 justify-between col-12 detail"
-              >
+              <div v-if="showGIF && files.length > 0">
+                <div class="d-flex mt-3 justify-between col-12 detail">
                 <div>Frames</div>
                 <div>{{ files.length }}</div>
               </div>
-              <div
-                v-if="files.length != 0"
-                class="d-flex justify-between col-12 detail"
-              >
+                <div class="d-flex justify-between col-12 detail">
                 <div>Total items</div>
                 <div>{{ files.length + quantity }}</div>
               </div>
-              <div
-                v-if="totalFee && files.length != 0"
-                class="d-flex justify-between col-12 detail"
-              >
-                <div>Final BTC price</div>
-                <div>{{ totalFee.toFixed(8) }}</div>
-              </div>
-              <div v-if="usdPrice && files.length != 0">
                 <div class="d-flex justify-between col-12 detail">
                   <div>Final USD price</div>
-                  <div>${{ usdPrice }}</div>
+                  <div>{{ usdPrice }}</div>
                 </div>
-                <div class="text-sm-left">
+                <div class="d-flex justify-between col-12 detail">
+                  <div>Final BTC price</div>
+                  <div>{{ totalFee && totalFee.toFixed(8) }}</div>
+                </div>
+
+                <div class="text-sm">
                   Data from
                   <a href="https://www.coingecko.com" target="_blank">
                     CoinGecko
@@ -482,7 +474,7 @@ export default {
           }
         );
 
-        return (response.data.bitcoin.usd * totalFee.value).toFixed(2);
+        return `$${(response.data.bitcoin.usd * totalFee.value).toFixed(2)}`;
       },
     });
 
