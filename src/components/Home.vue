@@ -243,9 +243,9 @@
                 </div>
                 <div class="text-sm-left">
                   Data from
-                  <a href="https://www.coingecko.com" target="_blank"
-                    >CoinGecko</a
-                  >
+                  <a href="https://www.coingecko.com" target="_blank">
+                    CoinGecko
+                  </a>
                 </div>
               </div>
             </div>
