@@ -230,11 +230,23 @@
                 <div>{{ files.length + quantity }}</div>
               </div>
               <div
-                v-if="priceData && files.length != 0"
+                v-if="totalFee && files.length != 0"
                 class="d-flex justify-between col-12 detail"
               >
                 <div>Final BTC price</div>
-                <div>{{ (priceData.data.totalFee / 1e8).toFixed(8) }}</div>
+                <div>{{ totalFee.toFixed(8) }}</div>
+              </div>
+              <div v-if="usdPrice && files.length != 0">
+                <div class="d-flex justify-between col-12 detail">
+                  <div>Final USD price</div>
+                  <div>${{ usdPrice }}</div>
+                </div>
+                <div class="text-sm-left">
+                  Data from
+                  <a href="https://www.coingecko.com" target="_blank"
+                    >CoinGecko</a
+                  >
+                </div>
               </div>
             </div>
           </div>
@@ -316,6 +328,7 @@ import { ref } from "vue";
 import { getPriceApi } from "@/api/get-price";
 import { inscribeApi } from "@/api/inscribe";
 import { fileToBase64 } from "@/util/fileToBase64";
+import axios from "axios";
 
 const formatBytes = memoize((bytes, decimals = 2) => {
   if (bytes === 0) return "0 Bytes";
@@ -441,17 +454,36 @@ export default {
       ];
     }
 
-    const { data, isLoading } = useQuery({
+    const { data: totalFee } = useQuery({
       queryKey: ["price", files, selectedRarity, quantity],
       queryFn: async () => {
-        return getPriceApi({
+        const data = await getPriceApi({
           count: quantity.value,
           fee: 6,
           imageSizes: files.value.map((file) => file.compressed.size),
           rareSats: selectedRarity.value,
         });
+
+        return data.data.totalFee / 1e8;
       },
       enabled: () => showGIF.value && files.value.length > 0,
+    });
+
+    const { data: usdPrice } = useQuery({
+      queryKey: ["coingecko", totalFee],
+      enabled: () => Boolean(totalFee.value),
+      queryFn: async () => {
+        const response = await axios.get(
+          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        return (response.data.bitcoin.usd * totalFee.value).toFixed(2);
+      },
     });
 
     const createInscriptionOrderMut = useMutation({
@@ -565,7 +597,7 @@ export default {
       files,
       updateQuality,
       getFiles,
-      priceData: data,
+      totalFee: totalFee,
       selectedRarity,
       quantity,
       showGIF,
@@ -577,6 +609,7 @@ export default {
       showWalletSelection,
       quality,
       createInscriptionOrderMut,
+      usdPrice,
     };
   },
   methods: {
@@ -612,7 +645,7 @@ export default {
 @function changeScreen($size) {
   $result: 1;
 
-  $result: ($size * 1400)/ (1920 * 15);
+  $result: calc(($size * 1400) / (1920 * 15));
 
   @return $result;
 }
