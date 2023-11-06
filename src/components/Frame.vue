@@ -32,7 +32,7 @@ const cycleZoom = () => {
   </Modal>
   <div class="mb-10">
     <div class="w-200 h-200 relative text-lg bg-light-gray">
-      <span v-if="!src" class="absolute top-2 left-2">{{ index + 1 }}</span>
+      <span class="absolute top-2 left-2">{{ index + 1 }}</span>
       <span
         class="absolute top-2 right-2 pointer"
         @click="cycleZoom"
