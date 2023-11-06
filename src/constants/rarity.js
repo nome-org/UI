@@ -1,8 +1,8 @@
 export const available_rarity = [
-  "block78",
-  "pizza",
   "uncommon",
   "black",
-  "vintage",
+  "block78",
+  "pizza",
   "random",
+  "vintage",
 ];
