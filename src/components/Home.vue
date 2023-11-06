@@ -1160,4 +1160,24 @@ a {
   width: 9rem;
   transition: all 0.2s ease-in-out;
 }
+
+input[type="range"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  border: 0;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: white;
+  height: 24px;
+  width: 12px;
+  border-radius: 8px;
+}
 </style>
