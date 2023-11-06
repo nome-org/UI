@@ -1,13 +1,30 @@
-<script setup lang="js">
-defineProps({
+<script setup lang="ts">
+import { ref } from "vue";
+import Modal from "./Modal.vue";
+
+const props = defineProps({
   index: Number,
   src: String,
   duration: Number,
 });
 defineEmits(["update:duration"]);
+
+const isPreviewOpen = ref(false);
+const changePreviewStatus = (status: boolean) => {
+  isPreviewOpen.value = status;
+};
+const openPreview = () => {
+  if (!props.src) {
+    return;
+  }
+  changePreviewStatus(true);
+};
 </script>
 
 <template>
+  <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
+    <img :src="src" alt="" class="w-48" />
+  </Modal>
   <div class="mb-10">
     <div class="w-200 h-200 relative text-lg bg-light-gray">
       <span v-if="!src" class="absolute top-2 left-2">{{ index + 1 }}</span>
@@ -15,13 +32,15 @@ defineEmits(["update:duration"]);
       <img v-if="src" :src="src" alt="" class="w-full h-full" />
     </div>
     <div
-      class="px-2 py-1 flex space-between border-b-rounded bg-dark-gray w-200 align-items-center"
+      class="px-3 py-1 flex space-between border-b-rounded bg-dark-gray w-200 align-items-center"
     >
-      <span> [] </span>
+      <span @click="openPreview" class="pointer"> [] </span>
       <div class="flex">
         <input
           :value="duration"
-          @input="$emit('update:duration', $event.target.value)"
+          @input="
+            $emit('update:duration', ($event.target as HTMLInputElement).value)
+          "
           type="number"
           step="0.1"
           class="w-8 bg-transparent text-white text-right border-0 no-outline underline mr-2"
@@ -107,5 +126,12 @@ defineEmits(["update:duration"]);
 }
 .mb-10 {
   margin-bottom: 2.5rem;
+}
+
+.w-48 {
+  width: 30rem;
+}
+.pointer {
+  cursor: pointer;
 }
 </style>
