@@ -8,7 +8,7 @@ import { api } from "./api-instance";
  * @param {number[]} params.imageSizes
  * @param {number} params.fee
  * @param {number} params.count
- * @param {number} params.rareSats
+ * @param {string} params.rareSats
  * @returns {Promise<{message: string, data: priceResponse, success: boolean}>}
  */
 export const getPriceApi = async ({
