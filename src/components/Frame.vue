@@ -56,6 +56,7 @@ const openPreview = () => {
       <div class="flex">
         <input
           :value="duration"
+          :disabled="!src"
           @input="
             $emit('update:duration', ($event.target as HTMLInputElement).value)
           "
