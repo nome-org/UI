@@ -262,54 +262,6 @@ function generateGIF() {
 <template>
   <div class="">
     <div class="page-wrapper">
-      <!-- <div
-        v-if="showWalletSelection"
-        style="overflow-y: scroll; z-index: 99"
-        class="position-fixed top-0 left-0 bg-black bg-opacity-80 w-screen h-screen flex items-center justify-center z-50"
-      >
-        
-      </div> -->
-      <Modal
-        :is-open="showWalletSelection"
-        @on-visibility-change="changePopup(false)"
-      >
-        <slot>
-          <div
-            class="bg-white col-11 col-sm-9 col-lg-4 col-xl-3 md:rounded-md py-2 relative shadow-md"
-          >
-            <span
-              @click="changePopup(!showWalletSelection)"
-              class="absolute right-4 top-3 font-bold cursor-pointer text-gray-800"
-              >X</span
-            >
-            <div class="px-3 border-b pb-4">
-              <h2 class="text-xl font-bold">Choose your wallet</h2>
-            </div>
-            <ul class="flex flex-col">
-              <!--          <p class="px-3 mt-2 mb-0.5 text-gray-700 font-bold text-sm">Browser Extensions</p>-->
-              <li
-                @click="waitXV"
-                class="flex justify-between items-center cursor-pointer hover:bg-gray-100 px-4 h-14 relative"
-              >
-                <div class="flex items-center gap-3">
-                  <img
-                    src="../assets/images/xverse.png"
-                    class="h-7 w-7 rounded-full object-cover"
-                    alt=""
-                  />
-                  <div class="flex flex-col relative">
-                    <p class="inline-block font-bold leading-5 text-gray-900">
-                      Xverse
-                    </p>
-                  </div>
-                </div>
-                <span class="err" v-if="!isXV">Install Xverse wallet</span>
-              </li>
-            </ul>
-          </div>
-        </slot>
-      </Modal>
-
       <div class="header d-flex justify-content-between">
         <div>
           <a href="/">
@@ -491,7 +443,7 @@ function generateGIF() {
               <div>
                 <div class="d-flex justify-content-center pt-5">
                   <a
-                    @click="changePopup(true)"
+                    @click="waitXV"
                     class="btn-txt text-center animate-big btn-connect"
                   >
                     INSCRIBE
