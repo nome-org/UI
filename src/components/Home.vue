@@ -1,55 +1,314 @@
+<script setup lang="ts">
+import {
+  AddressPurpose,
+  BitcoinNetworkType,
+  SendBtcTransactionOptions,
+  getAddress,
+  sendBtcTransaction,
+} from "sats-connect";
+import imageCompression from "browser-image-compression";
+import memoize from "lodash/memoize";
+
+import { available_rarity } from "../constants/rarity";
+import { useMutation, useQuery } from "@tanstack/vue-query";
+import { ref } from "vue";
+import { getPriceApi } from "@/api/get-price";
+import { inscribeApi } from "@/api/inscribe";
+import { fileToBase64 } from "@/util/fileToBase64";
+import axios from "axios";
+import Frame from "./Frame.vue";
+import Modal from "./Modal.vue";
+
+const formatBytes = memoize((bytes, decimals = 2) => {
+  if (bytes === 0) return "0 Bytes";
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+});
+
+const resizeImages = async (imageFiles: File[], maxSize: number) => {
+  const resizedImages = [];
+  for (let imageFile of imageFiles) {
+    const resizedImage = await imageCompression(imageFile, {
+      maxSizeMB: maxSize / 1000,
+      fileType: "image/webp",
+      maxWidthOrHeight: 600,
+    });
+    resizedImages.push(resizedImage);
+  }
+  return resizedImages;
+};
+
+function delay(ms: number) {
+  return new Promise((res) => setTimeout(res, ms));
+}
+const files = ref<
+  Array<{ original: File; compressed: File; img: string; duration: number }>
+>([]);
+const selectedRarity = ref("random");
+const quantity = ref(1);
+const showGIF = ref(false);
+const paymentAddress = ref("");
+const ordinalAddress = ref("");
+const isXV = ref(true);
+const showWalletSelection = ref(false);
+const quality = ref(200);
+const isRunningGif = ref(false);
+const currentInDisplay = ref(0);
+async function updateQuality(e: Event) {
+  const newlyCompressedFiles = await resizeImages(
+    files.value.map((file) => file.original),
+    Number((e.target as HTMLInputElement).value)
+  );
+  files.value.forEach((file) => {
+    URL.revokeObjectURL(file.img);
+  });
+  files.value = newlyCompressedFiles.map((compressedFile, index) => {
+    return {
+      ...files.value[index],
+      img: URL.createObjectURL(compressedFile),
+      compressed: compressedFile,
+    };
+  });
+}
+async function getFiles(e: Event) {
+  const { files: newFiles } = e.target as HTMLInputElement;
+  if (!newFiles.length) {
+    e.preventDefault();
+    return;
+  }
+  let imageFiles = Array.from(newFiles).map((file, index) => {
+    return {
+      img: URL.createObjectURL(file),
+      original: file,
+      compressed: file,
+      duration: 0.5,
+    };
+  });
+  // show original images initially
+  files.value = [...files.value, ...imageFiles];
+  // compress images in the meanwhile
+  const resizedFiles = await resizeImages(Array.from(newFiles), quality.value);
+  // after compression is done, replace original images with compressed ones
+  imageFiles.forEach((file) => {
+    URL.revokeObjectURL(file.img);
+  });
+  imageFiles = resizedFiles.map((file, index) => {
+    return {
+      ...imageFiles[index],
+      img: URL.createObjectURL(file),
+      compressed: file,
+    };
+  });
+  files.value = [...files.value.slice(0, -imageFiles.length), ...imageFiles];
+}
+const { data: totalFee } = useQuery({
+  queryKey: ["price", files, selectedRarity, quantity],
+  queryFn: async () => {
+    const data = await getPriceApi({
+      count: quantity.value,
+      fee: 6,
+      imageSizes: files.value.map((file) => file.compressed.size),
+      rareSats: selectedRarity.value,
+    });
+    return data.data.totalFee / 100_000_000;
+  },
+  enabled: () => showGIF.value && files.value.length > 0,
+});
+const { data: usdPrice } = useQuery({
+  queryKey: ["coingecko", totalFee],
+  enabled: () => Boolean(totalFee.value),
+  queryFn: async () => {
+    const response = await axios.get(
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return `$${(response.data.bitcoin.usd * totalFee.value).toFixed(2)}`;
+  },
+});
+const createInscriptionOrderMut = useMutation({
+  mutationKey: ["inscribe", files, selectedRarity, quantity],
+  mutationFn: async () => {
+    /**
+     * @type {import("../api/inscribe").FileData[]}
+     */
+    const fileData = [];
+    for (const file of files.value) {
+      fileData.push({
+        dataURL: await fileToBase64(file.compressed),
+        duration: 1000,
+        name: file.original.name,
+        size: file.compressed.size,
+        type: file.compressed.type,
+      });
+    }
+    const {
+      data: {
+        payment_details: { address, amount },
+      },
+    } = await inscribeApi({
+      files: fileData,
+      feeRate: 6,
+      payAddress: paymentAddress.value,
+      rarity: selectedRarity.value as any,
+      receiverAddress: ordinalAddress.value,
+    });
+    await sendBTC(address, amount);
+  },
+});
+async function waitXV() {
+  // event("start of xv", {
+  //   event_category: this.ref,
+  // });
+  // console.log("start xverse");
+  try {
+    isXV.value = true;
+    await getAddress({
+      payload: {
+        purposes: [AddressPurpose.Ordinals, AddressPurpose.Payment],
+        message:
+          "We need the address you'll use to pay for the service, and the address where you want to receive the Ordinals.",
+        network: {
+          type: BitcoinNetworkType.Testnet,
+        },
+      },
+      onFinish: (response) => {
+        response.addresses.forEach((item) => {
+          if (item.purpose == "ordinals") {
+            ordinalAddress.value = item.address;
+          } else if (item.purpose == "payment") {
+            paymentAddress.value = item.address;
+          }
+        });
+        if (paymentAddress.value) {
+          createInscriptionOrderMut.mutate();
+          // event("success of xv", {
+          //   event_label: paymentAddress.value,
+          //   event_category: this.ref,
+          // });
+          // this.addWallet([this.original.base64],paymentAddress.value)
+          // console.log(paymentAddress.value)
+        } else {
+          isXV.value = false;
+        }
+      },
+      onCancel: () => console.log("Request canceled"),
+    });
+    // changePopup(false);
+  } catch (err) {
+    console.log("xverse err", err);
+    isXV.value = false;
+  }
+}
+function changePopup(status) {
+  if (files.value.length == 0) {
+    return;
+  }
+  showWalletSelection.value = status;
+}
+async function sendBTC(address: string, amount: number) {
+  const sendBtcOptions: SendBtcTransactionOptions = {
+    payload: {
+      network: {
+        type: BitcoinNetworkType.Testnet,
+      },
+      recipients: [
+        {
+          address: address,
+          amountSats: BigInt(amount),
+        },
+      ],
+      senderAddress: paymentAddress.value,
+    },
+    onFinish: (response) => {
+      console.log(response);
+    },
+    onCancel: () => console.log("Canceled"),
+  };
+  await sendBtcTransaction(sendBtcOptions);
+}
+
+async function runImageDisplayCycle() {
+  if (isRunningGif.value) {
+    return;
+  }
+  isRunningGif.value = true;
+  while (true) {
+    await delay((files.value[currentInDisplay.value].duration || 1) * 1000);
+    if (currentInDisplay.value === files.value.length - 1) {
+      currentInDisplay.value = 0;
+    } else {
+      currentInDisplay.value += 1;
+    }
+  }
+}
+function generateGIF() {
+  if (files.value.length == 0) {
+    return;
+  }
+  showGIF.value = true;
+  runImageDisplayCycle();
+}
+</script>
 <template>
   <div class="">
     <div class="page-wrapper">
-      <div
+      <!-- <div
         v-if="showWalletSelection"
         style="overflow-y: scroll; z-index: 99"
         class="position-fixed top-0 left-0 bg-black bg-opacity-80 w-screen h-screen flex items-center justify-center z-50"
       >
-        <div
-          class="bg-white col-11 col-sm-9 col-lg-4 col-xl-3 md:rounded-md py-2 relative shadow-md"
-        >
-          <span
-            @click="changePopup(!showWalletSelection)"
-            class="absolute right-4 top-3 font-bold cursor-pointer text-gray-800"
-            >X</span
+        
+      </div> -->
+      <Modal
+        :is-open="showWalletSelection"
+        @on-visibility-change="changePopup(false)"
+      >
+        <slot>
+          <div
+            class="bg-white col-11 col-sm-9 col-lg-4 col-xl-3 md:rounded-md py-2 relative shadow-md"
           >
-          <div class="px-3 border-b pb-4">
-            <h2 class="text-xl font-bold">Choose your wallet</h2>
-          </div>
-          <ul class="flex flex-col">
-            <!--          <p class="px-3 mt-2 mb-0.5 text-gray-700 font-bold text-sm">Browser Extensions</p>-->
-            <li
-              @click="waitXV"
-              class="flex justify-between items-center cursor-pointer hover:bg-gray-100 px-4 h-14 relative"
+            <span
+              @click="changePopup(!showWalletSelection)"
+              class="absolute right-4 top-3 font-bold cursor-pointer text-gray-800"
+              >X</span
             >
-              <div class="flex items-center gap-3">
-                <img
-                  src="../assets/images/xverse.png"
-                  class="h-7 w-7 rounded-full object-cover"
-                  alt=""
-                />
-                <div class="flex flex-col relative">
-                  <p class="inline-block font-bold leading-5 text-gray-900">
-                    Xverse
-                  </p>
+            <div class="px-3 border-b pb-4">
+              <h2 class="text-xl font-bold">Choose your wallet</h2>
+            </div>
+            <ul class="flex flex-col">
+              <!--          <p class="px-3 mt-2 mb-0.5 text-gray-700 font-bold text-sm">Browser Extensions</p>-->
+              <li
+                @click="waitXV"
+                class="flex justify-between items-center cursor-pointer hover:bg-gray-100 px-4 h-14 relative"
+              >
+                <div class="flex items-center gap-3">
+                  <img
+                    src="../assets/images/xverse.png"
+                    class="h-7 w-7 rounded-full object-cover"
+                    alt=""
+                  />
+                  <div class="flex flex-col relative">
+                    <p class="inline-block font-bold leading-5 text-gray-900">
+                      Xverse
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <span class="err" v-if="!isXV">Install Xverse wallet</span>
-            </li>
-
-            <!--          <li @click="waitHero" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">-->
-            <!--            <div class="flex items-center gap-3"><img src="../assets/images/hiro.png" class="h-7 w-7 rounded-full object-cover" alt="">-->
-            <!--              <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Hiro Wallet </p></div>-->
-            <!--            </div><span class="err" v-if="!isHero"> soon</span></li>-->
-
-            <!--          <li @click="waitUN" class="flex justify-between items-center cursor-pointer  hover:bg-gray-100 px-4 h-14 relative">-->
-            <!--            <div class="flex items-center gap-3"><img src="../assets/images/unisat.png" class="h-7 w-7 rounded-full object-cover" alt="">-->
-            <!--              <div class="flex flex-col relative"><p class="inline-block font-bold leading-5 text-gray-900">Unisat</p></div></div>-->
-            <!--            <span class="err" v-if="!isUnis"> soon</span></li>-->
-          </ul>
-        </div>
-      </div>
+                <span class="err" v-if="!isXV">Install Xverse wallet</span>
+              </li>
+            </ul>
+          </div>
+        </slot>
+      </Modal>
 
       <div class="header d-flex justify-content-between">
         <div>
@@ -113,45 +372,16 @@
           <!--        <button class="upload-button button" type="button" @click="upload">Add Picture</button>-->
           <!-- <image-compressor :scale="scale" class="compressor" :done="getFiles"  :quality="quality" ref="compressor"></image-compressor> -->
 
-          <div class="w-100 d-flex flex-wrap">
-            <div
+          <div class="w-100 d-flex flex-wrap gap-4 mt-5">
+            <!-- <div class="col-12 col-sm-6 col-md-4 col-lg-3 "> -->
+            <Frame
               v-for="(item, index) in files"
-              class="col-12 col-sm-6 col-md-4 col-lg-3 gap-4"
-            >
-              <Frame
-                :src="item.img"
-                :index="index"
-                v-model:duration="item.duration"
-              />
-              <!-- <img class="w-full" :src="item.img" />
-              <div class="image-info flex">
-                <input
-                  type="number"
-                  placeholder="time"
-                  v-model="item.duration"
-                  step="0.1"
-                  min="0"
-                  class="bg-transparent underline-input text-center border-0 text-white w-auto flex-grow-1"
-                />
-                <span class="flex-grow-1">sec.</span>
-              </div> -->
-            </div>
-            <div
-              style="min-height: 200px"
-              v-if="files.length == 0"
-              class="col-12 frame-box col-sm-6 col-md-4 col-lg-3"
-            ></div>
-          </div>
-
-          <div class="text-center" v-if="img">
-            <img
-              v-if="img"
-              src=""
-              alt=""
-              :style="{ maxWidth: originalSize ? '100%' : null }"
-              :src="img"
+              :src="item.img"
+              :index="index"
+              v-model:duration="item.duration"
             />
-            <a :href="img" class="button" target="_blank">Download</a>
+            <!-- </div> -->
+            <Frame v-if="files.length == 0" :index="0" />
           </div>
         </div>
         <div class="w-100 d-flex flex-wrap-reverse flex-sm-wrap">
@@ -202,24 +432,24 @@
                   type="number"
                   v-model="quantity"
                   style="color: white"
-                  class="input-box text-left"
+                  class="input-box text-right pr-3"
                 />
                 <div class="input-title mt-4">Rarity</div>
               </div>
 
               <div class="d-flex flex-wrap">
                 <div
-                  v-for="item in rarity"
+                  v-for="item in available_rarity"
                   :key="item"
                   class="col-6 p-3 text-center"
                 >
-                  <div
+                  <button
                     @click="selectedRarity = item"
                     :class="item == selectedRarity ? 'selected-input-box' : ''"
-                    class="input-box cursor-pointer text-uppercase"
+                    class="input-box cursor-pointer text-uppercase rarity-btn text-white"
                   >
                     {{ item }}
-                  </div>
+                  </button>
                 </div>
               </div>
               <div v-if="showGIF && files.length > 0">
@@ -311,317 +541,6 @@
   </div>
 </template>
 
-<script>
-import { getAddress, sendBtcTransaction } from "sats-connect";
-
-// import axios from "axios";
-// import sha256 from 'crypto-js/sha256';
-import { event } from "vue-gtag";
-// import imageCompressor from 'vue-image-compressor'
-import imageCompression from "browser-image-compression";
-import memoize from "lodash/memoize";
-
-import { available_rarity } from "../constants/rarity";
-import { useMutation, useQuery } from "@tanstack/vue-query";
-import { ref } from "vue";
-import { getPriceApi } from "@/api/get-price";
-import { inscribeApi } from "@/api/inscribe";
-import { fileToBase64 } from "@/util/fileToBase64";
-import axios from "axios";
-import Frame from "./Frame.vue";
-
-const formatBytes = memoize((bytes, decimals = 2) => {
-  if (bytes === 0) return "0 Bytes";
-
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-});
-
-/**
- * @name resizeImages
- * @param {FileList} imageFiles
- * @param {number} maxSize max size in KBs
- * @returns {Promise<File[]>}
- */
-const resizeImages = async (imageFiles, maxSize) => {
-  const resizedImages = [];
-  for (let imageFile of imageFiles) {
-    const resizedImage = await imageCompression(imageFile, {
-      maxSizeMB: maxSize / 1000,
-      fileType: "image/webp",
-      maxWidthOrHeight: 200,
-    });
-    resizedImages.push(resizedImage);
-  }
-  return resizedImages;
-};
-
-function delay(ms) {
-  return new Promise((res) => setTimeout(res, ms));
-}
-export default {
-  name: "Home",
-  data() {
-    return {
-      rarity: available_rarity,
-      img: "",
-      originalSize: true,
-      result: "",
-      isHero: false,
-      isUnis: false,
-      level: 0,
-      ref: 0,
-      index: -1,
-      currentInDisplay: 0,
-      isRunningGif: false,
-    };
-  },
-  props: {},
-  // components: { imageCompressor },
-  setup() {
-    /**
-     * @type {import("vue").Ref<{original: File, compressed: File, img: string, duration: number}[]>}
-     */
-    const files = ref([]);
-    const selectedRarity = ref("random");
-    const quantity = ref(1);
-    const showGIF = ref(false);
-    const paymentAddress = ref("");
-    const ordinalAddress = ref("");
-    const isXV = ref(true);
-    const showWalletSelection = ref(false);
-    const quality = ref(200);
-    async function updateQuality(e) {
-      const newlyCompressedFiles = await resizeImages(
-        files.value.map((file) => file.original),
-        e.target.value
-      );
-      files.value.forEach((file) => {
-        URL.revokeObjectURL(file.img);
-      });
-      files.value = newlyCompressedFiles.map((compressedFile, index) => {
-        return {
-          ...files.value[index],
-          img: URL.createObjectURL(compressedFile),
-          compressed: compressedFile,
-        };
-      });
-    }
-    async function getFiles(e) {
-      if (!e.target.files.length) {
-        e.preventDefault();
-        return;
-      }
-      let imageFiles = Array.from(e.target.files).map((file, index) => {
-        return {
-          img: URL.createObjectURL(file),
-          original: e.target.files[index],
-          compressed: file,
-          duration: 5,
-        };
-      });
-      // show original images initially
-      files.value = [...files.value, ...imageFiles];
-      // compress images in the meanwhile
-      const resizedFiles = await resizeImages(e.target.files, quality.value);
-      // after compression is done, replace original images with compressed ones
-      imageFiles.forEach((file) => {
-        URL.revokeObjectURL(file.img);
-      });
-      imageFiles = resizedFiles.map((file, index) => {
-        return {
-          img: URL.createObjectURL(file),
-          original: e.target.files[index],
-          compressed: file,
-          duration: 5,
-        };
-      });
-      files.value = [
-        ...files.value.slice(0, -imageFiles.length),
-        ...imageFiles,
-      ];
-    }
-    const { data: totalFee } = useQuery({
-      queryKey: ["price", files, selectedRarity, quantity],
-      queryFn: async () => {
-        const data = await getPriceApi({
-          count: quantity.value,
-          fee: 6,
-          imageSizes: files.value.map((file) => file.compressed.size),
-          rareSats: selectedRarity.value,
-        });
-        return data.data.totalFee / 100_000_000;
-      },
-      enabled: () => showGIF.value && files.value.length > 0,
-    });
-    const { data: usdPrice } = useQuery({
-      queryKey: ["coingecko", totalFee],
-      enabled: () => Boolean(totalFee.value),
-      queryFn: async () => {
-        const response = await axios.get(
-          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        return `$${(response.data.bitcoin.usd * totalFee.value).toFixed(2)}`;
-      },
-    });
-    const createInscriptionOrderMut = useMutation({
-      mutationKey: ["inscribe", files, selectedRarity, quantity],
-      mutationFn: async () => {
-        /**
-         * @type {import("../api/inscribe").FileData[]}
-         */
-        const fileData = [];
-        for (const file of files.value) {
-          fileData.push({
-            dataURL: await fileToBase64(file.compressed),
-            duration: 1000,
-            name: file.original.name,
-            size: file.compressed.size,
-            type: file.compressed.type,
-          });
-        }
-        const {
-          data: {
-            payment_details: { address, amount },
-          },
-        } = await inscribeApi({
-          files: fileData,
-          feeRate: 6,
-          payAddress: paymentAddress.value,
-          rarity: selectedRarity.value,
-          receiverAddress: ordinalAddress.value,
-        });
-        await sendBTC(address, amount);
-      },
-    });
-    async function waitXV() {
-      // event("start of xv", {
-      //   event_category: this.ref,
-      // });
-      // console.log("start xverse");
-      try {
-        isXV.value = true;
-        await getAddress({
-          payload: {
-            purposes: ["ordinals", "payment"],
-            message:
-              "We need the address you'll use to pay for the service, and the address where you want to receive the Ordinals.",
-            network: {
-              type: "Testnet",
-            },
-          },
-          onFinish: (response) => {
-            response.addresses.forEach((item) => {
-              if (item.purpose == "ordinals") {
-                ordinalAddress.value = item.address;
-              } else if (item.purpose == "payment") {
-                paymentAddress.value = item.address;
-              }
-            });
-            if (paymentAddress.value) {
-              createInscriptionOrderMut.mutate();
-              // event("success of xv", {
-              //   event_label: paymentAddress.value,
-              //   event_category: this.ref,
-              // });
-              // this.addWallet([this.original.base64],paymentAddress.value)
-              // console.log(paymentAddress.value)
-            } else {
-              isXV.value = false;
-            }
-          },
-          onCancel: () => console.log("Request canceled"),
-        });
-        changePopup(false);
-      } catch (err) {
-        console.log("xverse err", err);
-        isXV.value = false;
-      }
-    }
-    function changePopup(status) {
-      if (files.value.length == 0) {
-        return;
-      }
-      showWalletSelection.value = status;
-    }
-    async function sendBTC(address, amount) {
-      const sendBtcOptions = {
-        payload: {
-          network: {
-            type: "Testnet",
-          },
-          recipients: [
-            {
-              address: address,
-              amountSats: BigInt(amount),
-            },
-          ],
-          senderAddress: paymentAddress.value,
-        },
-        onFinish: (response) => {
-          console.log(response);
-        },
-        onCancel: () => console.log("Canceled"),
-      };
-      await sendBtcTransaction(sendBtcOptions);
-    }
-    return {
-      formatBytes,
-      files,
-      updateQuality,
-      getFiles,
-      totalFee: totalFee,
-      selectedRarity,
-      quantity,
-      showGIF,
-      ordinalAddress,
-      paymentAddress,
-      waitXV,
-      isXV,
-      changePopup,
-      showWalletSelection,
-      quality,
-      createInscriptionOrderMut,
-      usdPrice,
-    };
-  },
-  methods: {
-    async runImageDisplayCycle() {
-      if (this.isRunningGif) {
-        return;
-      }
-      this.isRunningGif = true;
-      const images = this.$el.querySelector(".grid-container").children;
-      while (true) {
-        await delay((this.files[this.currentInDisplay].duration || 1) * 1000);
-        if (this.currentInDisplay === images.length - 1) {
-          this.currentInDisplay = 0;
-        } else {
-          this.currentInDisplay += 1;
-        }
-      }
-    },
-    generateGIF() {
-      if (this.files.length == 0) {
-        return;
-      }
-      this.showGIF = true;
-      this.runImageDisplayCycle();
-    },
-  },
-  components: { Frame },
-};
-</script>
 <style lang="scss" scoped>
 @function changeScreen($size) {
   $result: 1;
@@ -670,9 +589,6 @@ export default {
 }
 .header {
   min-height: changeScreen(240) * 1rem;
-}
-.menu-link {
-  //margin-right: changeScreen()*1rem;
 }
 .menu-link-txt-footer {
   color: white;
@@ -900,7 +816,6 @@ ul {
 }
 img {
   display: block;
-  vertical-align: middle;
 }
 /*img{max-width:100%;height:auto;}*/
 *,
@@ -1219,19 +1134,6 @@ a {
   margin: 25px 0 75px;
 }
 
-.grid-container {
-  /* display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  gap: 0px 0px;
-  grid-template-areas:
-    ". . . . ."
-    ". . . . ."
-    ". . . . ."
-    ". . . . .";
-  width: 100%; */
-}
-
 .grid-item {
   background-position: 50% 50% !important;
   background-repeat: no-repeat !important;
@@ -1240,22 +1142,6 @@ a {
   width: 100%;
   height: 100%;
 }
-.styles-module_blinkingCursor__yugAC {
-  color: inherit;
-  font: inherit;
-  left: 3px;
-  line-height: inherit;
-  opacity: 1;
-  position: relative;
-  top: 0;
-}
-
-.styles-module_blinking__9VXRT {
-  animation-duration: 0.8s;
-  animation-iteration-count: infinite;
-  animation-name: styles-module_blink__rqfaf;
-}
-
 @keyframes styles-module_blink__rqfaf {
   0% {
     opacity: 1;
@@ -1267,5 +1153,11 @@ a {
 }
 .gap-4 {
   gap: 2rem;
+}
+
+.rarity-btn {
+  height: 3rem;
+  width: 9rem;
+  transition: all 0.2s ease-in-out;
 }
 </style>
