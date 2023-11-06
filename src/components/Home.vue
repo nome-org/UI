@@ -334,7 +334,7 @@ function generateGIF() {
               @on-plus-click="files.push({ ...item })"
             />
             <!-- </div> -->
-            <Frame v-if="files.length == 0" :index="0" />
+            <Frame v-if="files.length == 0" :index="0" duration="5" />
           </div>
         </div>
         <div class="w-100 d-flex flex-wrap-reverse flex-sm-wrap">
