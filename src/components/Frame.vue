@@ -28,15 +28,38 @@ const openPreview = () => {
 
 <template>
   <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
-    <img :src="src" alt="" class="w-48" />
+    <img :src="src" alt="" style="width: 30rem" />
   </Modal>
-  <div class="mb-10">
-    <div class="w-200 h-200 relative text-lg bg-light-gray">
-      <span class="absolute top-2 left-2">{{ index + 1 }}</span>
+  <div style="margin-bottom: 2.5rem">
+    <div
+      style="
+        width: 16rem;
+        height: 16rem;
+        position: relative;
+        font-size: 1.125rem;
+        background-color: #5f5f64;
+      "
+    >
       <span
-        class="absolute top-2 right-2 pointer"
+        style="
+          font-size: 1.5rem;
+          line-height: 1.2rem;
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+        "
+        >{{ index + 1 }}</span
+      >
+      <span
         @click="src && $emit('on-plus-click')"
-        style="font-size: x-large"
+        style="
+          font-size: 2rem;
+          line-height: 1rem;
+          cursor: pointer;
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+        "
       >
         +
       </span>
@@ -45,15 +68,24 @@ const openPreview = () => {
         :style="{
           backgroundImage: `url(${src})`,
           backgroundSize: `cover`,
+          width: `100%`,
+          height: `100%`,
         }"
-        class="w-full h-full"
       ></div>
     </div>
     <div
-      class="px-3 py-1 flex space-between border-b-rounded bg-dark-gray w-200 align-items-center"
+      style="
+        border-bottom-left-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #1f1f1f;
+      "
     >
-      <span @click="openPreview" class="pointer"> [] </span>
-      <div class="flex">
+      <span @click="openPreview" style="cursor: pointer"> [] </span>
+      <div style="display: flex">
         <input
           :value="duration"
           :disabled="!src"
@@ -62,7 +94,18 @@ const openPreview = () => {
           "
           type="number"
           step="0.1"
-          class="w-8 bg-transparent text-white text-right border-0 no-outline underline mr-2"
+          style="
+            font-size: 1.125rem;
+            line-height: 1.2rem;
+            font-weight: 700;
+            background-color: transparent;
+            color: #fff;
+            border: 0;
+            outline: none;
+            margin-right: 0.5rem;
+            text-align: right;
+            width: 4rem;
+          "
           min="0"
         />
         <span> sec. </span>
@@ -70,87 +113,3 @@ const openPreview = () => {
     </div>
   </div>
 </template>
-<style scoped>
-.w-200 {
-  width: 200px;
-}
-.h-200 {
-  height: 200px;
-}
-.border-b-rounded {
-  border-bottom-left-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
-}
-.space-between {
-  justify-content: space-between;
-}
-.relative {
-  position: relative;
-}
-.absolute {
-  position: absolute;
-}
-.top-2 {
-  top: 1rem;
-}
-.left-2 {
-  left: 1rem;
-}
-.right-2 {
-  right: 1rem;
-}
-.px-2 {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-.mr-2 {
-  margin-left: 1rem;
-}
-.py-1 {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-.flex {
-  display: flex;
-}
-.w-full {
-  width: 100%;
-}
-.h-full {
-  height: 100%;
-}
-.bg-dark-gray {
-  background-color: #1f1f1f;
-}
-.bg-transparent {
-  background-color: transparent;
-}
-.no-outline:focus {
-  outline: none;
-}
-.w-8 {
-  width: 4rem;
-}
-.underline {
-  border-bottom: 1px solid #fff;
-}
-
-.text-lg {
-  font-size: 1.125rem;
-}
-
-.bg-light-gray {
-  background-color: #5f5f64;
-}
-.mb-10 {
-  margin-bottom: 2.5rem;
-}
-
-.w-48 {
-  width: 30rem;
-}
-.pointer {
-  cursor: pointer;
-}
-</style>
