@@ -379,6 +379,7 @@ function generateGIF() {
               :src="item.img"
               :index="index"
               v-model:duration="item.duration"
+              @on-plus-click="files.push({ ...item })"
             />
             <!-- </div> -->
             <Frame v-if="files.length == 0" :index="0" />
