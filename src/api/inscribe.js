@@ -18,7 +18,7 @@ import { api } from "./api-instance";
 /**
  * @typedef {Object} InscribeParams
  * @property {FileData[]} files
- * @property {"2009"|"2010"|"2011"|"block78"|"pizza"|"uncommon"|"black"|"vintage"|"random"} rarity
+ * @property {"block78"|"pizza"|"uncommon"|"black"|"vintage"|"random"} rarity
  * @property {string} receiverAddress address to receive ordinals
  * @property {string} payAddress
  * @property {number} feeRate
