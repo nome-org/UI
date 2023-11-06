@@ -116,18 +116,25 @@
           <div class="w-100 d-flex flex-wrap">
             <div
               v-for="(item, index) in files"
-              class="col-12 col-sm-6 col-md-4 col-lg-3"
+              class="col-12 col-sm-6 col-md-4 col-lg-3 gap-4"
             >
-              <img class="w-100" :src="item.img" />
-              <div class="image-info d-flex flex-col">
-                <b>Before: </b>
-                <span>{{ formatBytes(item.original.size) }}</span>
-                <!-- <span class="separator"> | </span> -->
-                <br />
-                <b>After: </b>
-                <span>{{ formatBytes(item.compressed.size) }}</span>
-              </div>
-              <a :href="item.img" class="button" target="_blank">Download</a>
+              <Frame
+                :src="item.img"
+                :index="index"
+                v-model:duration="item.duration"
+              />
+              <!-- <img class="w-full" :src="item.img" />
+              <div class="image-info flex">
+                <input
+                  type="number"
+                  placeholder="time"
+                  v-model="item.duration"
+                  step="0.1"
+                  min="0"
+                  class="bg-transparent underline-input text-center border-0 text-white w-auto flex-grow-1"
+                />
+                <span class="flex-grow-1">sec.</span>
+              </div> -->
             </div>
             <div
               style="min-height: 200px"
@@ -217,13 +224,13 @@
               </div>
               <div v-if="showGIF && files.length > 0">
                 <div class="d-flex mt-3 justify-between col-12 detail">
-                <div>Frames</div>
-                <div>{{ files.length }}</div>
-              </div>
+                  <div>Frames</div>
+                  <div>{{ files.length }}</div>
+                </div>
                 <div class="d-flex justify-between col-12 detail">
-                <div>Total items</div>
-                <div>{{ files.length + quantity }}</div>
-              </div>
+                  <div>Total items</div>
+                  <div>{{ files.length + quantity }}</div>
+                </div>
                 <div class="d-flex justify-between col-12 detail">
                   <div>Final USD price</div>
                   <div>{{ usdPrice }}</div>
@@ -321,6 +328,7 @@ import { getPriceApi } from "@/api/get-price";
 import { inscribeApi } from "@/api/inscribe";
 import { fileToBase64 } from "@/util/fileToBase64";
 import axios from "axios";
+import Frame from "./Frame.vue";
 
 const formatBytes = memoize((bytes, decimals = 2) => {
   if (bytes === 0) return "0 Bytes";
@@ -362,19 +370,13 @@ export default {
     return {
       rarity: available_rarity,
       img: "",
-
       originalSize: true,
       result: "",
       isHero: false,
       isUnis: false,
-
       level: 0,
       ref: 0,
       index: -1,
-      times: [
-        1000, 0, 1000, 1000, 0, 1000, 1000, 0, 1000, 1000, 0, 0, 1000, 1000, 0,
-        1000, 0, 1000, 0, 1000,
-      ],
       currentInDisplay: 0,
       isRunningGif: false,
     };
@@ -383,7 +385,7 @@ export default {
   // components: { imageCompressor },
   setup() {
     /**
-     * @type {import("vue").Ref<{original: File, compressed: File, img: string}[]>}
+     * @type {import("vue").Ref<{original: File, compressed: File, img: string, duration: number}[]>}
      */
     const files = ref([]);
     const selectedRarity = ref("random");
@@ -399,14 +401,13 @@ export default {
         files.value.map((file) => file.original),
         e.target.value
       );
-
       files.value.forEach((file) => {
         URL.revokeObjectURL(file.img);
       });
       files.value = newlyCompressedFiles.map((compressedFile, index) => {
         return {
+          ...files.value[index],
           img: URL.createObjectURL(compressedFile),
-          original: files.value[index].original,
           compressed: compressedFile,
         };
       });
@@ -421,15 +422,13 @@ export default {
           img: URL.createObjectURL(file),
           original: e.target.files[index],
           compressed: file,
+          duration: 5,
         };
       });
-
       // show original images initially
       files.value = [...files.value, ...imageFiles];
-
       // compress images in the meanwhile
       const resizedFiles = await resizeImages(e.target.files, quality.value);
-
       // after compression is done, replace original images with compressed ones
       imageFiles.forEach((file) => {
         URL.revokeObjectURL(file.img);
@@ -439,6 +438,7 @@ export default {
           img: URL.createObjectURL(file),
           original: e.target.files[index],
           compressed: file,
+          duration: 5,
         };
       });
       files.value = [
@@ -446,7 +446,6 @@ export default {
         ...imageFiles,
       ];
     }
-
     const { data: totalFee } = useQuery({
       queryKey: ["price", files, selectedRarity, quantity],
       queryFn: async () => {
@@ -456,12 +455,10 @@ export default {
           imageSizes: files.value.map((file) => file.compressed.size),
           rareSats: selectedRarity.value,
         });
-
-        return data.data.totalFee / 1e8;
+        return data.data.totalFee / 100_000_000;
       },
       enabled: () => showGIF.value && files.value.length > 0,
     });
-
     const { data: usdPrice } = useQuery({
       queryKey: ["coingecko", totalFee],
       enabled: () => Boolean(totalFee.value),
@@ -474,11 +471,9 @@ export default {
             },
           }
         );
-
         return `$${(response.data.bitcoin.usd * totalFee.value).toFixed(2)}`;
       },
     });
-
     const createInscriptionOrderMut = useMutation({
       mutationKey: ["inscribe", files, selectedRarity, quantity],
       mutationFn: async () => {
@@ -509,7 +504,6 @@ export default {
         await sendBTC(address, amount);
       },
     });
-
     async function waitXV() {
       // event("start of xv", {
       //   event_category: this.ref,
@@ -554,14 +548,12 @@ export default {
         isXV.value = false;
       }
     }
-
     function changePopup(status) {
       if (files.value.length == 0) {
         return;
       }
       showWalletSelection.value = status;
     }
-
     async function sendBTC(address, amount) {
       const sendBtcOptions = {
         payload: {
@@ -581,10 +573,8 @@ export default {
         },
         onCancel: () => console.log("Canceled"),
       };
-
       await sendBtcTransaction(sendBtcOptions);
     }
-
     return {
       formatBytes,
       files,
@@ -613,13 +603,7 @@ export default {
       this.isRunningGif = true;
       const images = this.$el.querySelector(".grid-container").children;
       while (true) {
-        const currentImage = images.item(this.currentInDisplay);
-        const previousImage = images.item(
-          (this.currentInDisplay || images.length) - 1
-        );
-        await delay(this.times[this.currentInDisplay] || 1000);
-        previousImage.style.setProperty("display", "none");
-        currentImage.style.setProperty("display", "block");
+        await delay((this.files[this.currentInDisplay].duration || 1) * 1000);
         if (this.currentInDisplay === images.length - 1) {
           this.currentInDisplay = 0;
         } else {
@@ -627,7 +611,6 @@ export default {
         }
       }
     },
-
     generateGIF() {
       if (this.files.length == 0) {
         return;
@@ -636,6 +619,7 @@ export default {
       this.runImageDisplayCycle();
     },
   },
+  components: { Frame },
 };
 </script>
 <style lang="scss" scoped>
@@ -1280,5 +1264,8 @@ a {
   to {
     opacity: 0;
   }
+}
+.gap-4 {
+  gap: 2rem;
 }
 </style>
