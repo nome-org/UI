@@ -7,7 +7,7 @@ const props = defineProps({
   src: String,
   duration: Number,
 });
-defineEmits(["update:duration"]);
+defineEmits(["update:duration", "on-plus-click"]);
 
 const isPreviewOpen = ref(false);
 const changePreviewStatus = (status: boolean) => {
@@ -19,11 +19,11 @@ const openPreview = () => {
   }
   changePreviewStatus(true);
 };
-const zoom = ref(100);
+// const zoom = ref(100);
 
-const cycleZoom = () => {
-  zoom.value = zoom.value === 100 ? 200 : 100;
-};
+// const cycleZoom = () => {
+//   zoom.value = zoom.value === 100 ? 200 : 100;
+// };
 </script>
 
 <template>
@@ -35,18 +35,16 @@ const cycleZoom = () => {
       <span class="absolute top-2 left-2">{{ index + 1 }}</span>
       <span
         class="absolute top-2 right-2 pointer"
-        @click="cycleZoom"
+        @click="src && $emit('on-plus-click')"
         style="font-size: x-large"
       >
-        {{ zoom === 100 ? "+" : "-" }}
+        +
       </span>
       <div
         v-if="src"
         :style="{
           backgroundImage: `url(${src})`,
-          backgroundSize: `${zoom}% ${zoom}%`,
-          backgroundPosition: 'center',
-          transition: 'background-size 0.5s ease-in-out',
+          backgroundSize: `cover`,
         }"
         class="w-full h-full"
       ></div>
