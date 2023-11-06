@@ -1169,6 +1169,7 @@ input[type="range"] {
   align-items: center;
   padding: 0;
   margin: 0;
+  height: 1px;
   width: 100%;
 }
 
