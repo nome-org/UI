@@ -19,6 +19,11 @@ const openPreview = () => {
   }
   changePreviewStatus(true);
 };
+const zoom = ref(100);
+
+const cycleZoom = () => {
+  zoom.value = zoom.value === 100 ? 200 : 100;
+};
 </script>
 
 <template>
@@ -28,8 +33,23 @@ const openPreview = () => {
   <div class="mb-10">
     <div class="w-200 h-200 relative text-lg bg-light-gray">
       <span v-if="!src" class="absolute top-2 left-2">{{ index + 1 }}</span>
-      <span v-if="!src" class="absolute top-2 right-2">+</span>
-      <img v-if="src" :src="src" alt="" class="w-full h-full" />
+      <span
+        class="absolute top-2 right-2 pointer"
+        @click="cycleZoom"
+        style="font-size: x-large"
+      >
+        {{ zoom === 100 ? "+" : "-" }}
+      </span>
+      <div
+        v-if="src"
+        :style="{
+          backgroundImage: `url(${src})`,
+          backgroundSize: `${zoom}% ${zoom}%`,
+          backgroundPosition: 'center',
+          transition: 'background-size 0.5s ease-in-out',
+        }"
+        class="w-full h-full"
+      ></div>
     </div>
     <div
       class="px-3 py-1 flex space-between border-b-rounded bg-dark-gray w-200 align-items-center"
