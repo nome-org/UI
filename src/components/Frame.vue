@@ -28,64 +28,24 @@ const openPreview = () => {
 
 <template>
   <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
-    <img :src="src" alt="" style="width: 30rem" />
+    <img :src="src" class="w-96" />
   </Modal>
-  <div style="margin-bottom: 2.5rem">
-    <div
-      style="
-        width: 16rem;
-        height: 16rem;
-        position: relative;
-        font-size: 1.125rem;
-        background-color: #5f5f64;
-      "
-    >
-      <span
-        style="
-          font-size: 1.5rem;
-          line-height: 1.2rem;
-          position: absolute;
-          top: 1rem;
-          left: 1rem;
-        "
-        >{{ index + 1 }}</span
-      >
+  <div class="mb-10">
+    <div class="w-60 h-60 relative text-lg bg-[#5f5f64]">
+      <span class="text-2xl absolute top-4 left-4">{{ index + 1 }}</span>
       <span
         @click="src && $emit('on-plus-click')"
-        style="
-          font-size: 2rem;
-          line-height: 1rem;
-          cursor: pointer;
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
-        "
+        class="text-2xl absolute top-4 right-4 cursor-pointer"
       >
         +
       </span>
-      <div
-        v-if="src"
-        :style="{
-          backgroundImage: `url(${src})`,
-          backgroundSize: `cover`,
-          width: `100%`,
-          height: `100%`,
-        }"
-      ></div>
+      <img v-if="src" class="w-full h-full bg-cover" :src="src" />
     </div>
     <div
-      style="
-        border-bottom-left-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
-        padding: 0.5rem 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #1f1f1f;
-      "
+      class="rounded-b-lg flex py-2 px-4 justify-between items-center bg-[#1f1f1f] w-full"
     >
-      <span @click="openPreview" style="cursor: pointer"> [] </span>
-      <div style="display: flex">
+      <span @click="openPreview" class="cursor-pointer"> [] </span>
+      <div class="flex items-center">
         <input
           :value="duration"
           :disabled="!src"
@@ -94,18 +54,7 @@ const openPreview = () => {
           "
           type="number"
           step="0.1"
-          style="
-            font-size: 1.125rem;
-            line-height: 1.2rem;
-            font-weight: 700;
-            background-color: transparent;
-            color: #fff;
-            border: 0;
-            outline: none;
-            margin-right: 0.5rem;
-            text-align: right;
-            width: 4rem;
-          "
+          class="text-lg font-bold bg-transparent text-white border-0 outline-none mr-2 text-right w-16"
           min="0"
         />
         <span> sec. </span>

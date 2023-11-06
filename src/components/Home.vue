@@ -9,7 +9,7 @@ import {
 import imageCompression from "browser-image-compression";
 import memoize from "lodash/memoize";
 
-import { available_rarity } from "../constants/rarity";
+import { available_rarity, rarityLabels } from "../constants/rarity";
 import { useMutation, useQuery } from "@tanstack/vue-query";
 import { ref } from "vue";
 import { getPriceApi } from "@/api/get-price";
@@ -261,29 +261,37 @@ function generateGIF() {
 </script>
 <template>
   <div class="">
-    <div class="page-wrapper">
-      <div class="header d-flex justify-content-between">
+    <div class="py-5 pr-16 pl-5">
+      <div class="min-h-[11.7rem] flex justify-between">
         <div>
-          <a href="/">
-            <!--       <div style="" class="nome-logo headerLogo animate-big">NōME</div>-->
+          <a class="mx-0 mt-6 mb-20" href="/">
+            <!--       <div style="" class="nome-logo headerLogo transition-transform duration-200 hover:scale-110">NōME</div>-->
             <img
-              class="headerLogo animate-big"
+              class="w-[21vw] min-w-[7.3rem] mt-1 transition-transform duration-200 hover:scale-110"
               src="../assets/images/logo_white.png"
             />
           </a>
         </div>
 
-        <div class="menu-link">
-          <a class="" target="_blank" href="https://nome.wtf/"
-            ><div class="menu-link-txt animate-big">nome.wft</div></a
+        <div>
+          <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"
+            ><div
+              class="text-white underline text-lg transition-transform hover:scale-110"
+            >
+              nome.wtf
+            </div></a
           >
         </div>
       </div>
       <main>
-        <div class="intro">
-          <h1 class="intro-title">• Open-Source tool •</h1>
-          <div class="intro-box mt-md-0 mt-5 w-100 position-relative">
-            <div class="intro-line-title text-center">
+        <div class="mt-1">
+          <h1 class="text-2xl pb-2">• Open-Source tool •</h1>
+          <div
+            class="border border-solid border-opacity-20 border-white md:mt-0 mt-12 w-full relative"
+          >
+            <div
+              class="absolute -top-12 right-4 lg:right-52 italic text-2xl text-center"
+            >
               Resize <br />
               and Inscribe <br />
               Animations
@@ -292,7 +300,7 @@ function generateGIF() {
         </div>
         <!--      <div class="pt-5"></div>-->
 
-        <div class="col-sm-6 p-0 mx-width col-12 mt-5">
+        <div class="p-0 max-w-lg mt-12 w-full">
           This tool is created for you to enjoy the possibilities of Bitcoin
           Ordinals. To created animation, follow the steps:
           <br /><br />
@@ -305,10 +313,12 @@ function generateGIF() {
           4. Inscribe frames + recursive GIFs
         </div>
 
-        <div class="pt-4"></div>
+        <div class="pt-6"></div>
 
-        <div class="col-12 p-0 col-sm-6 d-flex justify-content-start mt-3">
-          <label class="btn-txt text-center animate-big btn-connect">
+        <div class="flex justify-start mt-4 w-full sm:w-1/2">
+          <label
+            class="min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl mb-3"
+          >
             UPLOAD FRAMES
             <input
               type="file"
@@ -324,8 +334,8 @@ function generateGIF() {
           <!--        <button class="upload-button button" type="button" @click="upload">Add Picture</button>-->
           <!-- <image-compressor :scale="scale" class="compressor" :done="getFiles"  :quality="quality" ref="compressor"></image-compressor> -->
 
-          <div class="w-100 d-flex flex-wrap gap-4 mt-5">
-            <!-- <div class="col-12 col-sm-6 col-md-4 col-lg-3 "> -->
+          <div class="w-full flex flex-wrap gap-8 mt-12">
+            <!-- <div class="w-full sm:w-1/2 pr-4 pl-4 md:w-1/3 pr-4 pl-4 lg:w-1/4 pr-4 pl-4 "> -->
             <Frame
               v-for="(item, index) in files"
               :src="item.img"
@@ -337,95 +347,106 @@ function generateGIF() {
             <Frame v-if="files.length == 0" :index="0" duration="5" />
           </div>
         </div>
-        <div class="w-100 d-flex flex-wrap-reverse flex-sm-wrap">
-          <div class="col-12 col-sm-6 p-0 d-flex justify-content-start mt-3">
-            <a
+        <div class="w-full flex sm:flex-row flex-col-reverse sm:flex-wrap">
+          <div class="w-full p-0 mt-4 basis-full sm:basis-1/2">
+            <button
+              type="button"
               @click="generateGIF"
-              class="btn-txt text-center animate-big btn-connect"
+              class="mx-0 mt-6 mb-20 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
             >
               GENERATE GIF
-            </a>
+            </button>
           </div>
-          <div class="col-12 px-0 col-sm-6">
-            <div
-              class="input-group d-flex px-0 pl-sm-3 flex-column justify-content-start col-12"
-            >
-              <label>Image Quality</label>
+          <div class="flex-1 px-0 basis-full sm:basis-1/2">
+            <div class="my-6 flex px-0 sm:pl-4 flex-col justify-start w-full">
+              <label class="mb-3">Image Quality</label>
               <input
                 type="range"
                 v-model="quality"
                 min="1"
                 max="200"
                 v-on:change="updateQuality"
+                class="max-w-[16rem]"
               />
             </div>
           </div>
         </div>
 
         <div>
-          <div class="d-flex w-100 flex-wrap">
+          <div class="flex flex-col md:flex-row w-full gap-x-8">
             <div
-              class="col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center"
+              class="basis-full md:basis-1/2 flex items-center justify-center border border-opacity-20 border-white"
             >
-              <div class="h-100 w-100" style="margin: 0px; isolation: isolate">
-                <div class="grid-container p-3 h-100 w-100">
+              <div
+                class="h-full w-full"
+                style="margin: 0px; isolation: isolate"
+              >
+                <div class="p-6 h-full w-full">
                   <div
                     :style="{ backgroundImage: showGIF && `url(${item.img})` }"
-                    class="grid-item"
+                    class="bg-[50%_50%] bg-contain bg-no-repeat w-full h-full"
                     v-for="(item, index) in files"
                     v-show="currentInDisplay == index"
                   ></div>
                 </div>
               </div>
             </div>
-            <div class="col-12 col-sm-6">
-              <div class="col-12">
-                <div class="input-title mt-3">GIF Quantity</div>
+            <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
+            <div class="basis-full md:basis-1/2">
+              <div class="w-full">
+                <div class="h-9 mt-4">GIF Quantity</div>
                 <input
                   type="number"
                   v-model="quantity"
-                  style="color: white"
-                  class="input-box text-right pr-3"
+                  class="border border-solid border-white bg-transparent h-8 rounded-xl text-right pr-3 text-white max-w-[50%]"
                 />
-                <div class="input-title mt-4">Rarity</div>
+                <div class="h-9 mt-6">Rarity</div>
               </div>
 
-              <div class="d-flex flex-wrap">
+              <div class="flex flex-col flex-wrap sm:flex-row gap-8">
                 <div
                   v-for="item in available_rarity"
                   :key="item"
-                  class="col-6 p-3 text-center"
+                  class="text-center basis-full sm:basis-[45%]"
                 >
                   <button
                     @click="selectedRarity = item"
-                    :class="item == selectedRarity ? 'selected-input-box' : ''"
-                    class="input-box cursor-pointer text-uppercase rarity-btn text-white"
+                    :class="
+                      item == selectedRarity ? 'bg-gray-500' : 'bg-transparent'
+                    "
+                    class="border-solid border border-white cursor-pointer uppercase h-8 w-full transition-all text-white rounded-xl"
                   >
-                    {{ item }}
+                    {{ rarityLabels[item] }}
                   </button>
                 </div>
               </div>
-              <div v-if="showGIF && files.length > 0">
-                <div class="d-flex mt-3 justify-between col-12 detail">
+              <div
+                :class="showGIF && files.length > 0 ? 'visible' : 'invisible'"
+              >
+                <div class="flex mt-3 justify-between text-gray-500">
                   <div>Frames</div>
                   <div>{{ files.length }}</div>
                 </div>
-                <div class="d-flex justify-between col-12 detail">
+                <div class="flex justify-between text-gray-500">
                   <div>Total items</div>
                   <div>{{ files.length + quantity }}</div>
                 </div>
-                <div class="d-flex justify-between col-12 detail">
+                <div class="flex justify-between text-gray-500">
                   <div>Final USD price</div>
                   <div>{{ usdPrice }}</div>
                 </div>
-                <div class="d-flex justify-between col-12 detail">
+                <div class="flex justify-between text-gray-500">
                   <div>Final BTC price</div>
                   <div>{{ totalFee && totalFee.toFixed(8) }}</div>
                 </div>
 
                 <div class="text-sm">
                   Data from
-                  <a href="https://www.coingecko.com" target="_blank">
+                  <a
+                    class="mx-0 mt-6 mb-20"
+                    href="https://www.coingecko.com"
+                    target="_blank"
+                  >
                     CoinGecko
                   </a>
                 </div>
@@ -433,18 +454,18 @@ function generateGIF() {
             </div>
           </div>
 
-          <div class="w-100 d-flex flex-wrap">
-            <div class="col-12 col-sm-6">
-              <!--      <div class="col-12 text-left input-title mt-3">Thank you</div>-->
-              <!--      <div class="col-12 text-left input-title">Link to transaction</div>-->
+          <div class="w-full flex flex-wrap">
+            <div class="w-full sm:w-1/2 pr-4 pl-4">
+              <!--      <div class="w-full text-left input-title mt-3">Thank you</div>-->
+              <!--      <div class="w-full text-left input-title">Link to transaction</div>-->
             </div>
 
-            <div class="col-12 col-sm-6">
+            <div class="w-full sm:w-1/2 pr-4 pl-4">
               <div>
-                <div class="d-flex justify-content-center pt-5">
+                <div class="flex justify-center pt-12">
                   <a
                     @click="waitXV"
-                    class="btn-txt text-center animate-big btn-connect"
+                    class="mx-0 mt-6 mb-20 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
                   >
                     INSCRIBE
                   </a>
@@ -456,14 +477,18 @@ function generateGIF() {
       </main>
     </div>
 
-    <div class="footer">
-      <div class="intro mt-5 pt-5">
+    <div class="py-0 px-5 text-xl">
+      <div class="mt-12 pt-12">
         <!--    <h1 class="intro-title">I AM NOME</h1>-->
-        <div class="intro-box pt-2 mt-md-0 mt-5 w-100 position-relative">
-          <div class="intro-line-title intro-line-title-f text-center">
-            <div class="animate-big">
+        <div
+          class="border-b border-solid border-opacity-20 border-white pt-2 md:mt-0 mt-12 w-full relative"
+        >
+          <div
+            class="absolute -top-12 right-4 text-2xl lg:right-56 text-center"
+          >
+            <div class="transition-transform duration-200 hover:scale-110">
               <a
-                class="menu-link-txt-footer"
+                class="mx-0 mt-6 mb-20 text-white underline text-2xl underline-offset-[0.4rem]"
                 target="_blank"
                 href="https://twitter.com/nome_nft"
               >
@@ -471,9 +496,9 @@ function generateGIF() {
               >
             </div>
 
-            <div class="animate-big mt-2">
+            <div class="transition-transform duration-200 hover:scale-110 mt-2">
               <a
-                class="menu-link-txt-footer"
+                class="mx-0 mt-6 mb-20 text-white underline text-2xl underline-offset-[0.4rem]"
                 target="_blank"
                 href="https://discord.gg/ffZKc2TfN4"
                 >Discord</a
@@ -482,11 +507,15 @@ function generateGIF() {
           </div>
         </div>
       </div>
-      <div class="w-100 d-flex justify-between mt-5 pt-5 pb-4">
-        <div class="pr-5">• it is not about me •</div>
-        <div class="menu-link pl-5">
-          <a class="" target="_blank" href="https://nome.wtf/"
-            ><div class="menu-link-txt animate-big">nome.wft</div></a
+      <div class="w-full flex justify-between mt-12 pt-12 pb-6">
+        <div class="pr-12">• it is not about me •</div>
+        <div class="pl-12">
+          <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"
+            ><div
+              class="text-white underline text-lg transition-transform duration-200 hover:scale-110"
+            >
+              nome.wtf
+            </div></a
           >
         </div>
       </div>
@@ -494,644 +523,12 @@ function generateGIF() {
   </div>
 </template>
 
-<style lang="scss" scoped>
-@function changeScreen($size) {
-  $result: 1;
-
-  $result: calc(($size * 1400) / (1920 * 15));
-
-  @return $result;
-}
-.mx-width {
-  max-width: 470px;
-}
-.frame-box {
-  border: solid rgba(255, 255, 255, 0.2) 1px;
-}
-.input-title {
-  min-height: changeScreen(45) * 1rem;
-}
-.detail {
-  color: gray;
-}
-.input-box {
-  border: solid white 1px;
-  border-radius: 10px;
-  background: transparent;
-}
-.selected-input-box {
-  background: gray !important;
-}
-
-.footer {
-  padding: changeScreen(0) * 1rem changeScreen(25) * 1rem changeScreen(0) * 1rem
-    changeScreen(25) * 1rem;
-  font-size: 1.177rem;
-  //padding-top: 8rem;
-}
-
-.page-wrapper {
-  padding: changeScreen(25) * 1rem changeScreen(80) * 1rem changeScreen(25) *
-    1rem changeScreen(25) * 1rem;
-}
-.headerLogo {
-  width: 21vw;
-  min-width: changeScreen(150) * 1rem;
-  //; font-size: 6.5rem;margin-top: -1.75rem
-  margin-top: changeScreen(5) * 1rem;
-}
-.header {
-  min-height: changeScreen(240) * 1rem;
-}
-.menu-link-txt-footer {
-  color: white;
-  text-decoration: underline;
-  font-style: normal;
-  text-underline-offset: 0.4rem;
-  //line-height: 1.882rem;
-  //line-height:1.883rem ;
-  font-size: 1.412rem;
-}
-.menu-link-txt {
-  color: white;
-  text-decoration: underline;
-  font-size: 1.177rem;
-  text-underline-offset: 0.4rem;
-  //line-height: 1.882rem;
-}
-.intro {
-  margin-top: changeScreen(6) * 1rem;
-}
-.intro-title {
-  line-height: 1.883rem;
-  font-size: 1.412rem;
-  //font-size: changeScreen(24)*1rem;
-  //line-height: changeScreen(32)*1rem;
-  padding-bottom: changeScreen(10) * 1rem;
-}
-.intro-box {
-  border-bottom: solid rgb(255 255 255 / 20%) 1px;
-}
-.intro-line-title {
-  position: absolute;
-  top: -1 * changeScreen(58.5) * 1rem;
-  right: changeScreen(275) * 1rem;
-  font-style: italic;
-  line-height: 1.883rem;
-  font-size: 1.412rem;
-}
-.intro-line-title-f {
-  position: absolute;
-  top: -1 * changeScreen(58.5) * 1rem;
-  right: changeScreen(275+55) * 1rem;
-  font-style: italic;
-  line-height: 1.883rem;
-  font-size: 1.412rem;
-}
-.square-gallery {
-  width: 50vw;
-  height: 50vw;
-  margin-top: changeScreen(90) * 1rem;
-  /*box-shadow: 0 2px 1px rgba(0, 0, 0, 0.09), 0 4px 2px rgba(0, 0, 0, 0.09), 0 8px 4px rgba(0, 0, 0, 0.09), 0 16px 8px rgba(0, 0, 0, 0.09), 0 32px 16px rgba(0, 0, 0, 0.09);*/
-  /*margin-bottom: 75px;*/
-}
-.third-explain {
-  margin-top: changeScreen(110) * 1rem;
-  width: 50vw;
-}
-.forth-explain {
-  margin-top: changeScreen(55) * 1rem;
-  width: 50vw;
-}
-.vw-50 {
-  width: 50vw;
-}
-.square {
-  width: changeScreen(30) * 1rem;
-}
-.square-line {
-  line-height: changeScreen(30) * 1rem;
-}
-.first-explain {
-  margin-top: changeScreen(85) * 1rem;
-  width: 50vw;
-}
-.second-explain {
-  margin-top: changeScreen(55) * 1rem;
-  width: 50vw;
-}
-.calim-title {
-  margin-top: changeScreen(115) * 1rem;
-  font-size: changeScreen(25) * 1rem;
-  font-weight: bold;
-}
-.btn-txt {
-  min-width: changeScreen(273) * 1rem;
-  padding: changeScreen(10) * 1rem changeScreen(0) * 1rem !important;
-  font-size: changeScreen(25) * 1rem;
-}
-.wallet-connection {
-  margin-top: changeScreen(30) * 1rem;
-  padding: changeScreen(10) * 1rem changeScreen(0) * 1rem !important;
-  font-size: changeScreen(25) * 1rem;
-}
-@media screen and (max-width: 960px) {
-  //.headerLogo{
-  //
-  //; font-size: 5.5rem;margin-top: -1.25rem
-  //  //margin-top:changeScreen(5)*1rem ;
-  //}
-  .intro-line-title {
-    right: changeScreen(20) * 1rem;
-  }
-  .intro-line-title-f {
-    right: changeScreen(20) * 1rem;
-  }
-}
-
-@media screen and (max-width: 550px) {
-  //.headerLogo{
-  //
-  //font-size: 4rem;margin-top: -1rem
-  //  //margin-top:changeScreen(5)*1rem ;
-  //}
-  .mt-small {
-    margin-top: changeScreen(340) * 1rem !important;
-  }
-  .vw-50 {
-    width: 80vw;
-  }
-  .square-gallery {
-    width: 80vw;
-    height: 80vw;
-    /*box-shadow: 0 2px 1px rgba(0, 0, 0, 0.09), 0 4px 2px rgba(0, 0, 0, 0.09), 0 8px 4px rgba(0, 0, 0, 0.09), 0 16px 8px rgba(0, 0, 0, 0.09), 0 32px 16px rgba(0, 0, 0, 0.09);*/
-    /*margin-bottom: 75px;*/
-  }
-  .third-explain {
-    width: 80vw;
-  }
-  .forth-explain {
-    width: 80vw;
-  }
-  .first-explain {
-    width: 80vw;
-  }
-  .second-explain {
-    width: 80vw;
-  }
-}
-.main-err {
-  top: changeScreen(40) * 1rem;
-}
-.footer .intro {
-  padding-bottom: 2.6rem;
-}
-</style>
-<style>
-.video-container {
-  position: relative;
-  width: 80%;
-  padding-bottom: 41.8%; /* 16:9 */
-  height: 0;
-}
-.video-container iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.nome:hover {
-  color: white;
-}
-</style>
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.selected-box {
-  opacity: 1;
-  background-color: #ff82a9;
-  background-position: center center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-.btn-connect {
-  background-color: white;
-  color: black;
-  padding: 5px;
-  cursor: pointer !important;
-  z-index: 9;
-  border-radius: 10px;
-}
-.err {
-  height: 30px;
-  color: red;
-}
-.br-c {
-  border-right: solid dodgerblue 0.5px;
-}
-.bb-c {
-  border-bottom: solid dodgerblue 0.5px;
-}
-.text-numb {
-  color: white;
-}
-
-*,
-:after,
-:before {
-  box-sizing: border-box;
-  border: 0 solid #eee;
-}
-:after,
-:before {
-  --tw-content: "";
-}
-h2 {
-  font-size: inherit;
-  font-weight: inherit;
-}
-a {
-  color: inherit;
-  text-decoration: inherit;
-}
-h2,
-p {
-  margin: 0;
-}
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-:disabled {
-  cursor: default;
-}
-img {
-  display: block;
-}
-/*img{max-width:100%;height:auto;}*/
-*,
-:after,
-:before {
-  --tw-border-spacing-x: 0;
-  --tw-border-spacing-y: 0;
-  --tw-translate-x: 0;
-  --tw-translate-y: 0;
-  --tw-rotate: 0;
-  --tw-skew-x: 0;
-  --tw-skew-y: 0;
-  --tw-scale-x: 1;
-  --tw-scale-y: 1;
-  --tw-scroll-snap-strictness: proximity;
-  --tw-ring-offset-width: 0px;
-  --tw-ring-offset-color: #fff;
-  --tw-ring-color: rgba(33, 150, 243, 0.5);
-  --tw-ring-offset-shadow: 0 0 #0000;
-  --tw-ring-shadow: 0 0 #0000;
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-colored: 0 0 #0000;
-}
-.absolute {
-  position: absolute;
-}
-.relative {
-  position: relative;
-}
-.left-0 {
-  left: 0;
-}
-.right-4 {
-  right: 1rem;
-}
-.top-0 {
-  top: 0;
-}
-.top-3 {
-  top: 0.75rem;
-}
-.z-50 {
-  z-index: 50;
-}
-.mb-0\.5 {
-  margin-bottom: 0.125rem;
-}
-.ml-0\.5 {
-  margin-left: 0.125rem;
-}
-.mt-1 {
-  margin-top: 0.25rem;
-}
-.mt-2 {
-  margin-top: 0.5rem;
-}
-.inline-block {
-  display: inline-block;
-}
-.flex {
-  display: flex;
-}
-.h-14 {
-  height: 3.5rem;
-}
-.h-3\.5 {
-  height: 0.875rem;
-}
-.h-7 {
-  height: 1.75rem;
-}
-.h-full {
-  height: 100%;
-}
-.h-screen {
-  height: 100vh;
-}
-.w-3\.5 {
-  width: 0.875rem;
-}
-.w-7 {
-  width: 1.75rem;
-}
-.w-full {
-  width: 100%;
-}
-.w-screen {
-  width: 100vw;
-}
-.cursor-pointer {
-  cursor: pointer;
-}
-.flex-col {
-  flex-direction: column;
-}
-.items-center {
-  align-items: center;
-}
-.justify-center {
-  justify-content: center;
-}
-.justify-between {
-  justify-content: space-between;
-}
-.gap-0\.5 {
-  gap: 0.125rem;
-}
-.gap-3 {
-  gap: 0.75rem;
-}
-.rounded-full {
-  border-radius: 9999px;
-}
-.rounded-md {
-  border-radius: 0.375rem;
-}
-.border-b {
-  border-bottom-width: 1px;
-}
-.bg-black {
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
-}
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-.bg-yellow-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(247 147 26 / var(--tw-bg-opacity));
-}
-.bg-opacity-80 {
-  --tw-bg-opacity: 0.8;
-}
-.object-cover {
-  -o-object-fit: cover;
-  object-fit: cover;
-}
-.px-2 {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-.px-3 {
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-}
-.px-4 {
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-.py-1 {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-.py-2 {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-.pb-4 {
-  padding-bottom: 1rem;
-}
-.text-sm {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-}
-.text-xl {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-}
-.text-xs {
-  font-size: 0.75rem;
-  line-height: 1rem;
-}
-.font-bold {
-  font-weight: 700;
-}
-.font-medium {
-  font-weight: 500;
-}
-.leading-5 {
-  line-height: 1.25rem;
-}
-.leading-none {
-  line-height: 1;
-}
-.text-gray-600 {
-  --tw-text-opacity: 1;
-  color: rgb(117 117 117 / var(--tw-text-opacity));
-}
-.text-gray-700 {
-  --tw-text-opacity: 1;
-  color: rgb(97 97 97 / var(--tw-text-opacity));
-}
-.text-gray-800 {
-  --tw-text-opacity: 1;
-  color: rgb(66 66 66 / var(--tw-text-opacity));
-}
-.text-gray-900 {
-  --tw-text-opacity: 1;
-  color: rgb(49 49 49 / var(--tw-text-opacity));
-}
-.text-white {
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-.shadow-md {
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-}
-.shadow-md {
-  --tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color),
-    0 2px 4px -2px var(--tw-shadow-color);
-}
-* {
-  box-sizing: border-box;
-}
-.hover\:bg-gray-100:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(245 245 245 / var(--tw-bg-opacity));
-}
-.hover\:text-gray-900:hover {
-  --tw-text-opacity: 1;
-  color: rgb(49 49 49 / var(--tw-text-opacity));
-}
-@media (min-width: 768px) {
-  .md\:h-fit {
-    height: -moz-fit-content;
-    height: fit-content;
-  }
-  .md\:w-96 {
-    width: 24rem;
-  }
-  .md\:w-fit {
-    width: -moz-fit-content;
-    width: fit-content;
-  }
-  .md\:rounded-md {
-    border-radius: 0.375rem;
-  }
-}
-
-/*p {*/
-/*  margin-bottom: 25px;*/
-/*}*/
-
-.image-info {
-  margin: 15px 0;
-}
-
-.separator {
-  margin: 0 5px;
-}
-
-input {
-  width: 75%;
-  display: block;
-  padding: 5px;
-  text-align: center;
-  margin-bottom: 10px;
-  max-width: 250px;
-  border: 2px solid #ddd;
-}
-*:focus {
-  outline: none;
-}
-/*input:focus {*/
-/*  border: 2px solid blue;*/
-/*}*/
-
-.compressor {
-  display: none;
-}
-
-.button {
-  display: inline-block;
-  border-radius: 3px;
-  background: #1a237e;
-  color: white;
-  padding: 7px 15px;
-  border: 0;
-  box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.4);
-  margin-bottom: 10px;
-  cursor: pointer;
-  outline: none;
-  text-decoration: none;
-}
-
-label {
-  margin-bottom: 10px;
-  display: block;
-}
-
-.input-group {
-  margin: 25px 0;
-}
-
-.checkbox {
-  margin: 15px 0 20px;
-  background: #eee;
-  padding: 10px 0;
-}
-
-.checkbox input {
-  width: auto;
-  display: inline-block;
-}
-
-img {
-  margin: 0 auto;
-  display: block;
-}
-
-a {
-  margin: 25px 0 75px;
-}
-
-.grid-item {
-  background-position: 50% 50% !important;
-  background-repeat: no-repeat !important;
-  background-size: contain !important;
-
-  width: 100%;
-  height: 100%;
-}
-@keyframes styles-module_blink__rqfaf {
-  0% {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-}
-.gap-4 {
-  gap: 2rem;
-}
-
-.rarity-btn {
-  height: 3rem;
-  width: 9rem;
-  transition: all 0.2s ease-in-out;
-}
-
 input[type="range"] {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  border: 0;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  margin: 0;
-  height: 1px;
-  width: 100%;
+  @apply appearance-none flex items-center h-px w-full m-0 p-0 border-0;
 }
 
 input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  background: white;
-  height: 24px;
-  width: 12px;
-  border-radius: 8px;
+  @apply appearance-none bg-white h-6 w-3 rounded-lg;
 }
 </style>
