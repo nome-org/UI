@@ -121,18 +121,19 @@ const { data: totalFee } = useQuery({
   enabled: () => showGIF.value && files.value.length > 0,
 });
 const { data: usdPrice } = useQuery({
-  queryKey: ["coingecko", totalFee],
+  queryKey: ["coinCap"],
   enabled: () => Boolean(totalFee.value),
+  refetchInterval: 10_000,
   queryFn: async () => {
     const response = await axios.get(
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
+      "https://api.coincap.io/v2/rates/bitcoin",
       {
         headers: {
           "Content-Type": "application/json",
         },
       }
     );
-    return `$${(response.data.bitcoin.usd * totalFee.value).toFixed(2)}`;
+    return `$${(response.data.data.rateUsd * totalFee.value).toFixed(2)}`;
   },
 });
 const createInscriptionOrderMut = useMutation({
