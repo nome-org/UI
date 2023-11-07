@@ -14,6 +14,7 @@ import { ref } from "vue";
 import { getPriceApi } from "@/api/get-price";
 import { inscribeApi } from "@/api/inscribe";
 import { fileToBase64 } from "@/util/fileToBase64";
+import debounce from "lodash/debounce";
 import axios from "axios";
 import Frame from "./Frame.vue";
 type CompressAble = {
@@ -28,7 +29,7 @@ const resizeImages = async (imageFiles: File[], maxSize: number) => {
     const resizedImage = await imageCompression(imageFile, {
       maxSizeMB: maxSize / 1000,
       fileType: "image/webp",
-      maxWidthOrHeight: 600,
+      maxWidthOrHeight: 500,
     });
     resizedImages.push(resizedImage);
   }
@@ -45,11 +46,12 @@ const showGIF = ref(false);
 const paymentAddress = ref("");
 const ordinalAddress = ref("");
 const isXV = ref(true);
-const quality = ref(200);
+const quality = ref(300);
 const isRunningGif = ref(false);
 const currentInDisplay = ref(0);
 const paymentTxId = ref("");
 async function updateQuality(e: Event) {
+const updateQuality = debounce(async function updateQuality(e: Event) {
   const newlyCompressedFiles = await resizeImages(
     files.value.map((file) => file.original),
     Number((e.target as HTMLInputElement).value)
@@ -64,8 +66,16 @@ async function updateQuality(e: Event) {
       compressed: compressedFile,
     };
   });
-}
+}, 200) as (e: Event) => void;
 async function getFiles(e: Event) {
+  const allAreImages = Array.from((e.target as HTMLInputElement).files).every(
+    (file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type)
+  );
+
+  if (!allAreImages) {
+    alert("Please select only images");
+    return;
+  }
   const availableSlots = 10 - files.value.length;
   if (availableSlots <= 0) {
     return;
@@ -378,7 +388,7 @@ function generateGIF() {
                 type="range"
                 v-model="quality"
                 min="1"
-                max="200"
+                max="300"
                 v-on:change="updateQuality"
                 class="max-w-[16rem]"
               />
@@ -389,9 +399,8 @@ function generateGIF() {
         <div>
           <div class="flex flex-col md:flex-row w-full gap-x-8">
             <div
-              class="basis-full md:basis-1/2 flex items-center justify-center border border-opacity-20 border-white bg-gray-500 relative"
+              class="basis-full md:basis-1/2 flex items-center justify-center border border-opacity-20 border-white"
             >
-              <div class="absolute bottom-4 left-4 text-lg z-10">Preview</div>
               <div
                 class="h-full w-full"
                 style="margin: 0px; isolation: isolate"
