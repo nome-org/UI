@@ -174,10 +174,6 @@ const createInscriptionOrderMut = useMutation({
   },
 });
 async function waitXV() {
-  // event("start of xv", {
-  //   event_category: this.ref,
-  // });
-  // console.log("start xverse");
   try {
     isXV.value = true;
     await getAddress({
@@ -357,7 +353,7 @@ function generateGIF() {
               @on-x-click="removeFile(item)"
             />
             <!-- </div> -->
-            <Frame v-if="files.length == 0" :index="0" duration="5" />
+            <Frame v-if="files.length == 0" :index="0" :duration="0.5" />
           </div>
         </div>
         <div class="w-full flex sm:flex-row flex-col-reverse sm:flex-wrap">
