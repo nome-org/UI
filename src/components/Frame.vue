@@ -22,11 +22,6 @@ const openPreview = () => {
   }
   changePreviewStatus(true);
 };
-// const zoom = ref(100);
-
-// const cycleZoom = () => {
-//   zoom.value = zoom.value === 100 ? 200 : 100;
-// };
 </script>
 
 <template>
@@ -83,7 +78,6 @@ const openPreview = () => {
     <div
       v-if="original && compressed"
       class="text-white text-opacity-40 text-base py-4 text-center"
-      v-once
     >
       Before - {{ original && formatBytes(original.size, 0) }} | After -
       {{ compressed && formatBytes(compressed.size, 0) }}
