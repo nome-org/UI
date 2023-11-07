@@ -45,10 +45,10 @@ const showGIF = ref(false);
 const paymentAddress = ref("");
 const ordinalAddress = ref("");
 const isXV = ref(true);
-const showWalletSelection = ref(false);
 const quality = ref(200);
 const isRunningGif = ref(false);
 const currentInDisplay = ref(0);
+const paymentTxId = ref("");
 async function updateQuality(e: Event) {
   const newlyCompressedFiles = await resizeImages(
     files.value.map((file) => file.original),
@@ -66,15 +66,19 @@ async function updateQuality(e: Event) {
   });
 }
 async function getFiles(e: Event) {
-  if (files.value.length >= 10) {
+  const availableSlots = 10 - files.value.length;
+  if (availableSlots <= 0) {
     return;
   }
-  const { files: newFiles } = e.target as HTMLInputElement;
+
+  showGIF.value = false;
+  const { files: newFilesList } = e.target as HTMLInputElement;
+  const newFiles = Array.from(newFilesList).slice(0, availableSlots);
   if (!newFiles.length) {
     e.preventDefault();
     return;
   }
-  let imageFiles = Array.from(newFiles).map((file, index) => {
+  let imageFiles = newFiles.map((file) => {
     return {
       img: URL.createObjectURL(file),
       original: file,
@@ -85,7 +89,7 @@ async function getFiles(e: Event) {
   // show original images initially
   files.value = [...files.value, ...imageFiles];
   // compress images in the meanwhile
-  const resizedFiles = await resizeImages(Array.from(newFiles), quality.value);
+  const resizedFiles = await resizeImages(newFiles, quality.value);
   // after compression is done, replace original images with compressed ones
   imageFiles.forEach((file) => {
     URL.revokeObjectURL(file.img);
@@ -103,6 +107,7 @@ function duplicateFile(item: CompressAble) {
   if (files.value.length >= 10) {
     return;
   }
+  showGIF.value = false;
   files.value.push({ ...item });
 }
 
@@ -110,6 +115,7 @@ function removeFile(item: CompressAble) {
   if (!item) {
     return;
   }
+  showGIF.value = false;
   files.value = files.value.filter((file) => file !== item);
   URL.revokeObjectURL(item.img);
 }
@@ -146,9 +152,6 @@ const { data: usdPrice } = useQuery({
 const createInscriptionOrderMut = useMutation({
   mutationKey: ["inscribe", files, selectedRarity, quantity],
   mutationFn: async () => {
-    /**
-     * @type {import("../api/inscribe").FileData[]}
-     */
     const fileData = [];
     for (const file of files.value) {
       fileData.push({
@@ -195,29 +198,16 @@ async function waitXV() {
         });
         if (paymentAddress.value) {
           createInscriptionOrderMut.mutate();
-          // event("success of xv", {
-          //   event_label: paymentAddress.value,
-          //   event_category: this.ref,
-          // });
-          // this.addWallet([this.original.base64],paymentAddress.value)
-          // console.log(paymentAddress.value)
         } else {
           isXV.value = false;
         }
       },
       onCancel: () => console.log("Request canceled"),
     });
-    // changePopup(false);
   } catch (err) {
     console.log("xverse err", err);
     isXV.value = false;
   }
-}
-function changePopup(status) {
-  if (files.value.length == 0) {
-    return;
-  }
-  showWalletSelection.value = status;
 }
 async function sendBTC(address: string, amount: number) {
   const sendBtcOptions: SendBtcTransactionOptions = {
@@ -234,7 +224,7 @@ async function sendBTC(address: string, amount: number) {
       senderAddress: paymentAddress.value,
     },
     onFinish: (response) => {
-      console.log(response);
+      paymentTxId.value = response;
     },
     onCancel: () => console.log("Canceled"),
   };
@@ -247,7 +237,12 @@ async function runImageDisplayCycle() {
   }
   isRunningGif.value = true;
   while (true) {
-    await delay((files.value[currentInDisplay.value].duration || 1) * 1000);
+    if (showGIF.value == false) {
+      isRunningGif.value = false;
+      return;
+    }
+    const currentFile = files.value[currentInDisplay.value];
+    await delay((currentFile.duration || 1) * 1000);
     if (currentInDisplay.value === files.value.length - 1) {
       currentInDisplay.value = 0;
     } else {
@@ -259,6 +254,7 @@ function generateGIF() {
   if (files.value.length == 0) {
     return;
   }
+  currentInDisplay.value = 0;
   showGIF.value = true;
   runImageDisplayCycle();
 }
@@ -384,19 +380,23 @@ function generateGIF() {
         <div>
           <div class="flex flex-col md:flex-row w-full gap-x-8">
             <div
-              class="basis-full md:basis-1/2 flex items-center justify-center border border-opacity-20 border-white"
+              class="basis-full md:basis-1/2 flex items-center justify-center border border-opacity-20 border-white bg-gray-500 relative"
             >
+              <div class="absolute bottom-4 left-4 text-lg z-10">Preview</div>
               <div
                 class="h-full w-full"
                 style="margin: 0px; isolation: isolate"
               >
-                <div class="p-6 h-full w-full">
-                  <div
-                    :style="{ backgroundImage: showGIF && `url(${item.img})` }"
-                    class="bg-[50%_50%] bg-contain bg-no-repeat w-full h-full"
-                    v-for="(item, index) in files"
-                    v-show="currentInDisplay == index"
-                  ></div>
+                <div class="p-6 h-full w-full min-h-[16rem]">
+                  <img :src="showGIF && files[currentInDisplay].img" alt="" />
+                  <!-- <div
+                    :style="{
+                      backgroundImage:
+                        showGIF && `url(${files[currentInDisplay].img})`,
+                    }"
+                    v-show="showGIF && files.length > 0"
+                    class="bg-contain bg-no-repeat w-full h-full"
+                  ></div> -->
                 </div>
               </div>
             </div>
