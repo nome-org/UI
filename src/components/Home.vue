@@ -120,7 +120,7 @@ function removeFile(item: CompressAble) {
   URL.revokeObjectURL(item.img);
 }
 
-const { data: totalFee } = useQuery({
+const { data: totalFee, dataUpdatedAt } = useQuery({
   queryKey: ["price", files, selectedRarity, quantity],
   queryFn: async () => {
     const data = await getPriceApi({
@@ -135,8 +135,17 @@ const { data: totalFee } = useQuery({
 });
 const { data: usdPrice } = useQuery({
   queryKey: ["coinCap"],
-  enabled: () => Boolean(totalFee.value),
-  refetchInterval: 10_000,
+  enabled: () => Boolean(totalFee.value && dataUpdatedAt.value),
+  refetchInterval: () => {
+    const now = new Date().getTime();
+    const shouldRefresh = Boolean(
+      totalFee.value &&
+        dataUpdatedAt.value &&
+        now - dataUpdatedAt.value < 20_000
+    );
+
+    return shouldRefresh ? 20_000 : false;
+  },
   queryFn: async () => {
     const response = await axios.get(
       "https://api.coincap.io/v2/rates/bitcoin",
@@ -146,7 +155,7 @@ const { data: usdPrice } = useQuery({
         },
       }
     );
-    return `$${(response.data.data.rateUsd * totalFee.value).toFixed(2)}`;
+    return response.data.data.rateUsd;
   },
 });
 const createInscriptionOrderMut = useMutation({
@@ -442,22 +451,13 @@ function generateGIF() {
                 </div>
                 <div class="flex justify-between text-gray-500">
                   <div>Final USD price</div>
-                  <div>{{ usdPrice }}</div>
+                  <div v-show="usdPrice && totalFee">
+                    ${{ (usdPrice * totalFee).toFixed(2) }}
+                  </div>
                 </div>
                 <div class="flex justify-between text-gray-500">
                   <div>Final BTC price</div>
                   <div>{{ totalFee && totalFee.toFixed(8) }}</div>
-                </div>
-
-                <div class="text-sm">
-                  Data from
-                  <a
-                    class="mx-0 mt-6 mb-20"
-                    href="https://www.coingecko.com"
-                    target="_blank"
-                  >
-                    CoinGecko
-                  </a>
                 </div>
               </div>
             </div>
