@@ -329,7 +329,7 @@ function generateGIF() {
         </div>
         <!--      <div class="pt-5"></div>-->
 
-        <div class="p-0 max-w-lg mt-12 w-full">
+        <div class="p-0 w-full lg:w-[90%] xl:w-[80%] 2xl:w-[57%] mt-12">
           This is a platform for the community to explore the potential of
           Bitcoin Ordinals, enabling the creation of recursive animations,
           resizing images, and inscriptions on rare sats all in one place. To
