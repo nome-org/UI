@@ -17,6 +17,8 @@ import { fileToBase64 } from "@/util/fileToBase64";
 import debounce from "lodash/debounce";
 import axios from "axios";
 import Frame from "./Frame.vue";
+import { computed } from "@vue/reactivity";
+import { formatBytes } from "@/util/formatBytes";
 type CompressAble = {
   original: File;
   compressed: File;
@@ -50,7 +52,15 @@ const quality = ref(300);
 const isRunningGif = ref(false);
 const currentInDisplay = ref(0);
 const paymentTxId = ref("");
-async function updateQuality(e: Event) {
+const largestFileSize = computed(() => {
+  if (files.value.length == 0) {
+    return "300KB";
+  }
+  return formatBytes(
+    Math.ceil(Math.max(...files.value.map((file) => file.compressed.size)))
+  );
+});
+
 const updateQuality = debounce(async function updateQuality(e: Event) {
   const newlyCompressedFiles = await resizeImages(
     files.value.map((file) => file.original),
@@ -382,8 +392,7 @@ function generateGIF() {
             </button>
           </div>
           <div class="flex-1 px-0 basis-full sm:basis-1/2">
-            <div class="my-6 flex px-0 sm:pl-4 flex-col justify-start w-full">
-              <label class="mb-3">Image Quality</label>
+            <div class="my-6 flex px-0 sm:pl-4 flex-col justify-start w-64">
               <input
                 type="range"
                 v-model="quality"
@@ -392,6 +401,9 @@ function generateGIF() {
                 v-on:change="updateQuality"
                 class="max-w-[16rem]"
               />
+              <label class="mt-6 text-center w-full"
+                >.webp file size – {{ largestFileSize }}</label
+              >
             </div>
           </div>
         </div>
