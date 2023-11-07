@@ -1,7 +1,6 @@
 import memoize from "lodash/memoize";
 
 export const formatBytes = memoize((bytes, decimals = 2) => {
-  console.log("formatBytes");
   if (bytes === 0) return "0 Bytes";
 
   const k = 1024;
