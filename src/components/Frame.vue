@@ -7,8 +7,8 @@ const props = defineProps({
   index: Number,
   src: String,
   duration: Number,
-  original: File,
-  compressed: File,
+  original: Blob,
+  compressed: Blob,
 });
 defineEmits(["update:duration", "on-plus-click", "on-x-click"]);
 
@@ -83,6 +83,7 @@ const openPreview = () => {
     <div
       v-if="original && compressed"
       class="text-white text-opacity-40 text-base py-4 text-center"
+      v-once
     >
       Before -- {{ original && formatBytes(original.size, 0) }} | After --
       {{ compressed && formatBytes(compressed.size, 0) }}
