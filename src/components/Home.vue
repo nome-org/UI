@@ -7,7 +7,6 @@ import {
   sendBtcTransaction,
 } from "sats-connect";
 import imageCompression from "browser-image-compression";
-import memoize from "lodash/memoize";
 
 import { available_rarity, rarityLabels } from "../constants/rarity";
 import { useMutation, useQuery } from "@tanstack/vue-query";
@@ -17,20 +16,12 @@ import { inscribeApi } from "@/api/inscribe";
 import { fileToBase64 } from "@/util/fileToBase64";
 import axios from "axios";
 import Frame from "./Frame.vue";
-import Modal from "./Modal.vue";
-
-const formatBytes = memoize((bytes, decimals = 2) => {
-  if (bytes === 0) return "0 Bytes";
-
-  const k = 1024;
-  const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ["Bytes", "KB", "MB", "GB"];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-});
-
+type CompressAble = {
+  original: File;
+  compressed: File;
+  img: string;
+  duration: number;
+};
 const resizeImages = async (imageFiles: File[], maxSize: number) => {
   const resizedImages = [];
   for (let imageFile of imageFiles) {
@@ -47,9 +38,7 @@ const resizeImages = async (imageFiles: File[], maxSize: number) => {
 function delay(ms: number) {
   return new Promise((res) => setTimeout(res, ms));
 }
-const files = ref<
-  Array<{ original: File; compressed: File; img: string; duration: number }>
->([]);
+const files = ref<Array<CompressAble>>([]);
 const selectedRarity = ref("random");
 const quantity = ref(1);
 const showGIF = ref(false);
@@ -77,6 +66,9 @@ async function updateQuality(e: Event) {
   });
 }
 async function getFiles(e: Event) {
+  if (files.value.length >= 10) {
+    return;
+  }
   const { files: newFiles } = e.target as HTMLInputElement;
   if (!newFiles.length) {
     e.preventDefault();
@@ -107,6 +99,21 @@ async function getFiles(e: Event) {
   });
   files.value = [...files.value.slice(0, -imageFiles.length), ...imageFiles];
 }
+function duplicateFile(item: CompressAble) {
+  if (files.value.length >= 10) {
+    return;
+  }
+  files.value.push({ ...item });
+}
+
+function removeFile(item: CompressAble) {
+  if (!item) {
+    return;
+  }
+  files.value = files.value.filter((file) => file !== item);
+  URL.revokeObjectURL(item.img);
+}
+
 const { data: totalFee } = useQuery({
   queryKey: ["price", files, selectedRarity, quantity],
   queryFn: async () => {
@@ -286,7 +293,7 @@ function generateGIF() {
       </div>
       <main>
         <div class="mt-1">
-          <h1 class="text-2xl pb-2">• Open-Source tool •</h1>
+          <h1 class="text-2xl pb-2">• Stop motion tool •</h1>
           <div
             class="border border-solid border-opacity-20 border-white md:mt-0 mt-12 w-full relative"
           >
@@ -302,16 +309,18 @@ function generateGIF() {
         <!--      <div class="pt-5"></div>-->
 
         <div class="p-0 max-w-lg mt-12 w-full">
-          This tool is created for you to enjoy the possibilities of Bitcoin
-          Ordinals. To created animation, follow the steps:
+          This is a platform for the community to explore the potential of
+          Bitcoin Ordinals, enabling the creation of recursive animations,
+          resizing images, and inscriptions on rare sats all in one place. To
+          create animation, please follow the steps:
           <br /><br />
-          1. Upload PNG or JPEG frames (10 Max)
+          1. Upload PNG or JPEG frames (10 Max);
           <br />
-          2. Set order, timing , and .webp files size
+          2. Set order, timing, and .webp file size;
           <br />
-          3. Generate GIF, set quantity and rarity
+          3. Generate GIF, set quantity and rarity;
           <br />
-          4. Inscribe frames + recursive GIFs
+          4. Inscribe frames + recursive GIFs.
         </div>
 
         <div class="pt-6"></div>
@@ -341,8 +350,11 @@ function generateGIF() {
               v-for="(item, index) in files"
               :src="item.img"
               :index="index"
+              :original="item.original"
+              :compressed="item.compressed"
               v-model:duration="item.duration"
-              @on-plus-click="files.push({ ...item })"
+              @on-plus-click="duplicateFile(item)"
+              @on-x-click="removeFile(item)"
             />
             <!-- </div> -->
             <Frame v-if="files.length == 0" :index="0" duration="5" />
