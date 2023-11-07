@@ -85,7 +85,7 @@ const openPreview = () => {
       class="text-white text-opacity-40 text-base py-4 text-center"
       v-once
     >
-      Before -- {{ original && formatBytes(original.size, 0) }} | After --
+      Before - {{ original && formatBytes(original.size, 0) }} | After -
       {{ compressed && formatBytes(compressed.size, 0) }}
     </div>
   </div>
