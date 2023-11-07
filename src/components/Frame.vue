@@ -26,7 +26,7 @@ const openPreview = () => {
 
 <template>
   <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
-    <img :src="src" class="w-96" />
+    <img :src="src" class="max-w-full max-h-screen" />
   </Modal>
   <div class="mb-10 p-8 relative">
     <span
