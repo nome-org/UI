@@ -11,10 +11,12 @@
     "axios": "^1.6.0",
     "browser-image-compression": "^2.0.2",
     "lodash": "^4.17.21",
+    "pinia": "^2.1.7",
     "sats-connect": "^1.1.1",
     "vue": "^3.2.13",
     "vue-analytics": "^5.22.1",
-    "vue-gtag": "^2.0.1"
+    "vue-gtag": "^2.0.1",
+    "vue-router": "^4.2.5"
   },
   "browserslist": [
     "> 1%",
