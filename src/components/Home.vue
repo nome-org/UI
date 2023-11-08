@@ -417,19 +417,15 @@ function generateGIF() {
 
         <div>
           <div class="flex flex-col md:flex-row w-full gap-x-8">
+            <div class="basis-full md:basis-1/2 flex justify-center">
             <div
-              class="basis-full md:basis-1/2 flex items-center justify-center border border-opacity-20 border-white"
+                class="p-6 border border-opacity-20 border-white max-h-[30rem] w-full"
             >
-              <div
-                class="h-full w-full"
-                style="margin: 0px; isolation: isolate"
-              >
-                <div class="p-6 h-full w-full min-h-[16rem]">
                   <img
                     v-if="showGIF && files.length > 0"
                     :src="showGIF && files[currentInDisplay].img"
                     alt=""
-                    class="h-full"
+                  class="w-full h-full object-contain"
                   />
                   <!-- <div
                     :style="{
@@ -441,7 +437,6 @@ function generateGIF() {
                   ></div> -->
                 </div>
               </div>
-            </div>
             <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
             <div class="basis-full md:basis-1/2">
               <div class="w-full">
