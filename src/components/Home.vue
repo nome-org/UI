@@ -336,9 +336,8 @@ function generateGIF() {
         <div class="p-0 w-full lg:w-[90%] xl:w-[80%] 2xl:w-[57%] mt-12">
           This is a platform for the community to explore the potential of
           Bitcoin Ordinals, <br />enabling the creation of recursive animations,
-          resizing images,<br />
-          and inscriptions on rare sats all in one place. To create animation,
-          please follow the steps: <br /><br />
+          resizing images, and inscriptions <br />on rare sats all in one place.
+          To create animation, please follow the steps: <br /><br />
           1. Upload PNG or JPEG frames (10 Max);
           <br />
           2. Set order, timing, and .webp file size;
