@@ -294,7 +294,7 @@ function generateGIF() {
 </script>
 <template>
   <div class="">
-    <div class="py-5 pr-16 pl-5">
+    <div class="py-5 pr-16 pl-10">
       <div class="min-h-[11.7rem] flex justify-between">
         <div>
           <a class="mx-0 mt-6 mb-20" href="/">

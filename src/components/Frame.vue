@@ -28,7 +28,7 @@ const openPreview = () => {
   <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
     <img :src="src" class="max-w-full max-h-screen" />
   </Modal>
-  <div class="mb-10 p-8 relative">
+  <div class="mb-10 pl-0 p-8 relative">
     <span
       class="absolute top-1 right-2 font-thin text-xl cursor-pointer"
       @click="$emit('on-x-click')"
