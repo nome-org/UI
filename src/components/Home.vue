@@ -17,8 +17,8 @@ import { fileToBase64 } from "@/util/fileToBase64";
 import debounce from "lodash/debounce";
 import axios from "axios";
 import Frame from "./Frame.vue";
-import { computed } from "@vue/reactivity";
-import { formatBytes } from "@/util/formatBytes";
+import SelectRarity from "./shared/SelectRarity.vue";
+import Footer from "./shared/Footer.vue";
 type CompressAble = {
   original: File;
   compressed: File;
@@ -418,16 +418,16 @@ function generateGIF() {
         <div>
           <div class="flex flex-col md:flex-row w-full gap-x-8">
             <div class="basis-full md:basis-1/2 flex justify-center">
-            <div
+              <div
                 class="p-6 border border-opacity-20 border-white max-h-[30rem] w-full"
-            >
-                  <img
-                    v-if="showGIF && files.length > 0"
-                    :src="showGIF && files[currentInDisplay].img"
-                    alt=""
+              >
+                <img
+                  v-if="showGIF && files.length > 0"
+                  :src="showGIF && files[currentInDisplay].img"
+                  alt=""
                   class="w-full h-full object-contain"
-                  />
-                  <!-- <div
+                />
+                <!-- <div
                     :style="{
                       backgroundImage:
                         showGIF && `url(${files[currentInDisplay].img})`,
@@ -435,8 +435,8 @@ function generateGIF() {
                     v-show="showGIF && files.length > 0"
                     class="bg-contain bg-no-repeat w-full h-full"
                   ></div> -->
-                </div>
               </div>
+            </div>
             <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
             <div class="basis-full md:basis-1/2">
               <div class="w-full">
@@ -450,24 +450,10 @@ function generateGIF() {
                 />
                 <div class="h-9 mt-8 text-lg sm:text-base mb-1">Rarity</div>
               </div>
-
-              <div class="flex flex-wrap sm:flex-row gap-8">
-                <div
-                  v-for="item in available_rarity"
-                  :key="item"
-                  class="text-center basis-[45%]"
-                >
-                  <button
-                    @click="selectedRarity = item"
-                    :class="
-                      item == selectedRarity ? 'bg-gray-500' : 'bg-transparent'
-                    "
-                    class="border-solid border border-white cursor-pointer uppercase h-10 w-full transition-all text-white rounded-xl"
-                  >
-                    {{ rarityLabels[item] }}
-                  </button>
-                </div>
-              </div>
+              <SelectRarity
+                :selected-rarity="selectedRarity"
+                @update:selected-rarity="selectedRarity = $event"
+              />
               <div
                 :class="showGIF && files.length > 0 ? 'visible' : 'invisible'"
               >
@@ -515,55 +501,7 @@ function generateGIF() {
       </main>
     </div>
 
-    <div class="py-0 px-10 text-xl">
-      <div class="mt-12 pt-12">
-        <!--    <h1 class="intro-title">I AM NOME</h1>-->
-        <div
-          class="border-b border-solid border-opacity-20 border-white pt-2 md:mt-0 mt-12 w-full relative"
-        >
-          <div
-            class="absolute -top-[3.25rem] right-4 text-2xl lg:right-56 text-center"
-          >
-            <div
-              class="transition-all duration-75 hover:italic underline-offset-8 hover:underline"
-            >
-              <a
-                class="mx-0 mt-6 mb-20 text-white underline text-[1.4rem]"
-                target="_blank"
-                href="https://twitter.com/nome_nft"
-              >
-                Twitter</a
-              >
-            </div>
-
-            <div
-              class="transition-all duration-75 hover:italic underline-offset-8 hover:underline mt-3"
-            >
-              <a
-                class="mx-0 mt-6 mb-20 text-white underline text-[1.4rem]"
-                target="_blank"
-                href="https://discord.gg/ffZKc2TfN4"
-                >Discord</a
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="w-full flex flex-col-reverse justify-between mt-6 pt-12 pb-10 gap-[1.8rem] sm:flex-row sm:gap-0"
-      >
-        <div class="text-lg">• it is not about me •</div>
-        <div class="">
-          <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"
-            ><div
-              class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
-            >
-              nome.wtf
-            </div></a
-          >
-        </div>
-      </div>
-    </div>
+    <Footer />
   </div>
 </template>
 
