@@ -28,10 +28,6 @@ type CompressAble = {
 const resizeImages = async (imageFiles: File[], maxSize: number) => {
   const resizedImages: File[] = [];
   for (let imageFile of imageFiles) {
-    if (imageFile.size < maxSize * 1000) {
-      resizedImages.push(imageFile);
-      continue;
-    }
     const resizedImage = await imageCompression(imageFile, {
       maxSizeMB: maxSize / 1000,
       fileType: "image/webp",
