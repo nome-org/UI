@@ -35,7 +35,7 @@ const resizeImages = async (imageFiles: File[], maxSize: number) => {
     const resizedImage = await imageCompression(imageFile, {
       maxSizeMB: maxSize / 1000,
       fileType: "image/webp",
-      maxWidthOrHeight: 1000,
+      alwaysKeepResolution: true,
     });
     resizedImages.push(resizedImage);
   }
@@ -52,18 +52,18 @@ const showGIF = ref(false);
 const paymentAddress = ref("");
 const ordinalAddress = ref("");
 const isXV = ref(true);
-const quality = ref(300);
+const quality = ref(100);
 const isRunningGif = ref(false);
 const currentInDisplay = ref(0);
 const paymentTxId = ref("");
-const largestFileSize = computed(() => {
-  if (files.value.length == 0) {
-    return "300KB";
-  }
-  return formatBytes(
-    Math.ceil(Math.max(...files.value.map((file) => file.compressed.size)))
-  );
-});
+// const largestFileSize = computed(() => {
+//   if (files.value.length == 0) {
+//     return "300KB";
+//   }
+//   return formatBytes(
+//     Math.ceil(Math.max(...files.value.map((file) => file.compressed.size)))
+//   );
+// });
 
 const updateQuality = debounce(async function updateQuality(e: Event) {
   const newlyCompressedFiles = await resizeImages(
@@ -294,13 +294,13 @@ function generateGIF() {
 </script>
 <template>
   <div class="">
-    <div class="py-5 pr-16 pl-10">
+    <div class="py-5 pt-8 px-10">
       <div class="min-h-[11.7rem] flex justify-between">
         <div>
           <a class="mx-0 mt-6 mb-20" href="/">
             <!--       <div style="" class="nome-logo headerLogo transition-transform duration-200 hover:scale-110">NōME</div>-->
             <img
-              class="w-[21vw] min-w-[7.3rem] mt-1 transition-transform duration-200 hover:scale-110"
+              class="w-48 sm:w-[21vw] min-w-[7.3rem] mt-1 transition-transform duration-200 hover:scale-110"
               src="../assets/images/logo_white.png"
             />
           </a>
@@ -309,7 +309,7 @@ function generateGIF() {
         <div>
           <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"
             ><div
-              class="text-white underline text-lg transition-transform hover:scale-110"
+              class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
             >
               nome.wtf
             </div></a
@@ -320,10 +320,10 @@ function generateGIF() {
         <div class="mt-1">
           <h1 class="text-2xl pb-2">• Stop motion tool •</h1>
           <div
-            class="border-b border-solid border-opacity-20 border-white md:mt-0 mt-12 w-full relative"
+            class="border-b border-solid border-opacity-20 border-white md:mt-0 mb-44 sm:mb-16 xl:mb-12 w-full relative"
           >
             <div
-              class="absolute -top-12 right-4 lg:right-52 italic text-2xl text-center"
+              class="absolute left-0 top-8 sm:-top-12 sm:left-auto sm:right-4 lg:right-52 italic text-2xl sm:text-center"
             >
               Resize <br />
               and Inscribe <br />
@@ -333,11 +333,17 @@ function generateGIF() {
         </div>
         <!--      <div class="pt-5"></div>-->
 
-        <div class="p-0 w-full lg:w-[90%] xl:w-[80%] 2xl:w-[57%] mt-12">
-          This is a platform for the community to explore the potential of
-          Bitcoin Ordinals, <br />enabling the creation of recursive animations,
-          resizing images, and inscriptions <br />on rare sats all in one place.
-          To create animation, please follow the steps: <br /><br />
+        <div class="p-0 w-full lg:w-[90%] xl:w-[80%] 2xl:w-[57%] text-base">
+          <span class="lg:block">
+            This is a platform for the community to explore the potential of
+            Bitcoin Ordinals,
+          </span>
+          <span class="lg:block">
+            enabling the creation of recursive animations, resizing images, and
+            inscriptions
+          </span>
+          on rare sats all in one place. To create animation, please follow the
+          steps: <br /><br />
           1. Upload PNG or JPEG frames (10 Max);
           <br />
           2. Set order, timing, and .webp file size;
@@ -347,16 +353,14 @@ function generateGIF() {
           4. Inscribe frames + recursive GIFs.
         </div>
 
-        <div class="pt-6"></div>
-
-        <div class="flex justify-start mt-4 w-full sm:w-1/2">
+        <div class="flex justify-start mt-12 w-full sm:w-1/2">
           <label
             class="min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl mb-3"
           >
             UPLOAD FRAMES
             <input
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/webp"
               multiple
               hidden
               v-on:change="getFiles"
@@ -384,28 +388,32 @@ function generateGIF() {
             <Frame v-if="files.length == 0" :index="0" :duration="0.5" />
           </div>
         </div>
-        <div class="w-full flex sm:flex-row flex-col-reverse sm:flex-wrap">
-          <div class="w-full p-0 mt-4 basis-full sm:basis-1/2">
+        <div
+          class="w-full flex sm:flex-row flex-col-reverse sm:flex-wrap gap-16 sm:gap-0"
+        >
+          <div class="w-full p-0 basis-full sm:basis-1/2">
             <button
               type="button"
               @click="generateGIF"
-              class="mx-0 mt-6 mb-20 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
+              class="mx-0 mt-6 mb-16 sm:mb-20 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
             >
               GENERATE GIF
             </button>
           </div>
           <div class="flex-1 px-0 basis-full sm:basis-1/2">
-            <div class="my-6 flex px-0 sm:pl-4 flex-col justify-start w-64">
+            <div
+              class="my-6 flex px-0 sm:pl-4 flex-col justify-center sm:justify-start sm:w-[45%] sm:min-w-[16rem]"
+            >
               <input
                 type="range"
                 v-model="quality"
-                min="1"
-                max="300"
+                min="0"
+                max="100"
                 v-on:change="updateQuality"
-                class="max-w-[16rem]"
+                class=""
               />
-              <label class="mt-6 text-center w-full"
-                >.webp file size – {{ largestFileSize }}</label
+              <label class="mt-7 text-center w-full text-xl sm:text-base"
+                >.webp file quality – {{ quality }}%</label
               >
             </div>
           </div>
@@ -421,7 +429,12 @@ function generateGIF() {
                 style="margin: 0px; isolation: isolate"
               >
                 <div class="p-6 h-full w-full min-h-[16rem]">
-                  <img :src="showGIF && files[currentInDisplay].img" alt="" />
+                  <img
+                    v-if="showGIF && files.length > 0"
+                    :src="showGIF && files[currentInDisplay].img"
+                    alt=""
+                    class="h-full"
+                  />
                   <!-- <div
                     :style="{
                       backgroundImage:
@@ -436,27 +449,29 @@ function generateGIF() {
             <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
             <div class="basis-full md:basis-1/2">
               <div class="w-full">
-                <div class="h-9 mt-4">GIF Quantity</div>
+                <div class="h-9 mt-8 text-lg sm:text-base mb-1">
+                  GIF Quantity
+                </div>
                 <input
                   type="number"
                   v-model="quantity"
-                  class="border border-solid border-white bg-transparent h-8 rounded-xl text-right pr-3 text-white max-w-[50%]"
+                  class="border border-solid border-white bg-transparent h-10 rounded-xl text-right pr-3 text-white w-full sm:w-[45%]"
                 />
-                <div class="h-9 mt-6">Rarity</div>
+                <div class="h-9 mt-8 text-lg sm:text-base mb-1">Rarity</div>
               </div>
 
-              <div class="flex flex-col flex-wrap sm:flex-row gap-8">
+              <div class="flex flex-wrap sm:flex-row gap-8">
                 <div
                   v-for="item in available_rarity"
                   :key="item"
-                  class="text-center basis-full sm:basis-[45%]"
+                  class="text-center basis-[45%]"
                 >
                   <button
                     @click="selectedRarity = item"
                     :class="
                       item == selectedRarity ? 'bg-gray-500' : 'bg-transparent'
                     "
-                    class="border-solid border border-white cursor-pointer uppercase h-8 w-full transition-all text-white rounded-xl"
+                    class="border-solid border border-white cursor-pointer uppercase h-10 w-full transition-all text-white rounded-xl"
                   >
                     {{ rarityLabels[item] }}
                   </button>
@@ -484,6 +499,18 @@ function generateGIF() {
                   <div>{{ totalFee && totalFee.toFixed(8) }}</div>
                 </div>
               </div>
+              <div class="w-full pr-4 pl-4">
+                <div>
+                  <div class="flex justify-center pt-12 w-full">
+                    <button
+                      @click="waitXV"
+                      class="mx-0 mt-6 mb-20 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
+                    >
+                      INSCRIBE
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -492,36 +519,25 @@ function generateGIF() {
               <!--      <div class="w-full text-left input-title mt-3">Thank you</div>-->
               <!--      <div class="w-full text-left input-title">Link to transaction</div>-->
             </div>
-
-            <div class="w-full sm:w-1/2 pr-4 pl-4">
-              <div>
-                <div class="flex justify-center pt-12">
-                  <a
-                    @click="waitXV"
-                    class="mx-0 mt-6 mb-20 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
-                  >
-                    INSCRIBE
-                  </a>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </main>
     </div>
 
-    <div class="py-0 px-5 text-xl">
+    <div class="py-0 px-10 text-xl">
       <div class="mt-12 pt-12">
         <!--    <h1 class="intro-title">I AM NOME</h1>-->
         <div
           class="border-b border-solid border-opacity-20 border-white pt-2 md:mt-0 mt-12 w-full relative"
         >
           <div
-            class="absolute -top-12 right-4 text-2xl lg:right-56 text-center"
+            class="absolute -top-[3.25rem] right-4 text-2xl lg:right-56 text-center"
           >
-            <div class="transition-transform duration-200 hover:scale-110">
+            <div
+              class="transition-all duration-75 hover:italic underline-offset-8 hover:underline"
+            >
               <a
-                class="mx-0 mt-6 mb-20 text-white underline text-2xl underline-offset-[0.4rem]"
+                class="mx-0 mt-6 mb-20 text-white underline text-[1.4rem]"
                 target="_blank"
                 href="https://twitter.com/nome_nft"
               >
@@ -529,9 +545,11 @@ function generateGIF() {
               >
             </div>
 
-            <div class="transition-transform duration-200 hover:scale-110 mt-2">
+            <div
+              class="transition-all duration-75 hover:italic underline-offset-8 hover:underline mt-3"
+            >
               <a
-                class="mx-0 mt-6 mb-20 text-white underline text-2xl underline-offset-[0.4rem]"
+                class="mx-0 mt-6 mb-20 text-white underline text-[1.4rem]"
                 target="_blank"
                 href="https://discord.gg/ffZKc2TfN4"
                 >Discord</a
@@ -540,12 +558,14 @@ function generateGIF() {
           </div>
         </div>
       </div>
-      <div class="w-full flex justify-between mt-12 pt-12 pb-6">
-        <div class="pr-12">• it is not about me •</div>
-        <div class="pl-12">
+      <div
+        class="w-full flex flex-col-reverse justify-between mt-6 pt-12 pb-10 gap-[1.8rem] sm:flex-row sm:gap-0"
+      >
+        <div class="text-lg">• it is not about me •</div>
+        <div class="">
           <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"
             ><div
-              class="text-white underline text-lg transition-transform duration-200 hover:scale-110"
+              class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
             >
               nome.wtf
             </div></a
@@ -562,6 +582,6 @@ input[type="range"] {
 }
 
 input[type="range"]::-webkit-slider-thumb {
-  @apply appearance-none bg-white h-6 w-3 rounded-lg;
+  @apply appearance-none bg-white h-8 w-4 sm:h-6 sm:w-3 rounded-lg;
 }
 </style>
