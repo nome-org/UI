@@ -320,7 +320,7 @@ function generateGIF() {
         <div class="mt-1">
           <h1 class="text-2xl pb-2">• Stop motion tool •</h1>
           <div
-            class="border border-solid border-opacity-20 border-white md:mt-0 mt-12 w-full relative"
+            class="border-b border-solid border-opacity-20 border-white md:mt-0 mt-12 w-full relative"
           >
             <div
               class="absolute -top-12 right-4 lg:right-52 italic text-2xl text-center"
