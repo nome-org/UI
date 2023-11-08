@@ -9,5 +9,4 @@ export default defineConfig({
     },
     extensions: [".js", ".vue", ".json"],
   },
-  base: "/member/",
 });
