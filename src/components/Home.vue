@@ -31,7 +31,7 @@ const resizeImages = async (imageFiles: File[], maxSize: number) => {
     const resizedImage = await imageCompression(imageFile, {
       maxSizeMB: maxSize / 1000,
       fileType: "image/webp",
-      alwaysKeepResolution: true,
+      maxWidthOrHeight: 2000,
     });
     resizedImages.push(resizedImage);
   }
@@ -63,7 +63,7 @@ const paymentTxId = ref("");
 
 const updateQuality = debounce(async function updateQuality(e: Event) {
   const newlyCompressedFiles = await resizeImages(
-    files.value.map((file) => file.compressed),
+    files.value.map((file) => file.original),
     Number((e.target as HTMLInputElement).value)
   );
   files.value.forEach((file) => {
