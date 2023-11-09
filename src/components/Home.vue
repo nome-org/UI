@@ -399,7 +399,7 @@ function generateGIF() {
           </div>
           <div class="flex-1 px-0 basis-full sm:basis-1/2">
             <div
-              class="my-6 flex px-0 sm:pl-4 flex-col justify-center sm:justify-start sm:w-[40%] sm:min-w-[14rem]"
+              class="my-4 flex px-0 sm:pl-4 flex-col justify-center sm:justify-start sm:w-[40%] sm:min-w-[16rem]"
             >
               <input
                 type="range"
@@ -409,7 +409,8 @@ function generateGIF() {
                 v-on:change="updateQuality"
                 class=""
               />
-              <label class="mt-7 text-center w-full text-xl sm:text-base"
+              <label
+                class="mt-[1.2rem] text-center w-full text-3xl sm:text-base"
                 >.webp file quality – {{ quality }}%</label
               >
             </div>
