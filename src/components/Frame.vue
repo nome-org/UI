@@ -48,14 +48,15 @@ const openPreview = () => {
         </span>
         <img
           v-if="src"
-          class="w-full h-full bg-cover object-contain"
+          @click="openPreview"
+          class="w-full h-full bg-cover object-contain cursor-zoom-in"
           :src="src"
         />
       </div>
       <div
         class="rounded-b-lg flex py-2 px-4 justify-between items-center bg-[#1f1f1f] w-full"
       >
-        <span @click="openPreview" class="cursor-pointer"> [] </span>
+        <span> </span>
         <div class="flex items-center">
           <input
             :value="duration"

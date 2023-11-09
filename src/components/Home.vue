@@ -63,7 +63,7 @@ const paymentTxId = ref("");
 
 const updateQuality = debounce(async function updateQuality(e: Event) {
   const newlyCompressedFiles = await resizeImages(
-    files.value.map((file) => file.original),
+    files.value.map((file) => file.compressed),
     Number((e.target as HTMLInputElement).value)
   );
   files.value.forEach((file) => {
