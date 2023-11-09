@@ -22,11 +22,13 @@ const openPreview = () => {
   }
   changePreviewStatus(true);
 };
+
+const isZoomedIn = ref(false);
 </script>
 
 <template>
   <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
-    <img :src="src" class="max-w-full max-h-screen" />
+    <img :src="src" class="max-w-full max-h-screen" :class="isZoomedIn && ''" />
   </Modal>
   <div class="mb-10 pl-0 p-8 relative">
     <span
