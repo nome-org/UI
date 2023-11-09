@@ -31,7 +31,8 @@ const resizeImages = async (imageFiles: File[], maxSize: number) => {
     const resizedImage = await imageCompression(imageFile, {
       maxSizeMB: maxSize / 1000,
       fileType: "image/webp",
-      maxWidthOrHeight: 1500,
+      // maxWidthOrHeight: 1500,
+      alwaysKeepResolution: true,
     });
     resizedImages.push(resizedImage);
   }
@@ -313,7 +314,7 @@ function generateGIF() {
         </div>
       </div>
       <main>
-        <div class="mt-1">
+        <div class="mt-6">
           <h1 class="text-2xl pb-2">• Stop motion tool •</h1>
           <div
             class="border-b border-solid border-opacity-20 border-white md:mt-0 mb-44 sm:mb-16 xl:mb-12 w-full relative"
@@ -368,7 +369,7 @@ function generateGIF() {
           <!--        <button class="upload-button button" type="button" @click="upload">Add Picture</button>-->
           <!-- <image-compressor :scale="scale" class="compressor" :done="getFiles"  :quality="quality" ref="compressor"></image-compressor> -->
 
-          <div class="w-full flex flex-wrap gap-8 mt-12">
+          <div class="w-full flex flex-wrap gap-8 mt-12 mb-12">
             <!-- <div class="w-full sm:w-1/2 pr-4 pl-4 md:w-1/3 pr-4 pl-4 lg:w-1/4 pr-4 pl-4 "> -->
             <Frame
               v-for="(item, index) in files"
@@ -391,19 +392,19 @@ function generateGIF() {
             <button
               type="button"
               @click="generateGIF"
-              class="mx-0 mt-6 mb-16 sm:mb-20 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
+              class="mx-0 mb-16 sm:mb-24 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
             >
               GENERATE GIF
             </button>
           </div>
           <div class="flex-1 px-0 basis-full sm:basis-1/2">
             <div
-              class="my-6 flex px-0 sm:pl-4 flex-col justify-center sm:justify-start sm:w-[45%] sm:min-w-[16rem]"
+              class="my-6 flex px-0 sm:pl-4 flex-col justify-center sm:justify-start sm:w-[40%] sm:min-w-[14rem]"
             >
               <input
                 type="range"
                 v-model="quality"
-                min="0"
+                min="1"
                 max="100"
                 v-on:change="updateQuality"
                 class=""
@@ -416,7 +417,7 @@ function generateGIF() {
         </div>
 
         <div>
-          <div class="flex flex-col md:flex-row w-full gap-x-8">
+          <div class="flex flex-col md:flex-row w-full gap-x-12">
             <div class="basis-full md:basis-1/2 flex justify-center">
               <div
                 class="p-6 border border-opacity-20 border-white max-h-[30rem] w-full"
@@ -438,23 +439,22 @@ function generateGIF() {
               </div>
             </div>
             <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
-            <div class="basis-full md:basis-1/2">
+            <div class="basis-full md:basis-1/2 flex-col flex">
               <div class="w-full">
-                <div class="h-9 mt-8 text-lg sm:text-base mb-1">
-                  GIF Quantity
-                </div>
+                <div class="h-9 text-lg sm:text-base mb-1">GIF Quantity</div>
                 <input
                   type="number"
                   v-model="quantity"
                   class="border border-solid border-white bg-transparent h-10 rounded-xl text-right pr-3 text-white w-full sm:w-[45%]"
                 />
-                <div class="h-9 mt-8 text-lg sm:text-base mb-1">Rarity</div>
+                <div class="h-9 mt-10 text-lg sm:text-base mb-1">Rarity</div>
               </div>
               <SelectRarity
                 :selected-rarity="selectedRarity"
                 @update:selected-rarity="selectedRarity = $event"
               />
               <div
+                class="mt-14"
                 :class="showGIF && files.length > 0 ? 'visible' : 'invisible'"
               >
                 <div class="flex mt-3 justify-between text-gray-500">
@@ -481,7 +481,7 @@ function generateGIF() {
                   <div class="flex justify-center pt-12 w-full">
                     <button
                       @click="waitXV"
-                      class="mx-0 mt-6 mb-20 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
+                      class="mx-0 mt-6 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
                     >
                       INSCRIBE
                     </button>
@@ -491,7 +491,7 @@ function generateGIF() {
             </div>
           </div>
 
-          <div class="w-full flex flex-wrap">
+          <div class="w-full flex flex-wrap mt-48">
             <div class="w-full sm:w-1/2 pr-4 pl-4">
               <!--      <div class="w-full text-left input-title mt-3">Thank you</div>-->
               <!--      <div class="w-full text-left input-title">Link to transaction</div>-->
