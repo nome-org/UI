@@ -34,7 +34,7 @@
       </div>
     </div>
     <div
-      class="w-full flex flex-col-reverse justify-between mt-6 pt-12 pb-10 gap-[1.8rem] sm:flex-row sm:gap-0"
+      class="w-full flex flex-col-reverse justify-between mt-6 pt-14 pb-9 gap-[1.8rem] sm:flex-row sm:gap-0"
     >
       <div class="text-lg">• it is not about me •</div>
       <div class="">
