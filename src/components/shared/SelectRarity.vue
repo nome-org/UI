@@ -12,18 +12,14 @@ defineEmits(["update:selectedRarity"]);
 </script>
 <template>
   <div class="flex flex-wrap sm:flex-row gap-8">
-    <div
+    <button
       v-for="rarity in available_rarity"
       :key="rarity"
-      class="text-center basis-[45%]"
+      @click="$emit('update:selectedRarity', rarity)"
+      :class="rarity == selectedRarity ? 'bg-gray-500' : 'bg-transparent'"
+      class="border-solid border border-white cursor-pointer uppercase h-8 w-full transition-all text-white rounded-xl basis-[45%]"
     >
-      <button
-        @click="$emit('update:selectedRarity', rarity)"
-        :class="rarity == selectedRarity ? 'bg-gray-500' : 'bg-transparent'"
-        class="border-solid border border-white cursor-pointer uppercase h-10 w-full transition-all text-white rounded-xl"
-      >
-        {{ rarityLabels[rarity] }}
-      </button>
-    </div>
+      {{ rarityLabels[rarity] }}
+    </button>
   </div>
 </template>
