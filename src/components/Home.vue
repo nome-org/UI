@@ -31,7 +31,7 @@ const resizeImages = async (imageFiles: File[], maxSize: number) => {
     const resizedImage = await imageCompression(imageFile, {
       maxSizeMB: maxSize / 1000,
       fileType: "image/webp",
-      maxWidthOrHeight: 2000,
+      maxWidthOrHeight: 1500,
     });
     resizedImages.push(resizedImage);
   }
