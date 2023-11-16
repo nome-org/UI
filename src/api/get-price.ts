@@ -1,4 +1,4 @@
-import { api } from "./api-instance";
+import { api } from "./api-instance.ts";
 /**
  * @typedef {Object} priceResponse
  * @property {number} totalFee

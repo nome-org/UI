@@ -4,7 +4,7 @@
 //     dataURL: string;
 //     size: number;
 // }
-import { api } from "./api-instance";
+import { api } from "./api-instance.ts";
 
 /**
  * @typedef {Object} FileData

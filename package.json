@@ -1,15 +1,20 @@
 {
   "name": "nome",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "serve": "vite serve",
     "build": "vite build"
   },
   "dependencies": {
+    "@heroicons/vue": "^2.0.18",
     "@tanstack/vue-query": "^5.4.3",
+    "@types/gif.js": "^0.2.5",
+    "@vueuse/core": "^10.5.0",
     "axios": "^1.6.0",
     "browser-image-compression": "^2.0.2",
+    "gif.js": "^0.2.0",
     "lodash": "^4.17.21",
     "pinia": "^2.1.7",
     "sats-connect": "^1.1.1",
@@ -31,6 +36,7 @@
     "eslint-plugin-vue": "^9.18.1",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
+    "typescript": "^5.2.2",
     "vite": "^4.5.0"
   }
 }

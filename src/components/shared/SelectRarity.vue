@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { available_rarity, rarityLabels } from "@/constants/rarity";
+import { available_rarity, rarityLabels } from "@/constants/rarity.js";
 
 const { selectedRarity } = defineProps({
   selectedRarity: {

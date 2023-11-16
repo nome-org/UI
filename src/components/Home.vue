@@ -8,17 +8,20 @@ import {
 } from "sats-connect";
 import imageCompression from "browser-image-compression";
 
-import { available_rarity, rarityLabels } from "../constants/rarity";
 import { useMutation, useQuery } from "@tanstack/vue-query";
-import { ref } from "vue";
-import { getPriceApi } from "@/api/get-price";
-import { inscribeApi } from "@/api/inscribe";
-import { fileToBase64 } from "@/util/fileToBase64";
+import { effect, ref } from "vue";
+import { getPriceApi } from "@/api/get-price.ts";
+import { inscribeApi } from "@/api/inscribe.ts";
+import { fileToBase64 } from "@/util/fileToBase64.ts";
 import debounce from "lodash/debounce";
 import axios from "axios";
 import Frame from "./Frame.vue";
 import SelectRarity from "./shared/SelectRarity.vue";
 import Footer from "./shared/Footer.vue";
+import GIF from "gif.js";
+
+// import gifWorker from "gif.js/dist/gif.worker.js?worker";
+
 type CompressAble = {
   original: File;
   compressed: File;
@@ -39,30 +42,28 @@ const resizeImages = async (imageFiles: File[], maxSize: number) => {
   return resizedImages;
 };
 
-function delay(ms: number) {
-  return new Promise((res) => setTimeout(res, ms));
-}
 const files = ref<Array<CompressAble>>([]);
 const selectedRarity = ref("random");
 const quantity = ref(1);
-const showGIF = ref(false);
 const paymentAddress = ref("");
 const ordinalAddress = ref("");
 const isXV = ref(true);
 const quality = ref(100);
-const isRunningGif = ref(false);
-const currentInDisplay = ref(0);
 const paymentTxId = ref("");
-// const largestFileSize = computed(() => {
-//   if (files.value.length == 0) {
-//     return "300KB";
-//   }
-//   return formatBytes(
-//     Math.ceil(Math.max(...files.value.map((file) => file.compressed.size)))
-//   );
-// });
+const gifSrc = ref("");
+const isResizing = ref(false);
+
+const gifCompilationProgress = ref(0);
+const isCompilingGIF = ref(false);
+
+effect(() => {
+  if (isCompilingGIF.value || isResizing.value) {
+    gifSrc.value = "";
+  }
+});
 
 const updateQuality = debounce(async function updateQuality(e: Event) {
+  isResizing.value = true;
   const newlyCompressedFiles = await resizeImages(
     files.value.map((file) => file.original),
     Number((e.target as HTMLInputElement).value)
@@ -77,6 +78,7 @@ const updateQuality = debounce(async function updateQuality(e: Event) {
       compressed: compressedFile,
     };
   });
+  isResizing.value = false;
 }, 200) as (e: Event) => void;
 async function getFiles(e: Event) {
   const allAreImages = Array.from((e.target as HTMLInputElement).files).every(
@@ -92,7 +94,7 @@ async function getFiles(e: Event) {
     return;
   }
 
-  showGIF.value = false;
+  gifSrc.value = "";
   const { files: newFilesList } = e.target as HTMLInputElement;
   const newFiles = Array.from(newFilesList).slice(0, availableSlots);
   if (!newFiles.length) {
@@ -128,7 +130,7 @@ function duplicateFile(item: CompressAble) {
   if (files.value.length >= 10) {
     return;
   }
-  showGIF.value = false;
+  gifSrc.value = "";
   files.value.push({ ...item });
 }
 
@@ -136,7 +138,7 @@ function removeFile(item: CompressAble) {
   if (!item) {
     return;
   }
-  showGIF.value = false;
+  gifSrc.value = "";
   files.value = files.value.filter((file) => file !== item);
   URL.revokeObjectURL(item.img);
 }
@@ -152,7 +154,7 @@ const { data: totalFee, dataUpdatedAt } = useQuery({
     });
     return data.data.totalFee / 100_000_000;
   },
-  enabled: () => showGIF.value && files.value.length > 0,
+  enabled: () => Boolean(gifSrc.value && files.value.length > 0),
 });
 const { data: usdPrice } = useQuery({
   queryKey: ["coinCap"],
@@ -261,32 +263,36 @@ async function sendBTC(address: string, amount: number) {
   await sendBtcTransaction(sendBtcOptions);
 }
 
-async function runImageDisplayCycle() {
-  if (isRunningGif.value) {
-    return;
-  }
-  isRunningGif.value = true;
-  while (true) {
-    if (showGIF.value == false) {
-      isRunningGif.value = false;
-      return;
-    }
-    const currentFile = files.value[currentInDisplay.value];
-    await delay((currentFile.duration || 1) * 1000);
-    if (currentInDisplay.value === files.value.length - 1) {
-      currentInDisplay.value = 0;
-    } else {
-      currentInDisplay.value += 1;
-    }
-  }
-}
-function generateGIF() {
+async function generateGIF() {
   if (files.value.length == 0) {
     return;
   }
-  currentInDisplay.value = 0;
-  showGIF.value = true;
-  runImageDisplayCycle();
+
+  console.log(files.value);
+
+  isCompilingGIF.value = true;
+  gifCompilationProgress.value = 0;
+  const gif = new GIF({
+    workers: 2,
+    quality: 10,
+    workerScript: "/node_modules/gif.js/dist/gif.worker.js?worker_file",
+  });
+
+  for (const image of files.value) {
+    const imageElement = new Image();
+    imageElement.src = image.img;
+    gif.addFrame(imageElement, { delay: image.duration * 1000 });
+  }
+  gif.on("progress", function (p) {
+    gifCompilationProgress.value = Math.ceil(p * 100);
+  });
+
+  gif.on("finished", (blob) => {
+    gifSrc.value = URL.createObjectURL(blob);
+    isCompilingGIF.value = false;
+  });
+
+  gif.render();
 }
 </script>
 <template>
@@ -392,9 +398,12 @@ function generateGIF() {
             <button
               type="button"
               @click="generateGIF"
-              class="mx-0 mb-16 sm:mb-24 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
+              :disabled="isResizing || isCompilingGIF"
+              class="mx-0 mb-16 sm:mb-24 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl disabled:opacity-50 disabled:cursor-wait disabled:hover:scale-100"
             >
-              GENERATE GIF
+              <span v-if="isResizing"> Resizing... </span>
+              <span v-else-if="isCompilingGIF"> Generating GIF... </span>
+              <span v-else> GENERATE GIF </span>
             </button>
           </div>
           <div class="flex-1 px-0 basis-full sm:basis-1/2">
@@ -421,22 +430,17 @@ function generateGIF() {
           <div class="flex flex-col md:flex-row w-full gap-x-12">
             <div class="basis-full md:basis-1/2 flex justify-center">
               <div
-                class="p-6 border border-opacity-20 border-white max-h-[30rem] w-full"
+                class="p-6 border border-opacity-20 border-white max-h-[30rem] w-full flex justify-center items-center"
               >
                 <img
-                  v-if="showGIF && files.length > 0"
-                  :src="showGIF && files[currentInDisplay].img"
+                  v-if="gifSrc && files.length > 0"
+                  :src="gifSrc"
                   alt=""
                   class="w-full h-full object-contain"
                 />
-                <!-- <div
-                    :style="{
-                      backgroundImage:
-                        showGIF && `url(${files[currentInDisplay].img})`,
-                    }"
-                    v-show="showGIF && files.length > 0"
-                    class="bg-contain bg-no-repeat w-full h-full"
-                  ></div> -->
+                <span v-if="isCompilingGIF" class="text-4xl"
+                  >{{ gifCompilationProgress }}%</span
+                >
               </div>
             </div>
             <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
@@ -456,7 +460,7 @@ function generateGIF() {
               />
               <div
                 class="mt-14"
-                :class="showGIF && files.length > 0 ? 'visible' : 'invisible'"
+                :class="gifSrc && files.length > 0 ? 'visible' : 'invisible'"
               >
                 <div class="flex mt-3 justify-between text-gray-500">
                   <div>Frames</div>

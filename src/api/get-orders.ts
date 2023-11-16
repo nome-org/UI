@@ -19,7 +19,7 @@
  * @property {"UNPAID" | "READY"} status use ready to check if inscribed or pending for now
  */
 
-import { api } from "./api-instance.js";
+import { api } from "./api-instance.ts";
 
 /**
  *

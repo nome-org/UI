@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import Modal from "./Modal.vue";
-import { formatBytes } from "../util/formatBytes";
+import { formatBytes } from "../util/formatBytes.ts";
 
 const props = defineProps({
   index: Number,
