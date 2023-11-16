@@ -10,7 +10,7 @@
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "allowImportingTsExtensions": true,
-    "types": ["vite/client"],
+    "types": ["vite/client", "@types/node"],
     "allowSyntheticDefaultImports": true
   },
   "include": [

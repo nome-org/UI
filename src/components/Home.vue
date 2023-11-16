@@ -20,8 +20,6 @@ import SelectRarity from "./shared/SelectRarity.vue";
 import Footer from "./shared/Footer.vue";
 import GIF from "gif.js";
 
-// import gifWorker from "gif.js/dist/gif.worker.js?worker";
-
 type CompressAble = {
   original: File;
   compressed: File;
@@ -268,14 +266,12 @@ async function generateGIF() {
     return;
   }
 
-  console.log(files.value);
-
   isCompilingGIF.value = true;
   gifCompilationProgress.value = 0;
   const gif = new GIF({
     workers: 2,
     quality: 10,
-    workerScript: "/node_modules/gif.js/dist/gif.worker.js?worker_file",
+    workerScript: "/gif.worker.js",
   });
 
   for (const image of files.value) {
