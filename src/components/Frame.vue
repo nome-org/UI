@@ -41,10 +41,9 @@ const isZoomedIn = ref(false);
       <div
         class="h-72 relative text-lg bg-black border border-solid border-white border-opacity-20"
       >
-        <span class="text-2xl absolute top-4 left-4">{{ index + 1 }}</span>
         <span
           @click="src && $emit('on-plus-click')"
-          class="text-2xl absolute top-4 right-4 cursor-pointer"
+          class="text-2xl absolute top-4 right-4 cursor-pointer bg-[#1f1f1f] rounded-full w-6 h-6 flex justify-center items-center leading-[0.9]"
         >
           +
         </span>
@@ -58,7 +57,7 @@ const isZoomedIn = ref(false);
       <div
         class="rounded-b-lg flex py-2 px-4 justify-between items-center bg-[#1f1f1f] w-full"
       >
-        <span> </span>
+        <span class="text-2xl">{{ index + 1 }}</span>
         <div class="flex items-center">
           <input
             :value="duration"
