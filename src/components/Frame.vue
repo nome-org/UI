@@ -1,34 +1,93 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref, watch, onUnmounted } from "vue";
 import Modal from "./Modal.vue";
 import { formatBytes } from "../util/formatBytes.ts";
+import imageCompression from "browser-image-compression";
+const emit = defineEmits([
+  "update:duration",
+  "on-plus-click",
+  "on-x-click",
+  "on-compressed",
+  "on-compressing",
+]);
 
 const props = defineProps({
   index: Number,
-  src: String,
   duration: Number,
-  original: Blob,
-  compressed: Blob,
+  original: File,
+  compressionRate: Number,
 });
-defineEmits(["update:duration", "on-plus-click", "on-x-click"]);
 
+const compressionProgress = ref(0);
+const isCompressing = ref(false);
+const compressed = ref<File | null>(null);
 const isPreviewOpen = ref(false);
+
+const imageURL = computed(() => {
+  if (imageURL.value) {
+    URL.revokeObjectURL(imageURL.value);
+  }
+  if (compressed.value) {
+    return URL.createObjectURL(compressed.value);
+  }
+  if (props.original) {
+    return URL.createObjectURL(props.original);
+  }
+  return null;
+});
+watch(
+  () => props.compressionRate,
+  async (_old, _new, cleanUp) => {
+    if (!props.original) {
+      return;
+    }
+    emit("on-compressing", true);
+    isCompressing.value = true;
+    const compressionSignal = new AbortController();
+    compressed.value = await imageCompression(props.original, {
+      maxSizeMB: 1000 * (props.compressionRate / 100),
+      fileType: "image/webp",
+
+      alwaysKeepResolution: true,
+      signal: compressionSignal.signal,
+      onProgress(progress) {
+        compressionProgress.value = progress;
+      },
+    });
+
+    emit("on-compressed", compressed.value);
+
+    isCompressing.value = false;
+
+    cleanUp(() => {
+      compressionSignal.abort();
+      emit("on-compressing", false);
+    });
+  },
+  { immediate: true }
+);
+
+onUnmounted(() => {
+  emit("on-compressing", false);
+  if (imageURL.value) {
+    URL.revokeObjectURL(imageURL.value);
+  }
+});
+
 const changePreviewStatus = (status: boolean) => {
   isPreviewOpen.value = status;
 };
 const openPreview = () => {
-  if (!props.src) {
+  if (!imageURL) {
     return;
   }
   changePreviewStatus(true);
 };
-
-const isZoomedIn = ref(false);
 </script>
 
 <template>
   <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
-    <img :src="src" class="max-w-full max-h-screen" :class="isZoomedIn && ''" />
+    <img :src="imageURL" class="max-w-full max-h-screen" />
   </Modal>
   <div class="mb-10 pl-0 p-8 relative">
     <span
@@ -41,17 +100,24 @@ const isZoomedIn = ref(false);
       <div
         class="h-72 relative text-lg bg-black border border-solid border-white border-opacity-20"
       >
+        <div
+          v-if="isCompressing"
+          class="w-full h-full absolute bg-black bg-opacity-70 flex items-center justify-center text-2xl z-10 cursor-wait"
+        >
+          {{ compressionProgress }}%
+        </div>
+
         <span
-          @click="src && $emit('on-plus-click')"
+          @click="imageURL && $emit('on-plus-click')"
           class="text-2xl absolute top-4 right-4 cursor-pointer bg-[#1f1f1f] rounded-full w-6 h-6 flex justify-center items-center leading-[0.9]"
         >
           +
         </span>
         <img
-          v-if="src"
+          v-if="imageURL"
           @click="openPreview"
           class="w-full h-full bg-cover object-contain cursor-zoom-in"
-          :src="src"
+          :src="imageURL"
         />
       </div>
       <div
@@ -61,7 +127,7 @@ const isZoomedIn = ref(false);
         <div class="flex items-center">
           <input
             :value="duration"
-            :disabled="!src"
+            :disabled="!imageURL"
             @input="
               $emit(
                 'update:duration',

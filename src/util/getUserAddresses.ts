@@ -1,4 +1,5 @@
-import { AddressPurpose, BitcoinNetworkType, getAddress } from "sats-connect";
+import { network } from "@/constants/bitcoin.ts";
+import { AddressPurpose, getAddress } from "sats-connect";
 
 /**
  *
@@ -11,7 +12,7 @@ export const getUserAddresses = () => {
         message:
           "Select the address you will use to pay for the service and the address which will receive ordinals.",
         network: {
-          type: BitcoinNetworkType.Testnet,
+          type: network,
         },
         purposes: [AddressPurpose.Payment, AddressPurpose.Ordinals],
       },

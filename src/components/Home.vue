@@ -6,38 +6,24 @@ import {
   getAddress,
   sendBtcTransaction,
 } from "sats-connect";
-import imageCompression from "browser-image-compression";
 
 import { useMutation, useQuery } from "@tanstack/vue-query";
-import { effect, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { getPriceApi } from "@/api/get-price.ts";
 import { inscribeApi } from "@/api/inscribe.ts";
 import { fileToBase64 } from "@/util/fileToBase64.ts";
-import debounce from "lodash/debounce";
 import axios from "axios";
 import Frame from "./Frame.vue";
 import SelectRarity from "./shared/SelectRarity.vue";
 import Footer from "./shared/Footer.vue";
 import GIF from "gif.js";
+import { buildGif } from "@/util/buildGIF.ts";
+import { network } from "@/constants/bitcoin.ts";
 
 type CompressAble = {
   original: File;
   compressed: File;
-  img: string;
   duration: number;
-};
-const resizeImages = async (imageFiles: File[], maxSize: number) => {
-  const resizedImages: File[] = [];
-  for (let imageFile of imageFiles) {
-    const resizedImage = await imageCompression(imageFile, {
-      maxSizeMB: maxSize / 1000,
-      fileType: "image/webp",
-      // maxWidthOrHeight: 1500,
-      alwaysKeepResolution: true,
-    });
-    resizedImages.push(resizedImage);
-  }
-  return resizedImages;
 };
 
 const files = ref<Array<CompressAble>>([]);
@@ -49,35 +35,26 @@ const isXV = ref(true);
 const quality = ref(100);
 const paymentTxId = ref("");
 const gifSrc = ref("");
-const isResizing = ref(false);
-
 const gifCompilationProgress = ref(0);
 const isCompilingGIF = ref(false);
-
-effect(() => {
-  if (isCompilingGIF.value || isResizing.value) {
-    gifSrc.value = "";
-  }
+const framesContainerRef = ref<HTMLElement | null>(null);
+const frameCompressionState = ref<boolean[]>([]);
+const isCompressing = computed(() => {
+  return frameCompressionState.value.some((item) => item);
 });
 
-const updateQuality = debounce(async function updateQuality(e: Event) {
-  isResizing.value = true;
-  const newlyCompressedFiles = await resizeImages(
-    files.value.map((file) => file.original),
-    Number((e.target as HTMLInputElement).value)
-  );
-  files.value.forEach((file) => {
-    URL.revokeObjectURL(file.img);
-  });
-  files.value = newlyCompressedFiles.map((compressedFile, index) => {
-    return {
-      ...files.value[index],
-      img: URL.createObjectURL(compressedFile),
-      compressed: compressedFile,
-    };
-  });
-  isResizing.value = false;
-}, 200) as (e: Event) => void;
+enum OrderingState {
+  None,
+  RequestingWalletAddress,
+  WaitingForCreation,
+  WaitingForPayment,
+}
+const orderingState = ref(OrderingState.None);
+
+watch([files, quality], () => {
+  gifSrc.value = "";
+});
+
 async function getFiles(e: Event) {
   const allAreImages = Array.from((e.target as HTMLInputElement).files).every(
     (file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type)
@@ -110,17 +87,9 @@ async function getFiles(e: Event) {
   // show original images initially
   files.value = [...files.value, ...imageFiles];
   // compress images in the meanwhile
-  const resizedFiles = await resizeImages(newFiles, quality.value);
   // after compression is done, replace original images with compressed ones
   imageFiles.forEach((file) => {
     URL.revokeObjectURL(file.img);
-  });
-  imageFiles = resizedFiles.map((file, index) => {
-    return {
-      ...imageFiles[index],
-      img: URL.createObjectURL(file),
-      compressed: file,
-    };
   });
   files.value = [...files.value.slice(0, -imageFiles.length), ...imageFiles];
 }
@@ -137,8 +106,7 @@ function removeFile(item: CompressAble) {
     return;
   }
   gifSrc.value = "";
-  files.value = files.value.filter((file) => file !== item);
-  URL.revokeObjectURL(item.img);
+  files.value = files.value.filter((file) => file.original !== item.original);
 }
 
 const { data: totalFee, dataUpdatedAt } = useQuery({
@@ -203,22 +171,26 @@ const createInscriptionOrderMut = useMutation({
       rarity: selectedRarity.value as any,
       receiverAddress: ordinalAddress.value,
     });
-    await sendBTC(address, amount);
+
+    return {
+      address,
+      amount,
+    };
   },
 });
 async function waitXV() {
   try {
-    isXV.value = true;
+    orderingState.value = OrderingState.RequestingWalletAddress;
     await getAddress({
       payload: {
         purposes: [AddressPurpose.Ordinals, AddressPurpose.Payment],
         message:
           "We need the address you'll use to pay for the service, and the address where you want to receive the Ordinals.",
         network: {
-          type: BitcoinNetworkType.Testnet,
+          type: network,
         },
       },
-      onFinish: (response) => {
+      onFinish: async (response) => {
         response.addresses.forEach((item) => {
           if (item.purpose == "ordinals") {
             ordinalAddress.value = item.address;
@@ -227,38 +199,52 @@ async function waitXV() {
           }
         });
         if (paymentAddress.value) {
-          createInscriptionOrderMut.mutate();
+          orderingState.value = OrderingState.WaitingForCreation;
+          const { address, amount } =
+            await createInscriptionOrderMut.mutateAsync();
+          sendBTC(address, amount)
+            .then(() => {
+              orderingState.value = OrderingState.None;
+            })
+            .catch(() => {
+              orderingState.value = OrderingState.None;
+            });
+          orderingState.value = OrderingState.WaitingForPayment;
         } else {
           isXV.value = false;
         }
       },
-      onCancel: () => console.log("Request canceled"),
+      onCancel: () => {
+        orderingState.value = OrderingState.None;
+      },
     });
   } catch (err) {
-    console.log("xverse err", err);
-    isXV.value = false;
+    orderingState.value = OrderingState.None;
   }
 }
-async function sendBTC(address: string, amount: number) {
-  const sendBtcOptions: SendBtcTransactionOptions = {
-    payload: {
-      network: {
-        type: BitcoinNetworkType.Testnet,
-      },
-      recipients: [
-        {
-          address: address,
-          amountSats: BigInt(amount),
+function sendBTC(address: string, amount: number) {
+  return new Promise((resolve, reject) => {
+    const sendBtcOptions: SendBtcTransactionOptions = {
+      payload: {
+        network: {
+          type: network,
         },
-      ],
-      senderAddress: paymentAddress.value,
-    },
-    onFinish: (response) => {
-      paymentTxId.value = response;
-    },
-    onCancel: () => console.log("Canceled"),
-  };
-  await sendBtcTransaction(sendBtcOptions);
+        recipients: [
+          {
+            address: address,
+            amountSats: BigInt(amount),
+          },
+        ],
+        senderAddress: paymentAddress.value,
+      },
+      onFinish: (response) => {
+        paymentTxId.value = response;
+        resolve(response);
+      },
+      onCancel: reject,
+    };
+    return sendBtcTransaction(sendBtcOptions);
+  });
 }
 
 async function generateGIF() {
@@ -266,29 +252,25 @@ async function generateGIF() {
     return;
   }
 
+  if (gifSrc.value) {
+    URL.revokeObjectURL(gifSrc.value);
+    gifSrc.value = "";
+  }
+
   isCompilingGIF.value = true;
   gifCompilationProgress.value = 0;
-  const gif = new GIF({
-    workers: 2,
-    quality: 10,
-    workerScript: "/gif.worker.js",
+  const gifBlob = await buildGif({
+    frames: files.value.map((item) => ({
+      imageFile: item.compressed,
+      duration: item.duration,
+    })),
+    onProgress: (progress) => {
+      gifCompilationProgress.value = Math.ceil(progress * 100);
+    },
   });
 
-  for (const image of files.value) {
-    const imageElement = new Image();
-    imageElement.src = image.img;
-    gif.addFrame(imageElement, { delay: image.duration * 1000 });
-  }
-  gif.on("progress", function (p) {
-    gifCompilationProgress.value = Math.ceil(p * 100);
-  });
-
-  gif.on("finished", (blob) => {
-    gifSrc.value = URL.createObjectURL(blob);
-    isCompilingGIF.value = false;
-  });
-
-  gif.render();
+  gifSrc.value = URL.createObjectURL(gifBlob);
+  isCompilingGIF.value = false;
 }
 </script>
 <template>
@@ -371,17 +353,25 @@ async function generateGIF() {
           <!--        <button class="upload-button button" type="button" @click="upload">Add Picture</button>-->
           <!-- <image-compressor :scale="scale" class="compressor" :done="getFiles"  :quality="quality" ref="compressor"></image-compressor> -->
 
-          <div class="w-full flex flex-wrap gap-8 mt-12 mb-12">
+          <div
+            class="w-full flex flex-wrap gap-8 mt-12 mb-12"
+            ref="framesContainerRef"
+          >
             <!-- <div class="w-full sm:w-1/2 pr-4 pl-4 md:w-1/3 pr-4 pl-4 lg:w-1/4 pr-4 pl-4 "> -->
             <Frame
               v-for="(item, index) in files"
-              :src="item.img"
+              :key="item.original.name"
               :index="index"
               :original="item.original"
-              :compressed="item.compressed"
               v-model:duration="item.duration"
               @on-plus-click="duplicateFile(item)"
               @on-x-click="removeFile(item)"
+              @on-compressed="
+                item.compressed = $event;
+                frameCompressionState[index] = false;
+              "
+              @on-compressing="frameCompressionState[index] = $event"
+              :compression-rate="quality"
             />
             <!-- </div> -->
             <Frame v-if="files.length == 0" :index="0" :duration="0.5" />
@@ -394,11 +384,11 @@ async function generateGIF() {
             <button
               type="button"
               @click="generateGIF"
-              :disabled="isResizing || isCompilingGIF"
+              :disabled="isCompilingGIF || isCompressing"
               class="mx-0 mb-16 sm:mb-24 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl disabled:opacity-50 disabled:cursor-wait disabled:hover:scale-100"
             >
-              <span v-if="isResizing"> Resizing... </span>
-              <span v-else-if="isCompilingGIF"> Generating GIF... </span>
+              <span v-if="isCompilingGIF"> Generating GIF... </span>
+              <span v-else-if="isCompressing"> Compressing... </span>
               <span v-else> GENERATE GIF </span>
             </button>
           </div>
@@ -408,10 +398,12 @@ async function generateGIF() {
             >
               <input
                 type="range"
-                v-model="quality"
+                :value="quality"
+                @change="
+                  quality = Number(($event.target as HTMLInputElement).value)
+                "
                 min="1"
                 max="100"
-                v-on:change="updateQuality"
                 class=""
               />
               <label
@@ -426,6 +418,7 @@ async function generateGIF() {
           <div class="flex flex-col md:flex-row w-full gap-x-12">
             <div class="basis-full md:basis-1/2 flex justify-center">
               <div
+                :class="isCompilingGIF ? 'cursor-wait' : ''"
                 class="p-6 border border-opacity-20 border-white max-h-[30rem] w-full flex justify-center items-center"
               >
                 <img
@@ -440,13 +433,13 @@ async function generateGIF() {
               </div>
             </div>
             <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
-            <div class="basis-full md:basis-1/2 flex-col flex">
+            <div class="basis-full md:basis-1/2 flex-col flex md:max-w-[24rem]">
               <div class="w-full">
                 <div class="h-9 text-lg sm:text-base mb-1">GIF Quantity</div>
                 <input
                   type="number"
                   v-model="quantity"
-                  class="border border-solid border-white bg-transparent h-10 rounded-xl text-right pr-3 text-white w-full sm:w-[45%]"
+                  class="border border-solid border-white bg-transparent h-10 rounded-xl text-right pr-3 text-white w-full"
                 />
                 <div class="h-9 mt-10 text-lg sm:text-base mb-1">Rarity</div>
               </div>
@@ -482,9 +475,32 @@ async function generateGIF() {
                   <div class="flex justify-center pt-12 w-full">
                     <button
                       @click="waitXV"
-                      class="mx-0 mt-6 min-w-[13.3rem] py-2 px-0 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl"
+                      :disabled="orderingState !== OrderingState.None"
+                      class="mx-0 mt-6 min-w-[13.3rem] py-2 px-4 text-lg text-center transition-transform duration-200 hover:scale-110 bg-white text-black p-1 cursor-pointer z-10 rounded-xl disabled:opacity-50 disabled:cursor-wait disabled:hover:scale-100"
                     >
-                      INSCRIBE
+                      <span
+                        v-if="
+                          orderingState ===
+                          OrderingState.RequestingWalletAddress
+                        "
+                      >
+                        Requesting Addresses...
+                      </span>
+                      <span
+                        v-else-if="
+                          orderingState === OrderingState.WaitingForCreation
+                        "
+                      >
+                        Creating order...
+                      </span>
+                      <span
+                        v-else-if="
+                          orderingState === OrderingState.WaitingForPayment
+                        "
+                      >
+                        Waiting for payment...
+                      </span>
+                      <span v-else> INSCRIBE </span>
                     </button>
                   </div>
                 </div>
