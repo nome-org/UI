@@ -434,7 +434,7 @@ async function generateGIF() {
             </div>
             <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
             <div
-              class="basis-full md:basis-1/2 flex-col flex max-w-sm mx-auto sm:mx-0"
+              class="basis-full md:basis-1/2 flex-col flex max-w-sm mx-auto md:mx-0"
             >
               <div class="w-full">
                 <div class="h-9 text-lg sm:text-base mb-1 mt-8">
