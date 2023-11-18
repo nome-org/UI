@@ -1,4 +1,5 @@
 import GIF from "gif.js";
+
 async function makeImageElement(image: File): Promise<HTMLImageElement> {
   return new Promise((resolve) => {
     const imageInstance = new Image();
@@ -43,7 +44,7 @@ export function buildGif({
     const gif = new GIF({
       workers: 2,
       quality: 10,
-      workerScript: "/gif.worker.js",
+      workerScript: `${import.meta.env.BASE_URL}gif.worker.js`,
     });
 
     const imagesList = await Promise.all(
