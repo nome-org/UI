@@ -11,13 +11,13 @@ const { selectedRarity } = defineProps({
 defineEmits(["update:selectedRarity"]);
 </script>
 <template>
-  <div class="grid grid-cols-1 md:grid-flow-row sm:grid-cols-2 gap-8 w-full">
+  <div class="grid md:grid-flow-row grid-cols-2 gap-8 w-full max-w-sm">
     <button
       v-for="rarity in available_rarity"
       :key="rarity"
       @click="$emit('update:selectedRarity', rarity)"
       :class="rarity == selectedRarity ? 'bg-gray-500' : 'bg-transparent'"
-      class="border-solid border border-white cursor-pointer uppercase md:h-8 h-12 w-full transition-all text-white rounded-xl md:w-[10rem]"
+      class="border-solid border border-white cursor-pointer uppercase md:h-8 h-12 transition-all text-white rounded-xl w-[10rem]"
     >
       {{ rarityLabels[rarity] }}
     </button>

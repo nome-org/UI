@@ -407,7 +407,7 @@ async function generateGIF() {
                 class=""
               />
               <label
-                class="mt-[1.2rem] text-center w-full text-3xl sm:text-base"
+                class="mt-[1.2rem] text-center w-full text-2xl sm:text-base"
                 >.webp file quality – {{ quality }}%</label
               >
             </div>
@@ -419,7 +419,7 @@ async function generateGIF() {
             <div class="basis-full md:basis-1/2 flex justify-center">
               <div
                 :class="isCompilingGIF ? 'cursor-wait' : ''"
-                class="p-6 border border-opacity-20 border-white max-h-[30rem] w-full flex justify-center items-center"
+                class="p-6 border border-opacity-20 border-white h-[30rem] max-w-[30rem] w-full flex justify-center items-center"
               >
                 <img
                   v-if="gifSrc && files.length > 0"
@@ -433,9 +433,13 @@ async function generateGIF() {
               </div>
             </div>
             <!-- col-12 col-sm-6 flex-fill frame-box d-flex align-items-center justify-content-center -->
-            <div class="basis-full md:basis-1/2 flex-col flex md:max-w-[24rem]">
+            <div
+              class="basis-full md:basis-1/2 flex-col flex max-w-sm mx-auto sm:mx-0"
+            >
               <div class="w-full">
-                <div class="h-9 text-lg sm:text-base mb-1">GIF Quantity</div>
+                <div class="h-9 text-lg sm:text-base mb-1 mt-8">
+                  GIF Quantity
+                </div>
                 <input
                   type="number"
                   v-model="quantity"
