@@ -44,7 +44,7 @@ export function buildGif({
       workers: 2,
       quality: 10,
       workerScript: `${
-        import.meta.url === "/" ? "" : import.meta.url
+        import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL
       }/gif.worker.js`,
     });
 
