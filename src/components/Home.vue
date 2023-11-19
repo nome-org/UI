@@ -276,27 +276,43 @@ async function generateGIF() {
 <template>
   <div class="">
     <div class="py-5 pt-8 px-10">
-      <div class="min-h-[11.7rem] flex justify-between">
-        <div>
-          <a class="mx-0 mt-6 mb-20" href="/">
-            <!--       <div style="" class="nome-logo headerLogo transition-transform duration-200 hover:scale-110">NōME</div>-->
-            <img
-              class="w-48 sm:w-[21vw] min-w-[7.3rem] mt-1 transition-transform duration-200 hover:scale-110"
-              src="../assets/images/logo_white.png"
-            />
-          </a>
+      <div style="z-index: 99;" id="header" class="header">
+        <div class="logo">
+          <img src="https://nome.wtf/files/logo-blank.png">
         </div>
 
-        <div>
-          <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"
-            ><div
-              class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
-            >
-              nome.wtf
-            </div></a
-          >
+        <div class="menu-item projects-menu-item ">
+          <div class="menu-link"><a href="https://nome.wtf/gif">GIF-tool  </a>
+          </div>
         </div>
+        <div class="menu-item servises-menu-item"><div class="menu-link"><a href="https://nome.wtf/art">Art    </a>
+        </div></div>
+        <div class="menu-item contact-menu-item">
+          <div class="menu-link"><a href="https://iam.nome.wtf/about"> Artist →</a></div>
+        </div>
+
       </div>
+<!--      <div class="min-h-[11.7rem] flex justify-between">-->
+<!--        <div>-->
+<!--          <a class="mx-0 mt-6 mb-20" href="/">-->
+<!--            &lt;!&ndash;       <div style="" class="nome-logo headerLogo transition-transform duration-200 hover:scale-110">NōME</div>&ndash;&gt;-->
+<!--            <img-->
+<!--              class="w-48 sm:w-[21vw] min-w-[7.3rem] mt-1 transition-transform duration-200 hover:scale-110"-->
+<!--              src="../assets/images/logo_white.png"-->
+<!--            />-->
+<!--          </a>-->
+<!--        </div>-->
+
+<!--        <div>-->
+<!--          <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"-->
+<!--            ><div-->
+<!--              class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"-->
+<!--            >-->
+<!--              nome.wtf-->
+<!--            </div></a-->
+<!--          >-->
+<!--        </div>-->
+<!--      </div>-->
       <main>
         <div class="mt-6">
           <h1 class="text-2xl pb-2">• Stop motion tool •</h1>
