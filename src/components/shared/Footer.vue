@@ -33,22 +33,20 @@
         </div>
       </div>
     </div>
-    <div
-      class="w-full flex flex-col-reverse justify-between mt-6 pt-14 pb-9 gap-[1.8rem] sm:flex-row sm:gap-0"
-    >
+    <div class="w-full flex justify-between mt-6 pt-14 pb-9 gap-0">
       <div class="text-lg">• it is not about me •</div>
-      <div class="text-white text-lg">GIF-tool</div>
+      <div class="text-white text-sm sm:text-xl">GIF-tool</div>
 
       <a href="/art">
         <div
-          class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
+          class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline"
         >
           Art
         </div>
       </a>
       <a href="https://iam.nome.wtf/">
         <div
-          class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
+          class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline"
         >
           Artist →
         </div>
