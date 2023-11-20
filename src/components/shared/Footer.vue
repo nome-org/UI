@@ -44,7 +44,7 @@
           Art
         </div>
       </a>
-      <a href="https://iam.nome.wtf/">
+      <a href="https://iam.nome.wtf/about">
         <div
           class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline"
         >
