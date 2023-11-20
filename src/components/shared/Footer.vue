@@ -16,8 +16,8 @@
               target="_blank"
               href="https://twitter.com/nome_nft"
             >
-              Twitter</a
-            >
+              Twitter
+            </a>
           </div>
 
           <div

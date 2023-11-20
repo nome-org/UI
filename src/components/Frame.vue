@@ -62,7 +62,7 @@ watch(
     let maxWidthOrHeight = Math.round(
       largestDimension * (props.compressionRate / 100)
     );
-    maxWidthOrHeight = maxWidthOrHeight < 50 ? 50 : maxWidthOrHeight;
+    maxWidthOrHeight = Math.max(maxWidthOrHeight, 50);
     compressed.value = await imageCompression(props.original, {
       maxWidthOrHeight,
       maxSizeMB:

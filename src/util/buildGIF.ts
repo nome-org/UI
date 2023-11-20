@@ -1,4 +1,5 @@
 import GIF from "gif.js";
+
 async function makeImageElement(image: File): Promise<HTMLImageElement> {
   return new Promise((resolve) => {
     const imageInstance = new Image();
@@ -40,14 +41,6 @@ export function buildGif({
   onProgress: (progress: number) => void;
 }): Promise<Blob> {
   return new Promise(async (resolve) => {
-    const gif = new GIF({
-      workers: 2,
-      quality: 10,
-      workerScript: `${
-        import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL
-      }/gif.worker.js`,
-    });
-
     const imagesList = await Promise.all(
       frames.map(({ imageFile }) => makeImageElement(imageFile))
     );
@@ -65,6 +58,16 @@ export function buildGif({
         })
       )
     );
+
+    const gif = new GIF({
+      workers: 2,
+      quality: 10,
+      workerScript: `${
+        import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL
+      }/gif.worker.js`,
+      width: largestWidth,
+      height: largestHeight,
+    });
 
     frames.forEach((frame, index) => {
       gif.addFrame(canvasList[index], { delay: frame.duration * 1000 });
