@@ -37,15 +37,22 @@
       class="w-full flex flex-col-reverse justify-between mt-6 pt-14 pb-9 gap-[1.8rem] sm:flex-row sm:gap-0"
     >
       <div class="text-lg">• it is not about me •</div>
-      <div class="">
-        <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"
-          ><div
-            class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
-          >
-            nome.wtf
-          </div></a
+      <div class="text-white text-lg">GIF-tool</div>
+
+      <a target="_blank" href="/art">
+        <div
+          class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
         >
-      </div>
+          Art
+        </div>
+      </a>
+      <a target="_blank" href="https://iam.nome.wtf/">
+        <div
+          class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
+        >
+          Artist →
+        </div>
+      </a>
     </div>
   </div>
 </template>
