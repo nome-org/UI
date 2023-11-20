@@ -278,30 +278,22 @@ async function generateGIF() {
   <div class="">
     <div class="pt-6 px-6 pb-0">
       <div class="min-h-[11.7rem] relative">
-        <div class="w-[48%] md:w-[23%] absolute">
-          <a
-            class="mx-0 mb-20 invert hover:bg-bottom relative inline-block bg-no-repeat bg-cover bg-top"
-            href="/"
-            :style="{ backgroundImage: `url(${logo})` }"
-          >
-            <div
-              class="before:absolute before:top-0 before:bottom-[-19%] before:left-0 before:right-0 after:absolute after:w-[99%] after:h-[8%] after:bg-black after:bottom-[-19%]"
-            >
-              <img src="../assets/images/logo-blank.png" alt="" class="block" />
-            </div>
-            <!--       <div style="" class="nome-logo headerLogo transition-transform duration-200 hover:scale-110">NōME</div>-->
-            <!-- <img
-              class="w-48 sm:w-[21vw] min-w-[7.3rem] mt-1 transition-transform duration-200 hover:scale-110"
-              src="../assets/images/logo_white.png"
-            /> -->
-            <!-- <hr class="h-1 bg-black mt-2" /> -->
-          </a>
-        </div>
+        <a
+          class="w-[48%] md:w-[23%] mx-0 mb-20 invert hover:bg-bottom relative inline-block bg-no-repeat bg-cover bg-top before:absolute before:top-0 before:bottom-[-19%] before:left-0 before:right-0 after:absolute after:w-[99%] after:h-[8%] after:bg-black after:bottom-[-19%]"
+          href="/"
+          :style="{ backgroundImage: `url(${logo})` }"
+        >
+          <img
+            src="../assets/images/logo-blank.png"
+            alt=""
+            class="block w-full"
+          />
+        </a>
 
-        <div class="left-[57%] md:left-1/2 absolute text-xs sm:text-xl">
+        <div class="left-[57%] md:left-1/2 absolute text-sm sm:text-xl top-0">
           <div class="text-white transition-all duration-75">GIF-tool</div>
         </div>
-        <div class="left-3/4 sm:top-0 absolute text-xs sm:text-xl">
+        <div class="left-3/4 top-0 absolute text-sm sm:text-xl">
           <a class="mx-0 mt-6 mb-20" href="/art">
             <div
               class="text-white underline transition-all duration-75 hover:italic underline-offset-8 hover:underline"
@@ -311,7 +303,7 @@ async function generateGIF() {
           </a>
         </div>
 
-        <div class="right-0 absolute text-xs sm:text-xl">
+        <div class="right-0 absolute top-0 text-sm sm:text-xl">
           <a class="mx-0 mt-6 mb-20" href="https://iam.nome.wtf/about">
             <div
               class="text-white underline transition-all duration-75 hover:italic underline-offset-8 hover:underline"
