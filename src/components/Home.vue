@@ -19,6 +19,7 @@ import Footer from "./shared/Footer.vue";
 import GIF from "gif.js";
 import { buildGif } from "@/util/buildGIF.ts";
 import { network } from "@/constants/bitcoin.ts";
+import logo from "../assets/images/logo-with-slant.svg";
 
 type CompressAble = {
   original: File;
@@ -275,15 +276,25 @@ async function generateGIF() {
 </script>
 <template>
   <div class="">
-    <div class="py-5 pt-8 px-10">
+    <div class="pt-6 px-6 pb-0">
       <div class="min-h-[11.7rem] flex justify-between">
-        <div>
-          <a class="mx-0 mt-6 mb-20" href="/">
+        <div class="w-[48%] md:w-[23%]">
+          <a
+            class="mx-0 mb-20 invert hover:bg-bottom relative inline-block bg-no-repeat bg-cover bg-top"
+            href="/"
+            :style="{ backgroundImage: `url(${logo})` }"
+          >
+            <div
+              class="before:absolute before:top-0 before:bottom-[-19%] before:left-0 before:right-0 after:absolute after:w-[99%] after:h-[8%] after:bg-black after:bottom-[-19%]"
+            >
+              <img src="../assets/images/logo-blank.png" alt="" class="block" />
+            </div>
             <!--       <div style="" class="nome-logo headerLogo transition-transform duration-200 hover:scale-110">NōME</div>-->
-            <img
+            <!-- <img
               class="w-48 sm:w-[21vw] min-w-[7.3rem] mt-1 transition-transform duration-200 hover:scale-110"
               src="../assets/images/logo_white.png"
-            />
+            /> -->
+            <!-- <hr class="h-1 bg-black mt-2" /> -->
           </a>
         </div>
 
