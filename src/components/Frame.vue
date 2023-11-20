@@ -63,10 +63,10 @@ watch(
       largestDimension * (props.compressionRate / 100)
     );
     maxWidthOrHeight = maxWidthOrHeight < 50 ? 50 : maxWidthOrHeight;
-
-    console.log({ maxWidthOrHeight });
     compressed.value = await imageCompression(props.original, {
       maxWidthOrHeight,
+      maxSizeMB:
+        ((props.original.size / 1000000) * props.compressionRate) / 100,
       fileType: "image/webp",
       signal: compressionSignal.signal,
       onProgress(progress) {
