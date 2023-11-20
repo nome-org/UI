@@ -277,8 +277,8 @@ async function generateGIF() {
 <template>
   <div class="">
     <div class="pt-6 px-6 pb-0">
-      <div class="min-h-[11.7rem] flex justify-between">
-        <div class="w-[48%] md:w-[23%]">
+      <div class="min-h-[11.7rem] relative">
+        <div class="w-[48%] md:w-[23%] absolute">
           <a
             class="mx-0 mb-20 invert hover:bg-bottom relative inline-block bg-no-repeat bg-cover bg-top"
             href="/"
@@ -298,12 +298,12 @@ async function generateGIF() {
           </a>
         </div>
 
-        <div>
+        <div class="right-0 sm:left-[57%] md:left-1/2 absolute top-0">
           <div class="text-white text-lg transition-all duration-75">
             GIF-tool
           </div>
         </div>
-        <div>
+        <div class="right-0 sm:left-3/4 sm:top-0 absolute top-7">
           <a class="mx-0 mt-6 mb-20" target="_blank" href="/art">
             <div
               class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
@@ -313,7 +313,7 @@ async function generateGIF() {
           </a>
         </div>
 
-        <div>
+        <div class="right-0 absolute top-16 sm:top-0">
           <a
             class="mx-0 mt-6 mb-20"
             target="_blank"
