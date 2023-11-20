@@ -299,13 +299,32 @@ async function generateGIF() {
         </div>
 
         <div>
-          <a class="mx-0 mt-6 mb-20" target="_blank" href="https://nome.wtf/"
-            ><div
+          <div class="text-white text-lg transition-all duration-75">
+            GIF-tool
+          </div>
+        </div>
+        <div>
+          <a class="mx-0 mt-6 mb-20" target="_blank" href="/art">
+            <div
               class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
             >
-              nome.wtf
-            </div></a
+              Art
+            </div>
+          </a>
+        </div>
+
+        <div>
+          <a
+            class="mx-0 mt-6 mb-20"
+            target="_blank"
+            href="https://iam.nome.wtf/"
           >
+            <div
+              class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
+            >
+              Artist →
+            </div>
+          </a>
         </div>
       </div>
       <main>
