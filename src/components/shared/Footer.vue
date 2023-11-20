@@ -39,14 +39,14 @@
       <div class="text-lg">• it is not about me •</div>
       <div class="text-white text-lg">GIF-tool</div>
 
-      <a target="_blank" href="/art">
+      <a href="/art">
         <div
           class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
         >
           Art
         </div>
       </a>
-      <a target="_blank" href="https://iam.nome.wtf/">
+      <a href="https://iam.nome.wtf/">
         <div
           class="text-white underline text-lg transition-all duration-75 hover:italic underline-offset-8 hover:underline"
         >
