@@ -23,6 +23,16 @@ const isCompressing = ref(false);
 const compressed = ref<File | null>(null);
 const isPreviewOpen = ref(false);
 
+const loadImage = (file: File): Promise<HTMLImageElement> => {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.src = URL.createObjectURL(file);
+    image.onload = () => {
+      resolve(image);
+    };
+  });
+};
+
 const imageURL = computed(() => {
   if (imageURL.value) {
     URL.revokeObjectURL(imageURL.value);
@@ -43,12 +53,21 @@ watch(
     }
     emit("on-compressing", true);
     isCompressing.value = true;
+    const image = await loadImage(props.original);
+    const width = image.width;
+    const height = image.height;
+    const largestDimension = Math.max(width, height);
+    URL.revokeObjectURL(image.src);
     const compressionSignal = new AbortController();
-    compressed.value = await imageCompression(props.original, {
-      maxSizeMB: 1000 * (props.compressionRate / 100),
-      fileType: "image/webp",
+    let maxWidthOrHeight = Math.round(
+      largestDimension * (props.compressionRate / 100)
+    );
+    maxWidthOrHeight = maxWidthOrHeight < 50 ? 50 : maxWidthOrHeight;
 
-      alwaysKeepResolution: true,
+    console.log({ maxWidthOrHeight });
+    compressed.value = await imageCompression(props.original, {
+      maxWidthOrHeight,
+      fileType: "image/webp",
       signal: compressionSignal.signal,
       onProgress(progress) {
         compressionProgress.value = progress;
