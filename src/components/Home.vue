@@ -276,7 +276,7 @@ async function generateGIF() {
 </script>
 <template>
   <div class="">
-    <div class="pt-6 px-6 pb-0">
+    <div class="pt-[25px] px-[25px] pb-0">
       <div class="min-h-[11.7rem] relative">
         <a
           class="w-[48%] md:w-[23%] mx-0 mb-20 invert hover:bg-bottom relative inline-block bg-no-repeat bg-cover bg-top before:absolute before:top-0 before:bottom-[-19%] before:left-0 before:right-0 after:absolute after:w-[99%] after:h-[8%] after:bg-black after:bottom-[-19%]"
