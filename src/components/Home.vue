@@ -291,13 +291,11 @@ async function generateGIF() {
         </a>
 
         <div
-          class="left-[57%] md:left-1/2 absolute text-sm sm:text-[20px] leading-[26px] top-0"
+          class="left-[57%] md:left-1/2 top-0 absolute text-sm sm:text-[20px]"
         >
           <div class="text-white transition-all duration-75">GIF-tool</div>
         </div>
-        <div
-          class="left-3/4 top-0 absolute text-sm sm:text-[20px] leading-[26px]"
-        >
+        <div class="left-3/4 top-0 absolute text-sm sm:text-[20px]">
           <a class="mx-0 mt-6 mb-20" href="/art">
             <div
               class="text-white underline transition-all duration-75 hover:italic underline-offset-8 hover:underline"
@@ -307,9 +305,7 @@ async function generateGIF() {
           </a>
         </div>
 
-        <div
-          class="right-0 absolute top-0 text-sm sm:text-[20px] leading-[26px]"
-        >
+        <div class="right-0 absolute top-0 text-sm sm:text-[20px]">
           <a class="mx-0 mt-6 mb-20" href="https://iam.nome.wtf/about">
             <div
               class="text-white underline transition-all duration-75 hover:italic underline-offset-8 hover:underline"
