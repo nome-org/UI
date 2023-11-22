@@ -6,7 +6,7 @@
         class="border-b border-solid border-opacity-20 border-white pt-2 md:mt-0 mt-12 w-full relative"
       >
         <div
-          class="absolute -top-[3.25rem] right-4 text-2xl lg:right-56 text-center"
+          class="absolute -top-[3.25rem] left-0 md:left-auto text-2xl md:right-56 text-center"
         >
           <div
             class="transition-all duration-75 hover:italic underline-offset-8 hover:underline"
