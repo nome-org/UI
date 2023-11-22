@@ -33,23 +33,27 @@
         </div>
       </div>
     </div>
-    <div class="w-full flex justify-between mt-6 pt-14 pb-9 gap-0">
-      <div class="text-lg">• it is not about me •</div>
-      <div class="text-white text-sm sm:text-xl">GIF-tool</div>
+    <div
+      class="w-full flex justify-between mt-6 pt-14 pb-[48px] gap-0 relative"
+    >
+      <div class="text-[20px]">• it is not about me •</div>
+      <div
+        class="text-white text-sm sm:text-xl pb-[25px] absolute bottom-[25px] left-[57%] md:left-1/2"
+      >
+        GIF-tool
+      </div>
 
-      <a href="/art">
-        <div
-          class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline"
-        >
-          Art
-        </div>
+      <a
+        href="/art"
+        class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline pb-[25px] absolute bottom-[25px] left-3/4"
+      >
+        Art
       </a>
-      <a href="https://iam.nome.wtf/about">
-        <div
-          class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline"
-        >
-          Artist →
-        </div>
+      <a
+        href="https://iam.nome.wtf/about"
+        class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline pb-[25px] absolute bottom-[25px] right-0"
+      >
+        Artist →
       </a>
     </div>
   </div>
