@@ -9,7 +9,7 @@
           class="absolute -top-[3.25rem] left-0 md:left-auto text-2xl md:right-56 text-center"
         >
           <div
-            class="transition-all duration-75 hover:italic underline-offset-8 hover:underline"
+            class="transition-all duration-75 hover:italic underline-offset-4 sm:underline-offset-8 hover:underline"
           >
             <a
               class="mx-0 mt-6 mb-20 text-white underline text-[1.4rem]"
@@ -21,7 +21,7 @@
           </div>
 
           <div
-            class="transition-all duration-75 hover:italic underline-offset-8 hover:underline mt-3"
+            class="transition-all duration-75 hover:italic underline-offset-4 sm:underline-offset-8 hover:underline mt-3"
           >
             <a
               class="mx-0 mt-6 mb-20 text-white underline text-[1.4rem]"
@@ -33,26 +33,24 @@
         </div>
       </div>
     </div>
-    <div
-      class="w-full flex justify-between mt-6 pt-14 pb-[48px] gap-0 relative"
-    >
-      <div class="text-[12px]">• it is not about me •</div>
+    <div class="w-full flex justify-between mt-6 pt-14 gap-0 relative">
+      <div class="text-[13px] pb-[48px]">• it is not about me •</div>
       <div>
         <div
-          class="text-white text-[10px] sm:text-[20px] pb-[25px] absolute bottom-[25px] left-[57%] md:left-1/2"
+          class="text-white text-[10px] sm:text-[20px] leading-[16px] pb-[25px] absolute bottom-[25px] left-[57%] md:left-1/2"
         >
           GIF-tool
         </div>
 
         <a
           href="/art"
-          class="text-white underline text-[10px] sm:text-[20px] transition-all duration-75 hover:italic underline-offset-8 hover:underline pb-[25px] absolute bottom-[25px] left-3/4"
+          class="text-white underline text-[10px] sm:text-[20px] leading-[16px] pb-[25px] transition-all duration-75 hover:italic underline-offset-4 sm:underline-offset-8 hover:underline absolute bottom-[25px] left-3/4"
         >
           Art
         </a>
         <a
           href="https://iam.nome.wtf/about"
-          class="text-white underline text-[10px] sm:text-[20px] transition-all duration-75 hover:italic underline-offset-8 hover:underline pb-[25px] absolute bottom-[25px] right-0"
+          class="text-white underline text-[10px] sm:text-[20px] leading-[16px] pb-[25px] transition-all duration-75 hover:italic underline-offset-4 sm:underline-offset-8 hover:underline absolute bottom-[25px] right-0"
         >
           Artist →
         </a>
