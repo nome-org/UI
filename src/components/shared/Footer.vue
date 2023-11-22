@@ -38,20 +38,20 @@
     >
       <div class="text-[20px]">• it is not about me •</div>
       <div
-        class="text-white text-sm sm:text-xl pb-[25px] absolute bottom-[25px] left-[57%] md:left-1/2"
+        class="text-white text-[15px] sm:text-[20px] pb-[25px] absolute bottom-[25px] left-[57%] md:left-1/2"
       >
         GIF-tool
       </div>
 
       <a
         href="/art"
-        class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline pb-[25px] absolute bottom-[25px] left-3/4"
+        class="text-white underline text-[15px] sm:text-[20px] transition-all duration-75 hover:italic underline-offset-8 hover:underline pb-[25px] absolute bottom-[25px] left-3/4"
       >
         Art
       </a>
       <a
         href="https://iam.nome.wtf/about"
-        class="text-white underline text-sm sm:text-xl transition-all duration-75 hover:italic underline-offset-8 hover:underline pb-[25px] absolute bottom-[25px] right-0"
+        class="text-white underline text-[15px] sm:text-[20px] transition-all duration-75 hover:italic underline-offset-8 hover:underline pb-[25px] absolute bottom-[25px] right-0"
       >
         Artist →
       </a>
