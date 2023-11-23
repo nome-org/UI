@@ -6,40 +6,31 @@
 // }
 import { api } from "./api-instance.ts";
 
-/**
- * @typedef {Object} FileData
- * @property {number} size
- * @property {string} type
- * @property {string} name
- * @property {string} dataURL
- * @property {number} duration
- */
+interface FileData {
+  size: number;
+  type: string;
+  name: string;
+  dataURL: string;
+  duration: number;
+}
 
-/**
- * @typedef {Object} InscribeParams
- * @property {FileData[]} files
- * @property {"block78"|"pizza"|"uncommon"|"black"|"vintage"|"random"} rarity
- * @property {string} receiverAddress address to receive ordinals
- * @property {string} payAddress
- * @property {number} feeRate
- */
+interface InscribeParams {
+  files: FileData[];
+  rarity: "block78" | "pizza" | "uncommon" | "black" | "vintage" | "random";
+  receiverAddress: string;
+  payAddress: string;
+  feeRate: number;
+}
 
-/**
- * @typedef {Object} Charge
- * @property {number} amount
- * @property {string} address
- */
+interface Charge {
+  amount: number;
+  address: string;
+}
 
-/**
- * @typedef {Object} OrderData
- * @property {number} id
- * @property {Charge} payment_details
- */
-
-/**
- * @param {InscribeParams} params
- * @returns {Promise<{message: string, data: OrderData, success: boolean}>}
- */
+interface OrderData {
+  id: number;
+  payment_details: Charge;
+}
 
 export const inscribeApi = async ({
   files,
@@ -47,7 +38,11 @@ export const inscribeApi = async ({
   receiverAddress,
   feeRate,
   payAddress,
-}) => {
+}: InscribeParams): Promise<{
+  message: string;
+  data: OrderData;
+  success: boolean;
+}> => {
   const response = await api.post("/orders", {
     files,
     rarity,

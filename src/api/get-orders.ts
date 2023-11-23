@@ -1,32 +1,30 @@
-/**
- * @typedef {Object} HTMLTransaction
- * @property {number} id
- * @property {string} created_at
- * @property {string} updated_at
- * @property {string} tx_id
- * @property {"PENDING" | "CONFIRMED"} status
- */
+interface HTMLTransaction {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  tx_id: string;
+  status: "PENDING" | "CONFIRMED";
+}
 
-/**
- * @typedef {Object} OrderWithStatus
- * @property {number} id
- * @property {string} created_at
- * @property {string} updated_at
- * @property {string | null} ordinals_bot_order_id
- * @property {string} receiver_address
- * @property {number | null} html_transaction_id
- * @property {number | null} html_inscription_index
- * @property {"UNPAID" | "READY"} status use ready to check if inscribed or pending for now
- */
+interface OrderWithStatus {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  ordinals_bot_order_id: string | null;
+  receiver_address: string;
+  html_transaction_id: number | null;
+  html_inscription_index: number | null;
+  payment_tx_id: string | null;
+  status: "UNPAID" | "PENDING" | "READY";
+}
 
 import { api } from "./api-instance.ts";
 
-/**
- *
- * @param {string} address
- * @returns {Promise<{message: string, data: OrderWithStatus[], success: boolean}>}
- */
-export const getOrdersApi = async (address) => {
+export const getOrdersApi = async (
+  address: string
+): Promise<{
+  data: { data: OrderWithStatus[]; status: "success" | "error" };
+}> => {
   const response = await api.get("/orders", {
     params: {
       address,
