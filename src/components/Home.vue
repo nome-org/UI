@@ -467,7 +467,7 @@ async function generateGIF() {
             <div class="basis-full md:basis-1/2 flex justify-center">
               <div
                 :class="isCompilingGIF ? 'cursor-wait' : ''"
-                class="p-6 border border-opacity-20 border-white h-[30rem] max-w-[30rem] w-full flex justify-center items-center"
+                class="p-6 border border-opacity-20 border-white h-[30rem] w-full flex justify-center items-center mt-8"
               >
                 <img
                   v-if="gifSrc && files.length > 0"
