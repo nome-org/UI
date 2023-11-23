@@ -51,6 +51,8 @@ const isCompressing = computed(() => {
   return frameCompressionState.value.some((item) => item);
 });
 
+const networkType = import.meta.env.VITE_APP_NETWORK;
+
 const isValidAddress = computed(() => {
   return (
     validateBitcoinAddress(walletAddress.value) &&
@@ -585,7 +587,7 @@ async function generateGIF() {
                     order.status === "READY" ? "inscribed" : "inscribing"
                   }}</span>
                   <a
-                    :href="`https://mempool.space/testnet/tx/${order.payment_tx_id}`"
+                    :href="`https://mempool.space/${networkType}/tx/${order.payment_tx_id}`"
                     class="underline"
                     target="_blank"
                     >Mempool link

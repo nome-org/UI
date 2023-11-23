@@ -19,37 +19,3 @@ const close = (e: MouseEvent) => {
     <slot></slot>
   </div>
 </template>
-<style scoped>
-.top-0 {
-  top: 0;
-}
-.left-0 {
-  left: 0;
-}
-.bg-black {
-  --tw-bg-opacity: 1;
-  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
-}
-.bg-opacity-80 {
-  --tw-bg-opacity: 0.8;
-}
-.w-screen {
-  width: 100vw;
-}
-.h-screen {
-  height: 100vh;
-}
-
-.flex {
-  display: flex;
-}
-.items-center {
-  align-items: center;
-}
-.justify-center {
-  justify-content: center;
-}
-.z-50 {
-  z-index: 50;
-}
-</style>

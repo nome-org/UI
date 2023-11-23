@@ -117,7 +117,11 @@ const openPreview = () => {
 
 <template>
   <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
-    <img :src="imageURL" class="max-w-full max-h-screen" />
+    <img
+      :src="imageURL"
+      class="max-w-full max-h-screen"
+      :style="{ imageRendering: isPixelated ? 'pixelated' : 'initial' }"
+    />
   </Modal>
   <div class="mb-10 pl-0 p-8 relative">
     <span
