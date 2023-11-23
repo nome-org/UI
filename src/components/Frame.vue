@@ -83,7 +83,7 @@ watch(
       },
     });
 
-    isPixelated.value = width < 100;
+    isPixelated.value = maxWidthOrHeight <= 50;
 
     emit("on-compressed", compressed.value);
 
