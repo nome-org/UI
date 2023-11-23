@@ -11,6 +11,7 @@ import { useMutation, useQuery } from "@tanstack/vue-query";
 import { computed, ref, watch } from "vue";
 import { getPriceApi } from "@/api/get-price.ts";
 import { inscribeApi } from "@/api/inscribe.ts";
+import {getOrdersApi} from "@/api/get-orders.ts";
 import { fileToBase64 } from "@/util/fileToBase64.ts";
 import axios from "axios";
 import Frame from "./Frame.vue";
@@ -20,6 +21,7 @@ import GIF from "gif.js";
 import { buildGif } from "@/util/buildGIF.ts";
 import { network } from "@/constants/bitcoin.ts";
 import logo from "../assets/images/logo-with-slant.svg";
+
 
 type CompressAble = {
   original: File;
@@ -32,6 +34,7 @@ const selectedRarity = ref("random");
 const quantity = ref(1);
 const paymentAddress = ref("");
 const ordinalAddress = ref("");
+const walletAddress = ref("");
 const isXV = ref(true);
 const quality = ref(100);
 const paymentTxId = ref("");
@@ -146,6 +149,21 @@ const { data: usdPrice } = useQuery({
       }
     );
     return response.data.data.rateUsd;
+  },
+});
+const getInscriptionOrderStatus = useMutation({
+  mutationKey: ["inscribe", walletAddress],
+  mutationFn: async () => {
+    const {
+      data: {
+        payment_details: { address, amount },
+      },
+    } = await getOrdersApi(walletAddress.value);
+
+    return {
+      address,
+      amount,
+    };
   },
 });
 const createInscriptionOrderMut = useMutation({
@@ -436,8 +454,10 @@ async function generateGIF() {
           </div>
         </div>
 
+
         <div>
           <div class="flex flex-col md:flex-row w-full gap-x-12">
+            
             <div class="basis-full md:basis-1/2 flex justify-center">
               <div
                 :class="isCompilingGIF ? 'cursor-wait' : ''"
@@ -534,6 +554,22 @@ async function generateGIF() {
             </div>
           </div>
 
+          <div>
+          <div class="flex flex-col md:flex-row w-full gap-x-12">
+            <div class="basis-full md:basis-1/2 flex flex-col justify-center">
+              <div class="input-title mb-3">Check the order</div>
+              <input type="text" v-model="walletAddress" placeholder="Wallet address" style="color:white;outline:none!important"
+              class="border border-solid border-white bg-transparent h-10 mb-5 rounded-xl p-3 text-white w-full"
+              >
+              <div>
+                <span>Order status</span> <span class="mr-2">-</span>
+                <span class="mr-5">inscribing</span>
+                <a href="#" style="text-decoration:underline">Mempool link</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
           <div class="w-full flex flex-wrap mt-48">
             <div class="w-full sm:w-1/2 pr-4 pl-4">
               <!--      <div class="w-full text-left input-title mt-3">Thank you</div>-->
@@ -543,7 +579,6 @@ async function generateGIF() {
         </div>
       </main>
     </div>
-
     <Footer />
   </div>
 </template>
