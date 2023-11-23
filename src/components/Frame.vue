@@ -45,10 +45,19 @@ const imageURL = computed(() => {
   }
   return null;
 });
+
+const isPixelated = ref(false);
+
 watch(
   () => props.compressionRate,
   async (_old, _new, cleanUp) => {
     if (!props.original) {
+      return;
+    }
+
+    if (props.original.size < 1024) {
+      isPixelated.value = true;
+      compressed.value = props.original;
       return;
     }
     emit("on-compressing", true);
@@ -73,6 +82,8 @@ watch(
         compressionProgress.value = progress;
       },
     });
+
+    isPixelated.value = width < 100;
 
     emit("on-compressed", compressed.value);
 
@@ -136,6 +147,9 @@ const openPreview = () => {
           v-if="imageURL"
           @click="openPreview"
           class="w-full h-full bg-cover object-contain cursor-zoom-in"
+          :style="{
+            imageRendering: isPixelated ? 'pixelated' : 'initial',
+          }"
           :src="imageURL"
         />
       </div>
