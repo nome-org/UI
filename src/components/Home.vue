@@ -562,7 +562,7 @@ async function generateGIF() {
 
           <div>
             <div
-              class="flex flex-col md:flex-row w-full gap-x-12 mt-8 max-w-sm"
+              class="flex flex-col md:flex-row w-full gap-x-12 mt-8 max-w-md"
             >
               <div class="basis-full flex flex-col gap-5">
                 <div>Check the order</div>
@@ -570,27 +570,34 @@ async function generateGIF() {
                   type="text"
                   v-model="walletAddress"
                   placeholder="Wallet address"
-                  class="border border-solid border-white bg-transparent h-10 rounded-xl p-3 text-white w-full outline-none"
+                  class="border border-solid bg-transparent h-10 rounded-xl p-3 text-white w-full outline-none"
                   :class="
-                    walletAddress &&
-                    (isValidAddress ? 'border-green-400' : 'border-red-400')
+                    !walletAddress
+                      ? 'border-white'
+                      : isValidAddress
+                      ? 'border-green-400'
+                      : 'border-red-400'
                   "
                 />
 
                 <div
                   v-for="order in userOrders"
                   :key="order.id"
-                  class="flex justify-between"
+                  class="flex justify-between gap-x-2"
                 >
-                  <span>Order status</span> <span class="mr-2">-</span>
-                  <span class="mr-5 capitalize w-24">{{
+                  <span class="basis-4/12">Order status</span>
+                  <span class="basis-1/12 text-center">-</span>
+                  <span class="capitalize basis-3/12">{{
                     order.status === "READY" ? "inscribed" : "inscribing"
                   }}</span>
                   <a
-                    :href="`https://mempool.space/${networkType}/tx/${order.payment_tx_id}`"
-                    class="underline"
+                    :href="
+                      order.payment_tx_id &&
+                      `https://mempool.space/${networkType}/tx/${order.payment_tx_id}`
+                    "
+                    class="underline basis-4/12"
                     target="_blank"
-                    >Mempool link
+                    >{{ order.payment_tx_id ? "Mempool link" : "Unpaid" }}
                   </a>
                 </div>
               </div>
