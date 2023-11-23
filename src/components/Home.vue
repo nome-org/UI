@@ -11,7 +11,7 @@ import { useMutation, useQuery } from "@tanstack/vue-query";
 import { computed, ref, watch } from "vue";
 import { getPriceApi } from "@/api/get-price.ts";
 import { inscribeApi } from "@/api/inscribe.ts";
-import {getOrdersApi} from "@/api/get-orders.ts";
+import { getOrdersApi } from "@/api/get-orders.ts";
 import { fileToBase64 } from "@/util/fileToBase64.ts";
 import axios from "axios";
 import Frame from "./Frame.vue";
@@ -21,7 +21,11 @@ import GIF from "gif.js";
 import { buildGif } from "@/util/buildGIF.ts";
 import { network } from "@/constants/bitcoin.ts";
 import logo from "../assets/images/logo-with-slant.svg";
-
+import {
+  getAddressInfo,
+  validate as validateBitcoinAddress,
+  AddressType,
+} from "bitcoin-address-validation";
 
 type CompressAble = {
   original: File;
@@ -45,6 +49,13 @@ const framesContainerRef = ref<HTMLElement | null>(null);
 const frameCompressionState = ref<boolean[]>([]);
 const isCompressing = computed(() => {
   return frameCompressionState.value.some((item) => item);
+});
+
+const isValidAddress = computed(() => {
+  return (
+    validateBitcoinAddress(walletAddress.value) &&
+    getAddressInfo(walletAddress.value).type === AddressType.p2tr
+  );
 });
 
 enum OrderingState {
@@ -102,7 +113,7 @@ function duplicateFile(item: CompressAble) {
     return;
   }
   gifSrc.value = "";
-  files.value.push({ ...item });
+  files.value = files.value.concat([{ ...item }]);
 }
 
 function removeFile(item: CompressAble) {
@@ -110,7 +121,7 @@ function removeFile(item: CompressAble) {
     return;
   }
   gifSrc.value = "";
-  files.value = files.value.filter((file) => file.original !== item.original);
+  files.value = files.value.filter((file) => file !== item);
 }
 
 const { data: totalFee, dataUpdatedAt } = useQuery({
@@ -151,21 +162,16 @@ const { data: usdPrice } = useQuery({
     return response.data.data.rateUsd;
   },
 });
-const getInscriptionOrderStatus = useMutation({
-  mutationKey: ["inscribe", walletAddress],
-  mutationFn: async () => {
-    const {
-      data: {
-        payment_details: { address, amount },
-      },
-    } = await getOrdersApi(walletAddress.value);
+const { data: userOrders } = useQuery({
+  queryKey: ["orders", walletAddress],
+  queryFn: async () => {
+    const { data } = await getOrdersApi(walletAddress.value);
 
-    return {
-      address,
-      amount,
-    };
+    return data.data;
   },
+  enabled: () => isValidAddress.value,
 });
+
 const createInscriptionOrderMut = useMutation({
   mutationKey: ["inscribe", files, selectedRarity, quantity],
   mutationFn: async () => {
@@ -400,7 +406,7 @@ async function generateGIF() {
             <!-- <div class="w-full sm:w-1/2 pr-4 pl-4 md:w-1/3 pr-4 pl-4 lg:w-1/4 pr-4 pl-4 "> -->
             <Frame
               v-for="(item, index) in files"
-              :key="item.original.name"
+              :key="'frame/' + item.original.name + index"
               :index="index"
               :original="item.original"
               v-model:duration="item.duration"
@@ -454,10 +460,8 @@ async function generateGIF() {
           </div>
         </div>
 
-
         <div>
           <div class="flex flex-col md:flex-row w-full gap-x-12">
-            
             <div class="basis-full md:basis-1/2 flex justify-center">
               <div
                 :class="isCompilingGIF ? 'cursor-wait' : ''"
@@ -555,20 +559,41 @@ async function generateGIF() {
           </div>
 
           <div>
-          <div class="flex flex-col md:flex-row w-full gap-x-12">
-            <div class="basis-full md:basis-1/2 flex flex-col justify-center">
-              <div class="input-title mb-3">Check the order</div>
-              <input type="text" v-model="walletAddress" placeholder="Wallet address" style="color:white;outline:none!important"
-              class="border border-solid border-white bg-transparent h-10 mb-5 rounded-xl p-3 text-white w-full"
-              >
-              <div>
-                <span>Order status</span> <span class="mr-2">-</span>
-                <span class="mr-5">inscribing</span>
-                <a href="#" style="text-decoration:underline">Mempool link</a>
+            <div
+              class="flex flex-col md:flex-row w-full gap-x-12 mt-8 max-w-sm"
+            >
+              <div class="basis-full flex flex-col gap-5">
+                <div>Check the order</div>
+                <input
+                  type="text"
+                  v-model="walletAddress"
+                  placeholder="Wallet address"
+                  class="border border-solid border-white bg-transparent h-10 rounded-xl p-3 text-white w-full outline-none"
+                  :class="
+                    walletAddress &&
+                    (isValidAddress ? 'border-green-400' : 'border-red-400')
+                  "
+                />
+
+                <div
+                  v-for="order in userOrders"
+                  :key="order.id"
+                  class="flex justify-between"
+                >
+                  <span>Order status</span> <span class="mr-2">-</span>
+                  <span class="mr-5 capitalize w-24">{{
+                    order.status === "READY" ? "inscribed" : "inscribing"
+                  }}</span>
+                  <a
+                    :href="`https://mempool.space/testnet/tx/${order.payment_tx_id}`"
+                    class="underline"
+                    target="_blank"
+                    >Mempool link
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
           <div class="w-full flex flex-wrap mt-48">
             <div class="w-full sm:w-1/2 pr-4 pl-4">
