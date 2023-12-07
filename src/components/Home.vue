@@ -348,13 +348,13 @@ const handleContactAdded = () => {
           </span>
           <span class="lg:block">
             enabling the creation of recursive animations, resizing images, and
-            inscriptions
+            inscriptions on rare sats all in one place.
           </span>
-          on rare sats all in one place. To create animation, please follow the
-          steps:
+          <!--  To create animation, please follow the
+          steps: -->
 
           <br /><br />
-          <div class="mt-8 mb-20 h-screen" v-if="showGetBetaAccess">
+          <div class="mt-12  h-[50vh]" v-if="showGetBetaAccess">
             <GetBetaAccess @addContact="handleContactAdded" />
           </div>
         </div>
