@@ -499,7 +499,7 @@ const handleContactAdded = () => {
                       order.status === "READY" ? "inscribed" : "inscribing"
                     }}</span>
                     <a :href="order.payment_tx_id &&
-                      `https://mempool.space/${networkType}/tx/${order.payment_tx_id}`
+                      `https://mempool.space/tx/${order.payment_tx_id}`
                       " class="underline basis-4/12" target="_blank">
                       {{ order.payment_tx_id ? "Mempool link" : "Unpaid" }}
                     </a>
