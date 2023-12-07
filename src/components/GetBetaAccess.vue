@@ -54,10 +54,10 @@ const addContact = (
         <div class="flex flex-col sm:flex-row gap-4">
             <input type="email" name="email" v-model="email" placeholder="Email"
                 :class="{ 'border-red-500': email && !emailValid }"
-                class="border border-solid border-white bg-transparent h-10 rounded-xl pl-3 text-white w-full outline-none">
+                class="border border-solid border-white bg-transparent h-10 rounded-xl pl-3 text-white w-full outline-none min-w-[16rem]">
             <input type="text" name="twitter" v-model="twitterHandle" placeholder="Twitter Handle"
                 :class="{ 'border-red-500': twitterHandle && !twitterValid }"
-                class="border border-solid border-white bg-transparent h-10 rounded-xl pl-3 text-white w-full outline-none">
+                class="border border-solid border-white bg-transparent h-10 rounded-xl pl-3 text-white w-full outline-none min-w-[16rem]">
         </div>
     </form>
 </template>

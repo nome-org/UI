@@ -319,11 +319,11 @@ const handleContactAdded = () => {
   <div class="">
     <div class="pt-[25px] px-[25px] pb-0">
       <div class="min-h-[11.7rem] relative">
-        <a class="w-[48%] md:w-[23%] mx-0 mb-20 invert hover:bg-bottom relative inline-block bg-no-repeat bg-cover bg-top before:absolute before:top-0 before:bottom-[-19%] before:left-0 before:right-0 after:absolute after:w-[99%] after:h-[8%] after:bg-black after:bottom-[-19%]"
+        <a class="w-[48%] md:w-[23%] mx-0 mb-20 mt-6 invert hover:bg-bottom relative inline-block bg-no-repeat bg-cover bg-top before:absolute before:top-0 before:bottom-[-19%] before:left-0 before:right-0 after:absolute after:w-[99%] after:h-[8%] after:bottom-[-19%]"
           href="/" :style="{ backgroundImage: `url(${logo})` }">
           <img src="../assets/images/logo-blank.png" alt="" class="block w-full" />
         </a>
-        <a class="right-0 top-0 absolute text-sm sm:text-[20px] leading-[15px] mx-0 mt-6 mb-20 text-white underline transition-all duration-75 hover:italic underline-offset-8 hover:underline"
+        <a class="right-0 top-0 absolute text-[20px] leading-[15px] mx-0 mt-6 mb-20 text-white underline transition-all duration-75 hover:italic underline-offset-8 hover:underline"
           href="https://nome.gallery">
           Gallery
         </a>
@@ -341,24 +341,25 @@ const handleContactAdded = () => {
             </div>
           </div>
         </div>
+        <div class="w-full lg:w-[90%] xl:w-[80%] 2xl:w-[57%] text-base">
+          <span class="lg:block">
+            This is a platform for the community to explore the potential of
+            Bitcoin Ordinals,
+          </span>
+          <span class="lg:block">
+            enabling the creation of recursive animations, resizing images, and
+            inscriptions
+          </span>
+          on rare sats all in one place. To create animation, please follow the
+          steps:
 
-        <section>
+          <br /><br />
+          <div class="mt-8 mb-20 h-screen" v-if="showGetBetaAccess">
+            <GetBetaAccess @addContact="handleContactAdded" />
+          </div>
+        </div>
+        <section v-if="!showGetBetaAccess">
           <div class="w-full lg:w-[90%] xl:w-[80%] 2xl:w-[57%] text-base">
-            <span class="lg:block">
-              This is a platform for the community to explore the potential of
-              Bitcoin Ordinals,
-            </span>
-            <span class="lg:block">
-              enabling the creation of recursive animations, resizing images, and
-              inscriptions
-            </span>
-            on rare sats all in one place. To create animation, please follow the
-            steps:
-
-            <br /><br />
-            <div class="mt-8 mb-20" v-if="showGetBetaAccess">
-              <GetBetaAccess @addContact="handleContactAdded" />
-            </div>
             1. Upload PNG or JPEG frames (10 Max);
             <br />
             2. Set order, timing, and .webp file size;
