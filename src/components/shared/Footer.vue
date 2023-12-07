@@ -25,7 +25,7 @@
         <img src="../../assets/images/xverse_logo_white.png" class="h-6" alt="">
       </div>
       <a href="https://nome.gallery"
-        class="text-white underline text-[10px] sm:text-[20px] leading-[16px] pb-[25px] transition-all duration-75 hover:italic underline-offset-4 sm:underline-offset-8 hover:underline absolute bottom-[25px] left-3/4">
+        class="text-white underline text-[10px] sm:text-[20px] leading-[16px] pb-[25px] transition-all duration-75 hover:italic underline-offset-4 sm:underline-offset-8 hover:underline absolute bottom-[25px] right-0">
         Gallery
       </a>
 
