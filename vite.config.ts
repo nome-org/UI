@@ -9,4 +9,5 @@ export default defineConfig({
     },
     extensions: [".js", ".vue", ".json"],
   },
+  base: "/gif",
 });

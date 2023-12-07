@@ -117,73 +117,44 @@ const openPreview = () => {
 
 <template>
   <Modal :is-open="isPreviewOpen" @on-visibility-change="changePreviewStatus">
-    <img
-      :src="imageURL"
-      class="max-w-full max-h-screen"
-      :style="{ imageRendering: isPixelated ? 'pixelated' : 'initial' }"
-    />
+    <img :src="imageURL" class="max-w-full max-h-screen"
+      :style="{ imageRendering: isPixelated ? 'pixelated' : 'initial' }" />
   </Modal>
+
   <div class="mb-10 pl-0 p-8 relative">
-    <span
-      class="absolute top-1 right-2 font-thin text-xl cursor-pointer"
-      @click="$emit('on-x-click')"
-    >
+    <span class="absolute top-1 right-2 font-thin text-xl cursor-pointer" @click="$emit('on-x-click')">
       x
     </span>
     <div class="w-72">
-      <div
-        class="h-72 relative text-lg bg-black border border-solid border-white border-opacity-20"
-      >
-        <div
-          v-if="isCompressing"
-          class="w-full h-full absolute bg-black bg-opacity-70 flex items-center justify-center text-2xl z-10 cursor-wait"
-        >
+      <div class="h-72 relative text-lg bg-black border border-solid border-white border-opacity-20">
+        <div v-if="isCompressing"
+          class="w-full h-full absolute bg-black bg-opacity-70 flex items-center justify-center text-2xl z-10 cursor-wait">
           {{ compressionProgress }}%
         </div>
 
-        <span
-          @click="imageURL && $emit('on-plus-click')"
-          class="text-2xl absolute top-4 right-4 cursor-pointer bg-[#1f1f1f] rounded-full w-6 h-6 flex justify-center items-center leading-[0.9]"
-        >
+        <span @click="imageURL && $emit('on-plus-click')"
+          class="text-2xl absolute top-4 right-4 cursor-pointer bg-[#1f1f1f] rounded-full w-6 h-6 flex justify-center items-center leading-[0.9]">
           +
         </span>
-        <img
-          v-if="imageURL"
-          @click="openPreview"
-          class="w-full h-full bg-cover object-contain cursor-zoom-in"
-          :style="{
-            imageRendering: isPixelated ? 'pixelated' : 'initial',
-          }"
-          :src="imageURL"
-        />
+        <img v-if="imageURL" @click="openPreview" class="w-full h-full bg-cover object-contain cursor-zoom-in" :style="{
+          imageRendering: isPixelated ? 'pixelated' : 'initial',
+        }" :src="imageURL" />
       </div>
-      <div
-        class="rounded-b-lg flex py-2 px-4 justify-between items-center bg-[#1f1f1f] w-full"
-      >
+      <div class="rounded-b-lg flex py-2 px-4 justify-between items-center bg-[#1f1f1f] w-full">
         <span class="text-2xl">{{ index + 1 }}</span>
         <div class="flex items-center">
-          <input
-            :value="duration"
-            :disabled="!imageURL"
-            @input="
-              $emit(
-                'update:duration',
-                ($event.target as HTMLInputElement).value
-              )
-            "
-            type="number"
-            step="0.1"
-            class="text-lg font-bold bg-transparent text-white border-0 outline-none mr-2 text-right w-16"
-            min="0"
-          />
+          <input :value="duration" :disabled="!imageURL" @input="
+            $emit(
+              'update:duration',
+              ($event.target as HTMLInputElement).value
+            )
+            " type="number" step="0.1"
+            class="text-lg font-bold bg-transparent text-white border-0 outline-none mr-2 text-right w-16" min="0" />
           <span> sec. </span>
         </div>
       </div>
     </div>
-    <div
-      v-if="original && compressed"
-      class="text-white text-opacity-40 text-base py-4 text-center"
-    >
+    <div v-if="original && compressed" class="text-white text-opacity-40 text-base py-4 text-center">
       Before - {{ original && formatBytes(original.size, 0) }} | After -
       {{ compressed && formatBytes(compressed.size, 0) }}
     </div>

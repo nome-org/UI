@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vite serve",
-    "build": "vite build"
+    "dev": "vite serve",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@heroicons/vue": "^2.0.18",
