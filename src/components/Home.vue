@@ -8,7 +8,7 @@ import {
 } from "sats-connect";
 
 import { useMutation, useQuery } from "@tanstack/vue-query";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { getPriceApi } from "@/api/get-price.ts";
 import { inscribeApi } from "@/api/inscribe.ts";
 import { getOrdersApi } from "@/api/get-orders.ts";
@@ -26,6 +26,7 @@ import {
   validate as validateBitcoinAddress,
   AddressType,
 } from "bitcoin-address-validation";
+import GetBetaAccess from "./GetBetaAccess.vue";
 
 type CompressAble = {
   original: File;
@@ -47,6 +48,15 @@ const gifCompilationProgress = ref(0);
 const isCompilingGIF = ref(false);
 const framesContainerRef = ref<HTMLElement | null>(null);
 const frameCompressionState = ref<boolean[]>([]);
+const showGetBetaAccess = ref(true);
+
+onMounted(() => {
+  if (window.localStorage.getItem("has-beta-access")) {
+    showGetBetaAccess.value = false;
+  }
+});
+
+
 const isCompressing = computed(() => {
   return frameCompressionState.value.some((item) => item);
 });
@@ -299,6 +309,11 @@ async function generateGIF() {
   gifSrc.value = URL.createObjectURL(gifBlob);
   isCompilingGIF.value = false;
 }
+
+const handleContactAdded = () => {
+  window.localStorage.setItem("has-beta-access", "true");
+  showGetBetaAccess.value = false;
+};
 </script>
 <template>
   <div class="">
@@ -326,15 +341,24 @@ async function generateGIF() {
             </div>
           </div>
         </div>
-        <!--      <div class="pt-5"></div>-->
+
         <section>
           <div class="w-full lg:w-[90%] xl:w-[80%] 2xl:w-[57%] text-base">
+            <span class="lg:block">
+              This is a platform for the community to explore the potential of
+              Bitcoin Ordinals,
+            </span>
             <span class="lg:block">
               enabling the creation of recursive animations, resizing images, and
               inscriptions
             </span>
             on rare sats all in one place. To create animation, please follow the
-            steps: <br /><br />
+            steps:
+
+            <br /><br />
+            <div class="mt-8 mb-20" v-if="showGetBetaAccess">
+              <GetBetaAccess @addContact="handleContactAdded" />
+            </div>
             1. Upload PNG or JPEG frames (10 Max);
             <br />
             2. Set order, timing, and .webp file size;
