@@ -11,7 +11,7 @@ import { useMutation, useQuery } from "@tanstack/vue-query";
 import { computed, onMounted, ref, watch } from "vue";
 import { getPriceApi } from "@/api/get-price.ts";
 import { inscribeApi } from "@/api/inscribe.ts";
-import { getOrdersApi } from "@/api/get-orders.ts";
+import { OrderWithStatus, getOrdersApi } from "@/api/get-orders.ts";
 import { fileToBase64 } from "@/util/fileToBase64.ts";
 import axios from "axios";
 import Frame from "./Frame.vue";
@@ -174,12 +174,13 @@ const { data: usdPrice } = useQuery({
     return response.data.data.rateUsd;
   },
 });
+
 const { data: userOrders } = useQuery({
   queryKey: ["orders", walletAddress],
   queryFn: async () => {
     const { data } = await getOrdersApi(walletAddress.value);
 
-    return data.data;
+    return data.data.filter((item) => item.status !== "UNPAID");
   },
   enabled: () => isValidAddress.value,
 });
@@ -499,8 +500,8 @@ const handleContactAdded = () => {
                     }}</span>
                     <a :href="order.payment_tx_id &&
                       `https://mempool.space/${networkType}/tx/${order.payment_tx_id}`
-                      " class="underline basis-4/12" target="_blank">{{ order.payment_tx_id ? "Mempool link" : "Unpaid"
-  }}
+                      " class="underline basis-4/12" target="_blank">
+                      {{ order.payment_tx_id ? "Mempool link" : "Unpaid" }}
                     </a>
                   </div>
                 </div>

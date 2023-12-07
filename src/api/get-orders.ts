@@ -6,7 +6,7 @@ interface HTMLTransaction {
   status: "PENDING" | "CONFIRMED";
 }
 
-interface OrderWithStatus {
+export interface OrderWithStatus {
   id: number;
   created_at: string;
   updated_at: string;

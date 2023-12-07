@@ -21,8 +21,8 @@
       </div>
     </div>
     <div class="w-full flex justify-between mt-6 pt-14 gap-0 relative">
-      <div class=" pb-[48px] flex flex-col sm:flex-row gap-x-8 items-center gap-y-4">
-        <img src="../../assets/images/ordinalsbot_logo.png" class="max-h-[1.8rem]" alt="">
+      <div class=" pb-[48px] flex flex-col sm:flex-row gap-x-4 items-center gap-y-4 opacity-50">
+        <img src="../../assets/images/ordinalsbot_logo.png" class="max-h-[1.8rem] sm:max-h-[1.7rem]" alt="">
         <img src="../../assets/images/xverse_logo_white.png" class="max-h-[1.1rem]" alt="">
       </div>
       <a href="https://nome.gallery"
