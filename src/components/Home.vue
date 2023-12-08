@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   AddressPurpose,
-  BitcoinNetworkType,
+
   SendBtcTransactionOptions,
   getAddress,
   sendBtcTransaction,
@@ -26,6 +26,7 @@ import {
   AddressType,
 } from "bitcoin-address-validation";
 import GetBetaAccess from "./GetBetaAccess.vue";
+import OrdersForAddress from "./OrdersForAddress.vue";
 
 type CompressAble = {
   original: File;
@@ -38,7 +39,6 @@ const selectedRarity = ref("random");
 const quantity = ref(1);
 const paymentAddress = ref("");
 const ordinalAddress = ref("");
-const walletAddress = ref("");
 const isXV = ref(true);
 const quality = ref(100);
 const paymentTxId = ref("");
@@ -60,14 +60,7 @@ const isCompressing = computed(() => {
   return frameCompressionState.value.some((item) => item);
 });
 
-const networkType = import.meta.env.VITE_APP_NETWORK;
 
-const isValidAddress = computed(() => {
-  return (
-    validateBitcoinAddress(walletAddress.value) &&
-    getAddressInfo(walletAddress.value).type === AddressType.p2tr
-  );
-});
 
 enum OrderingState {
   None,
@@ -174,15 +167,6 @@ const { data: usdPrice } = useQuery({
   },
 });
 
-const { data: userOrders } = useQuery({
-  queryKey: ["orders", walletAddress],
-  queryFn: async () => {
-    const { data } = await getOrdersApi(walletAddress.value);
-
-    return data.data.filter((item) => item.status !== "UNPAID");
-  },
-  enabled: () => isValidAddress.value,
-});
 
 const createInscriptionOrderMut = useMutation({
   mutationKey: ["inscribe", files, selectedRarity, quantity],
@@ -479,33 +463,7 @@ const handleContactAdded = () => {
               </div>
             </div>
 
-            <div>
-              <div class="flex flex-col md:flex-row w-full gap-x-12 mt-32 sm:mt-8 max-w-md">
-                <div class="basis-full flex flex-col gap-5">
-                  <div class="text-lg sm:text-base">Check the order</div>
-                  <input type="text" v-model="walletAddress" placeholder="Wallet address"
-                    class="border border-solid bg-transparent h-10 rounded-xl p-3 text-white w-full outline-none" :class="!walletAddress
-                      ? 'border-white'
-                      : isValidAddress
-                        ? 'border-green-400'
-                        : 'border-red-400'
-                      " />
-
-                  <div v-for="order in userOrders" :key="order.id" class="flex justify-between gap-x-2">
-                    <span class="basis-4/12">Order status</span>
-                    <span class="basis-1/12 text-center">-</span>
-                    <span class="capitalize basis-3/12">{{
-                      order.status === "READY" ? "inscribed" : "inscribing"
-                    }}</span>
-                    <a :href="order.payment_tx_id &&
-                      `https://mempool.space/tx/${order.payment_tx_id}`
-                      " class="underline basis-4/12" target="_blank">
-                      {{ order.payment_tx_id ? "Mempool link" : "Unpaid" }}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <OrdersForAddress />
 
             <div class="w-full flex flex-wrap mt-48">
               <div class="w-full sm:w-1/2 pr-4 pl-4">
