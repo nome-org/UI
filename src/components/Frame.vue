@@ -121,7 +121,7 @@ const openPreview = () => {
       :style="{ imageRendering: isPixelated ? 'pixelated' : 'initial' }" />
   </Modal>
 
-  <div class="mb-10 pl-0 p-8 relative">
+  <div class="pl-0 p-8 relative">
     <span class="absolute top-1 right-2 font-thin text-xl cursor-pointer" @click="$emit('on-x-click')">
       x
     </span>

@@ -62,11 +62,10 @@ export function buildGif({
     const gif = new GIF({
       workers: 2,
       quality: 10,
-      workerScript: `${
-        import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL
-      }/gif.worker.js`,
-      width: largestWidth,
-      height: largestHeight,
+      workerScript: `${import.meta.env.BASE_URL === "/" ? "" : import.meta.env.BASE_URL
+        }/gif.worker.js`,
+      // width: largestWidth,
+      // height: largestHeight,
     });
 
     frames.forEach((frame, index) => {

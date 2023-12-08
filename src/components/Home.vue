@@ -17,7 +17,6 @@ import axios from "axios";
 import Frame from "./Frame.vue";
 import SelectRarity from "./shared/SelectRarity.vue";
 import Footer from "./shared/Footer.vue";
-import GIF from "gif.js";
 import { buildGif } from "@/util/buildGIF.ts";
 import { network } from "@/constants/bitcoin.ts";
 import logo from "../assets/images/logo-with-slant.svg";
@@ -382,7 +381,7 @@ const handleContactAdded = () => {
             <!--        <button class="upload-button button" type="button" @click="upload">Add Picture</button>-->
             <!-- <image-compressor :scale="scale" class="compressor" :done="getFiles"  :quality="quality" ref="compressor"></image-compressor> -->
 
-            <div class="w-full flex flex-wrap gap-8 mt-12 mb-12" ref="framesContainerRef">
+            <div class="w-full flex flex-wrap gap-4 mt-12 mb-12" ref="framesContainerRef">
               <!-- <div class="w-full sm:w-1/2 pr-4 pl-4 md:w-1/3 pr-4 pl-4 lg:w-1/4 pr-4 pl-4 "> -->
               <Frame v-for="(item, index) in files" :key="'frame/' + item.original.name + index" :index="index"
                 :original="item.original" v-model:duration="item.duration" @on-plus-click="duplicateFile(item)"
@@ -434,7 +433,7 @@ const handleContactAdded = () => {
                   <div class="h-9 mt-10 text-lg sm:text-base mb-1">Rarity</div>
                 </div>
                 <SelectRarity :selected-rarity="selectedRarity" @update:selected-rarity="selectedRarity = $event" />
-                <div class="mt-14" :class="gifSrc && files.length > 0 ? 'visible' : 'invisible'">
+                <div class="mt-14" :class="gifSrc && files.length > 0 ? 'block' : 'hidden'">
                   <div class="flex mt-3 justify-between text-gray-500">
                     <div>Frames</div>
                     <div>{{ files.length }}</div>
@@ -481,9 +480,9 @@ const handleContactAdded = () => {
             </div>
 
             <div>
-              <div class="flex flex-col md:flex-row w-full gap-x-12 mt-8 max-w-md">
+              <div class="flex flex-col md:flex-row w-full gap-x-12 mt-32 sm:mt-8 max-w-md">
                 <div class="basis-full flex flex-col gap-5">
-                  <div>Check the order</div>
+                  <div class="text-lg sm:text-base">Check the order</div>
                   <input type="text" v-model="walletAddress" placeholder="Wallet address"
                     class="border border-solid bg-transparent h-10 rounded-xl p-3 text-white w-full outline-none" :class="!walletAddress
                       ? 'border-white'
