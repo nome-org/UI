@@ -20,9 +20,6 @@ const emailValid = computed(() => {
     const regex = new RegExp(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
     return regex.test(email.value)
 })
-supabase.from('contacts').select().then(({ data }) => {
-    console.log(data)
-})
 
 const addContact = (
     event: Event
